@@ -11,11 +11,11 @@ $urls = $urls ?? [];
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars(($appName ?? 'PHP Application') . ' - Đăng nhập', ENT_QUOTES, 'UTF-8') ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="<?= htmlspecialchars(($baseUrl ?? ''), ENT_QUOTES, 'UTF-8') ?>/assets/css/app.css">
-    <style><?php @include __DIR__ . '/style.css'; ?></style>
+    <link rel="stylesheet" href="<?= htmlspecialchars(($baseUrl ?? ''), ENT_QUOTES, 'UTF-8') ?>/assets/css/auth.css">
+    <style><?php @include __DIR__ . '/../login/style.css'; ?></style>
 </head>
 <body class="page page--auth">
-    <?php include BASE_PATH . '/app/Views/partials/navbar.php'; ?>
+    <?php include BASE_PATH . '/app/Views/partials/_navbar.php'; ?>
 
     <main class="page-content py-5">
         <div class="container py-4">
@@ -47,7 +47,7 @@ $urls = $urls ?? [];
         </div>
     </main>
 
-    <?php include BASE_PATH . '/app/Views/partials/footer.php'; ?>
+    <?php include BASE_PATH . '/app/Views/partials/_footer.php'; ?>
 
     <script>
         window.AppConfig = {
@@ -56,7 +56,7 @@ $urls = $urls ?? [];
             }
         };
     </script>
-    <script><?php @include __DIR__ . '/script.js'; ?></script>
+    <script><?php @include __DIR__ . '/../login/script.js'; ?></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

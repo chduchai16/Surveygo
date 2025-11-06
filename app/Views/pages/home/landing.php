@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 /** @var string $appName */
 /** @var array $urls */
 
@@ -24,10 +24,10 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
     <title><?= htmlspecialchars($appName, ENT_QUOTES, 'UTF-8') ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="<?= htmlspecialchars(($baseUrl ?? ''), ENT_QUOTES, 'UTF-8') ?>/assets/css/app.css">
-    <style><?php @include __DIR__ . '/style.css'; ?></style>
+    <style><?php @include __DIR__ . '/../home/style.css'; ?></style>
 </head>
 <body class="page page--home">
-    <?php include BASE_PATH . '/app/Views/partials/navbar.php'; ?>
+    <?php include BASE_PATH . '/app/Views/partials/_navbar.php'; ?>
 
     <main class="page-content py-5">
         <section class="container py-5">
@@ -96,8 +96,8 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
         </section>
     </main>
 
-    <?php include BASE_PATH . '/app/Views/partials/footer.php'; ?>
-    <script><?php @include __DIR__ . '/script.js'; ?></script>
+    <?php include BASE_PATH . '/app/Views/partials/_footer.php'; ?>
+    <script><?php @include __DIR__ . '/../home/script.js'; ?></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

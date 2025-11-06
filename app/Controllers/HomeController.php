@@ -12,22 +12,22 @@ class HomeController extends Controller
 {
     public function home(Request $request)
     {
-        return $this->view('pages/landing/index', $this->pageData($request));
+        return $this->view('pages/home/landing', $this->pageData($request));
     }
 
     public function features(Request $request)
     {
-        return $this->view('pages/features/index', $this->pageData($request));
+        return $this->view('pages/features/list', $this->pageData($request));
     }
 
     public function login(Request $request)
     {
-        return $this->view('pages/login/index', $this->pageData($request));
+        return $this->view('pages/auth/login', $this->pageData($request));
     }
 
     public function register(Request $request)
     {
-        return $this->view('pages/register/index', $this->pageData($request));
+        return $this->view('pages/auth/register', $this->pageData($request));
     }
 
     private function pageData(Request $request): array

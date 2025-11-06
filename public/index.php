@@ -28,7 +28,19 @@ $router->get('/api/health', fn () => Response::json([
     'time' => date(DATE_ATOM),
 ]));
 
-// API documentation routes removed.
+// Survey API routes
+$router->get('/api/surveys', [App\Controllers\SurveyController::class, 'index']); // Lấy ra danh sách khảo sát
+$router->get('/api/surveys/show', [App\Controllers\SurveyController::class, 'show']); // Lấy chi tiết một khảo sát
+$router->post('/api/surveys', [App\Controllers\SurveyController::class, 'create']);
+$router->put('/api/surveys', [App\Controllers\SurveyController::class, 'update']);
+$router->delete('/api/surveys', [App\Controllers\SurveyController::class, 'delete']);
+$router->post('/api/surveys/publish', [App\Controllers\SurveyController::class, 'publish']);
+$router->post('/api/surveys/approve', [App\Controllers\SurveyController::class, 'approve']);
+
+// Question API routes
+$router->post('/api/questions', [App\Controllers\SurveyController::class, 'addQuestion']);
+$router->put('/api/questions', [App\Controllers\SurveyController::class, 'updateQuestion']);
+$router->delete('/api/questions', [App\Controllers\SurveyController::class, 'deleteQuestion']);
 
 
 $request = Request::capture();

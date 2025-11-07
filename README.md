@@ -1,54 +1,84 @@
-﻿## Ứng dụng PHP MVC + Landing Page (chạy trong XAMPP)
+## Surveyon — PHP MVC Demo (XAMPP-ready)
 
-Dự án mẫu giúp bạn khởi tạo nhanh một ứng dụng PHP thuần theo hướng MVC (không framework), có Router/Controller/View đơn giản và giao diện landing chia trang. Chạy trực tiếp trong thư mục `htdocs` của XAMPP.
+[![PHP](https://img.shields.io/badge/PHP-%3E%3D%208.1-777bb4?logo=php)](https://www.php.net/)
+[![MySQL/MariaDB](https://img.shields.io/badge/MySQL%2FMariaDB-10.4%2B-00618a?logo=mysql)](https://mariadb.org/)
+[![Bootstrap](https://img.shields.io/badge/Bootstrap-5.3-7952b3?logo=bootstrap)](https://getbootstrap.com/)
+[![Status](https://img.shields.io/badge/Status-Alpha-orange)](#roadmapstatus--known-issues)
+
+Dự an PHP thuần theo hướng MVC (không framework) với Router/Controller/View đơn giản, giao diện Landing, form Đăng ký/Đăng nhập, và API cơ bản. Chạy trực tiếp trong `htdocs` của XAMPP hoặc bằng PHP built‑in server.
+
+### Mô tả ngắn
+- Dự án mô phỏng trang web Surveyon nhằm mục đích học tập ngôn ngữ PHP và các framework cơ bản
+
+### Demo / Ảnh chụp / Playground
+- Trang chủ, tính năng, login/register UI có sẵn. Chạy local theo Quick Start bên dưới.
 
 ### Tính năng chính
-- Trang landing: Trang chủ, Tính năng, Đăng nhập, Đăng ký
-- API cơ bản: Đăng ký, Đăng nhập, Health check (không dùng JWT/middleware)
+- Giao diện: Trang chủ, Tính năng, Đăng nhập, Đăng ký, Home sau đăng nhập
+- API: `POST /api/register`, `POST /api/login`, `GET /api/health`
+- DB init tự động: chạy `sql/mysql/init.sql` khi app khởi động (tạo bảng + seed)
+- Router/Controller/View thuần PHP; không phụ thuộc framework
 
-### Cấu trúc thư mục
-- `public/index.php`: Front controller, định tuyến mọi request vào Router
-- `app/Core`: Hạ tầng lõi (Router, Request, Response, Controller, Container, Database, View)
-- `app/Controllers`: Controller cho Landing (`HomeController`), Auth API (`AuthController`)
-- `app/Models`: Model người dùng (`User`) và truy vấn DB tối giản
-- `app/Views`: View PHP cho từng trang (+ partials navbar/footer)
-- `public/assets`: CSS/JS tĩnh cho giao diện
-- `config/app.php`: Cấu hình ứng dụng (app, db)
+### Kiến trúc / Tech stack
+- PHP 8.1+, PDO MySQL, Bootstrap 5.3
+- Thư mục chính:
+  - `public/index.php`: Front controller + khai báo routes
+  - `app/Core`: Router, Request, Response, Controller, Container, Database, View, SqlInitializer
+  - `app/Controllers`: `HomeController`, `AuthController`, `SurveyController`, `QuestionController`
+  - `app/Models`: `User` và các model khác (tối giản)
+  - `app/Views`: View PHP + partials navbar/footer
+  - `sql/mysql/init.sql`: Schema + seed mẫu (users, events, surveys, questions)
+  - `config/app.php`: Cấu hình app, DB
 
-### Cài đặt trên XAMPP (Windows)
-1) Sao chép mã nguồn vào C:\xampp\htdocs\Surveyon (hoặc tên thư mục bạn muốn)
-2) Mở XAMPP Control Panel, bật Apache và MySQL
-3) Tạo database rỗng (MySQL) và sửa config/app.php mục db cho phù hợp
-4) Hệ thống sẽ tự động chạy file SQL tương ứng trong sql/ để tạo bảng và dữ liệu mẫu khi app khởi động
+### Yêu cầu hệ thống
+- Windows/macOS/Linux
+- PHP >= 8.1, ext `pdo_mysql`
+- MySQL/MariaDB 10.4+
+- XAMPP (khuyến nghị trên Windows) hoặc PHP CLI
+- Apache `mod_rewrite` bật nếu chạy qua Apache
 
-### Các trang giao diện
-- `/` Trang chủ
-- `/features` Tính năng
-- `/register` Form đăng ký (gửi `POST /api/register`)
-- `/login` Form đăng nhập (gửi `POST /api/login`)
+### Cài đặt & Quick Start
+1) Sao chép mã nguồn vào `C:\xampp\htdocs\Surveyon` (hoặc thư mục bạn muốn)
+2) Mở XAMPP, bật Apache và MySQL
+3) Tạo database trống (ví dụ `mvc_app`), cập nhật `config/app.php` mục `db`
+4) Truy cập `http://localhost/Surveyon/` (`.htaccess` sẽ tự forward về `public/index.php`)
+   - Hoặc dùng PHP built‑in server:
+     ```bash
+     cd path/to/Surveyon
+     php -S 127.0.0.1:8000 -t public
+     # Mở http://127.0.0.1:8000
+     ```
+5) Lần chạy đầu: `SqlInitializer` sẽ tự tạo schema và dữ liệu mẫu
 
-### API chính
-- `POST /api/register` Đăng ký tài khoản mới (trả về thông tin người dùng)
-- `POST /api/login` Đăng nhập (trả về thông tin người dùng)
-- `GET /api/health` Kiểm tra trạng thái API
+Thông tin seed (ví dụ):
+- User: `user1@example.com` / `password`
 
-Ví dụ payload đăng ký/đăng nhập (JSON):
+### Cách dùng (CLI/API/SDK) + ví dụ mã
+- Đăng ký: `POST /api/register` — body `x-www-form-urlencoded` hoặc JSON
+  - name, email, password
+- Đăng nhập: `POST /api/login`
+- Health: `GET /api/health`
+
+Ví dụ curl đăng nhập:
+```bash
+curl -X POST \
+  -H "Content-Type: application/x-www-form-urlencoded" \
+  -d "email=user1@example.com&password=password" \
+  http://localhost/Surveyon/api/login
 ```
-{
-  "name": "Nguyễn Văn A",
-  "email": "user@example.com",
-  "password": "mat-khau-bao-mat"
-}
-```
 
-### Cấu hình quan trọng (`config/app.php`)
-- `app.base_url`: base URL của ứng dụng. Để trống để auto-detect (hoạt động khi app nằm trong thư mục con như `/Surveyon`). Khi deploy, nên đặt giá trị rõ ràng, ví dụ `https://ten-mien`.
-- `app.debug`: `true/false`. Bật để nhận thêm trace khi lỗi (chỉ nên bật local).
-- `db.*`: thông tin kết nối MySQL (mặc định XAMPP: `root`/rỗng, DB `mvc_app`).
+### Cấu hình & biến môi trường
+- File: `config/app.php`
+  - `app.base_url`: rỗng để auto-detect (hỗ trợ chạy dưới subfolder như `/Surveyon`)
+  - `app.debug`: `true/false`
+  - `db.{host,port,database,username,password,charset}`
 
-### Khắc phục sự cố
-- 404 cho các route như `/login`: kiểm tra đã bật `mod_rewrite`, có `.htaccess` ở thư mục gốc, sau đó restart Apache
-- Lỗi kết nối DB: kiểm tra `config/app.php` mục `db`, đảm bảo DB tồn tại và tài khoản có quyền
-- Lỗi 500: bật `app.debug = true` để xem trace trong response; xem thêm log Apache `C:\xampp\apache\logs\error.log`
+### Tài liệu chi tiết
+- API Testing Guide: `API_TESTING_GUIDE.md`
 
-Chúc bạn triển khai thuận lợi! Nếu cần mở rộng giao diện hoặc thêm endpoint mới, hãy tạo issue hoặc liên hệ để mình hỗ trợ.
+### Phát triển local (dev setup, scripts, hot reload)
+- Sửa code trong `app/` và `public/`
+- Không dùng Composer/framework — khởi động nhanh, ít phụ thuộc
+- Hot reload: dùng Live Server/BrowserSync nếu cần (không tích hợp sẵn)
+
+

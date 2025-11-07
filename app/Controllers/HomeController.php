@@ -20,6 +20,11 @@ class HomeController extends Controller
         return $this->view('pages/features/list', $this->pageData($request));
     }
 
+    public function homeAfterLogin(Request $request)
+    {
+        return $this->view('pages/home/home', $this->pageData($request));
+    }
+
     public function login(Request $request)
     {
         return $this->view('pages/auth/login', $this->pageData($request));

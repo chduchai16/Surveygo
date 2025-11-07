@@ -17,6 +17,7 @@ $router->post('/api/login', [App\Controllers\AuthController::class, 'login']);
 
 // Landing pages.
 $router->get('/', [HomeController::class, 'home']);
+$router->get('/home', [HomeController::class, 'homeAfterLogin']);
 $router->get('/features', [HomeController::class, 'features']);
 $router->get('/login', [HomeController::class, 'login']);
 $router->get('/register', [HomeController::class, 'register']);

@@ -26,7 +26,8 @@ $urls = $urls ?? [];
                         <p class="text-secondary">
                             Nhập email và mật khẩu đã đăng ký để truy cập hệ thống.
                         </p>
-                        <form id="login-form">
+                        <form id="login-form" action="<?= htmlspecialchars(rtrim((string)($baseUrl ?? ''), '/') . '/api/login', ENT_QUOTES, 'UTF-8') ?>" method="post">
+                            <?php if (function_exists('csrf_field')) { echo csrf_field(); } ?>
                             <div class="mb-3">
                                 <label for="email" class="form-label">Email</label>
                                 <input type="email" class="form-control form-control-lg" id="email" name="email" placeholder="user@example.com" required autocomplete="email">
@@ -49,13 +50,7 @@ $urls = $urls ?? [];
 
     <?php include BASE_PATH . '/app/Views/partials/_footer.php'; ?>
 
-    <script>
-        window.AppConfig = {
-            endpoints: {
-                login: '<?= htmlspecialchars(rtrim((string)($baseUrl ?? ''), '/'), ENT_QUOTES, 'UTF-8') ?>/api/login'
-            }
-        };
-    </script>
+    <!-- Form posts directly to /api/login; optional script can enhance UX if present -->
     <script><?php @include __DIR__ . '/../login/script.js'; ?></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>

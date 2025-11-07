@@ -56,3 +56,63 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
         </div>
     </div>
 </nav>
+<script>
+// Client-side navbar auth toggle using localStorage
+(function(){
+  try {
+    var raw = localStorage.getItem('app.user');
+    var user = raw ? JSON.parse(raw) : null;
+    var nav = document.querySelector('#mainNav .navbar-nav');
+    if (!nav) return;
+
+    // Helpers
+    var q = function(sel){ return nav.querySelector(sel); };
+    var qa = function(sel){ return nav.querySelectorAll(sel); };
+
+    // Find login/register links by href
+    var links = qa('a.nav-link');
+    var loginLi = null, registerLi = null;
+    links.forEach(function(a){
+      var href = a.getAttribute('href') || '';
+      if (href.indexOf('/login') !== -1) loginLi = a.closest('li');
+      if (href.indexOf('/register') !== -1) registerLi = a.closest('li');
+    });
+
+    var ensureUserDropdown = function(name){
+      var existing = document.getElementById('nav-user');
+      if (existing) { existing.style.display = ''; existing.querySelector('#nav-username').textContent = name; return; }
+      var li = document.createElement('li');
+      li.className = 'nav-item dropdown';
+      li.id = 'nav-user';
+      li.innerHTML = '\n        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">\n          <span id="nav-username"></span>\n        </a>\n        <ul class="dropdown-menu dropdown-menu-end">\n          <li><a class="dropdown-item" href="/home">Trang của tôi</a></li>\n          <li><hr class="dropdown-divider"></li>\n          <li><button class="dropdown-item" id="btn-logout" type="button">Đăng xuất</button></li>\n        </ul>\n      ';
+      nav.appendChild(li);
+      var brand = document.querySelector('a.navbar-brand');
+      var base = brand ? (brand.getAttribute('href') || '/') : '/';
+      if (base.endsWith('/')) base = base.slice(0,-1);
+      var homeLink = li.querySelector('a.dropdown-item');
+      if (homeLink) homeLink.setAttribute('href', base + '/home');
+      var label = li.querySelector('#nav-username');
+      if (label) label.textContent = name;
+      var logoutBtn = li.querySelector('#btn-logout');
+      if (logoutBtn) {
+        logoutBtn.addEventListener('click', function(){
+          try { localStorage.removeItem('app.user'); } catch(e) {}
+          var brand = document.querySelector('a.navbar-brand');
+          var base = brand ? (brand.getAttribute('href') || '/') : '/';
+          if (base.endsWith('/')) base = base.slice(0,-1);
+          window.location.href = base + '/login';
+        });
+      }
+    };
+
+    if (user && (user.name || user.email)) {
+      if (loginLi) loginLi.style.display = 'none';
+      if (registerLi) registerLi.style.display = 'none';
+      ensureUserDropdown(user.name || user.email || 'Tài khoản');
+    } else {
+      var dropdown = document.getElementById('nav-user');
+      if (dropdown) dropdown.style.display = 'none';
+    }
+  } catch(e) {}
+})();
+</script>

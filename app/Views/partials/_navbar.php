@@ -28,31 +28,36 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
     return htmlspecialchars($computed, ENT_QUOTES, 'UTF-8');
 };
 ?>
-<nav class="navbar navbar-expand-lg navbar-light shadow-sm sticky-top bg-white bg-opacity-90">
-    <div class="container py-2">
-        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="<?= $url($urls, 'home', '/') ?>">
-            <span class="badge bg-primary text-white rounded-circle p-3">*</span>
-            <span><?= htmlspecialchars($appName ?? 'PHP App', ENT_QUOTES, 'UTF-8') ?></span>
-        </a>
+<nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand" href="<?= $url($urls, 'home', '/') ?>">Surveygo</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse justify-content-end" id="mainNav">
-            <ul class="navbar-nav gap-lg-3">
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item">
-                    <a class="nav-link <?= $current === '/' ? 'active' : '' ?>" href="<?= $url($urls, 'home', '/') ?>">Trang chủ</a>
+                    <a class="nav-link <?= $current === '/features' ? 'active' : '' ?>" href="<?= $url($urls, 'features', '/features') ?>">
+                        <i class="fas fa-poll me-1"></i>Khảo sát
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $current === '/features' ? 'active' : '' ?>" href="<?= $url($urls, 'features', '/features') ?>">Tính năng</a>
+                    <a class="nav-link" href="#how-it-works">
+                        <i class="fas fa-bolt me-1"></i>Quick Poll
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $current === '/login' ? 'active' : '' ?>" href="<?= $url($urls, 'login', '/login') ?>">Đăng nhập</a>
+                    <a class="nav-link" href="#about">
+                        <i class="fas fa-gift me-1"></i>Đổi điểm
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $current === '/register' ? 'active' : '' ?>" href="<?= $url($urls, 'register', '/register') ?>">Đăng ký</a>
+                    <a class="nav-link" href="#login">
+                        <i class="fas fa-calendar me-1"></i>Sự kiện
+                    </a>
                 </li>
             </ul>
-            
+            <a class="btn btn-gradient" href="<?= $url($urls, 'register', '/register') ?>">Đăng ký ngay</a>
         </div>
     </div>
 </nav>
@@ -77,6 +82,11 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
       if (href.indexOf('/login') !== -1) loginLi = a.closest('li');
       if (href.indexOf('/register') !== -1) registerLi = a.closest('li');
     });
+
+    var registerBtn = nav.parentElement.querySelector('a.btn-gradient');
+    if (registerBtn && registerBtn.getAttribute('href').indexOf('/register') !== -1) {
+      registerBtn._isRegisterBtn = true;
+    }
 
     var ensureUserDropdown = function(name){
       var existing = document.getElementById('nav-user');
@@ -108,6 +118,8 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
     if (user && (user.name || user.email)) {
       if (loginLi) loginLi.style.display = 'none';
       if (registerLi) registerLi.style.display = 'none';
+      var registerBtn = nav.parentElement.querySelector('a.btn-gradient');
+      if (registerBtn) registerBtn.style.display = 'none';
       ensureUserDropdown(user.name || user.email || 'Tài khoản');
     } else {
       var dropdown = document.getElementById('nav-user');

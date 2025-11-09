@@ -23,78 +23,157 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($appName, ENT_QUOTES, 'UTF-8') ?></title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="<?= htmlspecialchars(($baseUrl ?? ''), ENT_QUOTES, 'UTF-8') ?>/assets/css/app.css">
-    <style><?php @include __DIR__ . '/../home/style.css'; ?></style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+
+    <!-- custom css -->
+    <link rel="stylesheet" href="public/assets/css/landing-page.css">
+    <link rel="stylesheet" href="public/assets/css/app.css">
+    <link rel="stylesheet" href="public/assets/css/footer.css">
+    <link rel="stylesheet" href="public/assets/css/navbar.css">
 </head>
 <body class="page page--home">
     <?php include BASE_PATH . '/app/Views/partials/_navbar.php'; ?>
 
-    <main class="page-content py-5">
-        <section class="container py-5">
-            <div class="row align-items-center g-5">
-                <div class="col-lg-7">
-                    <span class="badge rounded-pill text-bg-primary-subtle text-primary px-3 py-2 mb-3">MVC</span>
-                    <h1 class="display-5 fw-bold text-gradient mb-3">Khởi đầu nhanh với ứng dụng MVC</h1>
-                    <p class="lead text-secondary mb-4">
-                        Dự án mẫu thuần PHP với Router đơn giản, Controller rõ ràng và giao diện landing.
-                    </p>
-                    <div class="d-flex flex-column flex-sm-row gap-3">
-                        <a class="btn btn-outline-primary btn-lg" href="<?= htmlspecialchars($urls['features'], ENT_QUOTES, 'UTF-8') ?>">Xem tính năng</a>
-                        <a class="btn btn-primary btn-lg" href="<?= htmlspecialchars($urls['login'], ENT_QUOTES, 'UTF-8') ?>">Đăng nhập</a>
+    <!-- Phần giới thiệu chính -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-lg-6 hero-content">
+                    <h1 class="test">Chia sẻ ý kiến của bạn vì một thế giới tốt đẹp hơn</h1>
+                    <p>Trả lời khảo sát và trở thành một phần của surveygo. Kiếm thêm thu nhập dễ dàng!</p>
+                    <div class="hero-buttons d-flex gap-3 flex-wrap">
+                        <a href="<?= $url($urls, 'login', '/login')?>" class="btn btn-gradient">Bắt đầu ngay</a>
+                        <a href="#features" class="btn btn-outline-gradient">Tìm hiểu thêm</a>
                     </div>
                 </div>
-                <div class="col-lg-5">
-                    <div class="card glass-card p-4">
-                        <h2 class="h5 fw-semibold mb-3">Tổng quan</h2>
-                        <ul class="list-unstyled mb-4 text-secondary">
-                            <li class="mb-2">- API đăng ký/đăng nhập sẵn sàng</li>
-                            <li class="mb-2">- Đặt trong <code>htdocs</code>, hỗ trợ XAMPP</li>
-                        </ul>
-                        <div class="d-grid gap-2">
-                            <a class="btn btn-soft-primary" href="<?= htmlspecialchars($urls['register'], ENT_QUOTES, 'UTF-8') ?>">Bắt đầu sử dụng</a>
-                        </div>
-                    </div>
+                <div class="col-lg-6 text-center hero-image mt-5 mt-lg-0">
+                    <svg width="500" height="400" viewBox="0 0 500 400" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" style="stop-color:rgba(255,255,255,0.9);stop-opacity:1" />
+                                <stop offset="100%" style="stop-color:rgba(255,255,255,0.7);stop-opacity:1" />
+                            </linearGradient>
+                        </defs>
+                        <rect x="50" y="50" width="400" height="300" rx="20" fill="url(#grad1)" />
+                        <circle cx="150" cy="120" r="30" fill="#667eea" opacity="0.8" />
+                        <circle cx="350" cy="120" r="30" fill="#764ba2" opacity="0.8" />
+                        <rect x="100" y="180" width="300" height="15" rx="7" fill="#667eea" opacity="0.6" />
+                        <rect x="100" y="220" width="250" height="15" rx="7" fill="#764ba2" opacity="0.6" />
+                        <rect x="100" y="260" width="280" height="15" rx="7" fill="#667eea" opacity="0.6" />
+                    </svg>
                 </div>
             </div>
-        </section>
+        </div>
+    </section>
 
-        <section class="bg-body-light border-top border-bottom py-5">
-            <div class="container">
-                <div class="row g-4">
-                    <div class="col-md-4">
-                        <div class="card feature-card h-100">
-                            <div class="card-body">
-                                <h3 class="h5 fw-semibold mb-2">Cấu trúc rõ ràng</h3>
-                                <p class="text-secondary mb-0">
-                                    Thư mục <code>app/</code> tổ chức Controller, Model rõ ràng, dễ hiểu và tùy biến.
-                                </p>
-                            </div>
+    <!-- Phần tính năng -->
+    <section id="features" class="features-section">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Tại sao chọn Surveygo?</h2>
+                <p class="section-subtitle">Nền tảng khảo sát trực tuyến tốt nhất với nhiều lợi ích hấp dẫn</p>
+            </div>
+            <div class="row g-4">
+                <div class="col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-dollar-sign text-white"></i>
                         </div>
+                        <h3>Kiếm tiền dễ dàng</h3>
+                        <p>Nhận thưởng hấp dẫn cho mỗi khảo sát hoàn thành. Rút tiền nhanh chóng và an toàn.</p>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card feature-card h-100">
-                            <div class="card-body">
-                                <h3 class="h5 fw-semibold mb-2">Tự động migrate</h3>
-                                <p class="text-secondary mb-0">
-                                    Lần khởi động đầu, hệ thống tự tạo bảng <code>users</code> và kết nối MySQL theo cấu hình.
-                                </p>
-                            </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bolt text-white"></i>
                         </div>
+                        <h3>Linh hoạt thời gian</h3>
+                        <p>Làm việc mọi lúc mọi nơi, theo lịch trình của riêng bạn. Chỉ cần kết nối internet.</p>
                     </div>
-                    <div class="col-md-4">
-                        <div class="card feature-card h-100">
-                            <div class="card-body">
-                                <h3 class="h5 fw-semibold mb-2">Landing hiện đại</h3>
-                                <p class="text-secondary mb-0">
-                                    Trang chủ, Tính năng, Đăng ký/Đăng nhập tách riêng giúp trình bày chuyên nghiệp.
-                                </p>
-                            </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-bullseye text-white"></i>
                         </div>
+                        <h3>Khảo sát phù hợp</h3>
+                        <p>Nhận các khảo sát phù hợp với sở thích và chuyên môn của bạn.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-lock text-white"></i>
+                        </div>
+                        <h3>Bảo mật tuyệt đối</h3>
+                        <p>Thông tin cá nhân được bảo vệ an toàn với công nghệ mã hóa hiện đại.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-globe text-white"></i>
+                        </div>
+                        <h3>Tác động toàn cầu</h3>
+                        <p>Ý kiến của bạn giúp các tổ chức đưa ra quyết định tốt hơn cho cộng đồng.</p>
+                    </div>
+                </div>
+                <div class="col-lg-4">
+                    <div class="feature-card">
+                        <div class="feature-icon">
+                            <i class="fas fa-mobile-alt text-white"></i>
+                        </div>
+                        <h3>Đa nền tảng</h3>
+                        <p>Sử dụng trên mọi thiết bị: điện thoại, máy tính bảng hay laptop.</p>
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </section>
+
+    <!-- Cách thức hoạt động -->
+    <section id="how-it-works" class="steps-section">
+        <div class="container">
+            <div class="text-center">
+                <h2 class="section-title">Cách thức hoạt động</h2>
+                <p class="section-subtitle">Chỉ với 3 bước đơn giản để bắt đầu kiếm tiền</p>
+            </div>
+            <div class="row g-4 mt-4">
+                <div class="col-md-4">
+                    <div class="step text-center">
+                        <div class="step-number">1</div>
+                        <h3>Đăng ký tài khoản</h3>
+                        <p>Tạo tài khoản miễn phí chỉ trong vài phút với email của bạn.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="step text-center">
+                        <div class="step-number">2</div>
+                        <h3>Hoàn thành khảo sát</h3>
+                        <p>Chọn và trả lời các khảo sát phù hợp với bạn. Mỗi khảo sát chỉ mất 5-15 phút.</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="step text-center">
+                        <div class="step-number">3</div>
+                        <h3>Nhận thưởng</h3>
+                        <p>Tích lũy điểm và đổi thành tiền mặt hoặc thẻ quà tặng. Rút tiền dễ dàng!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Phần kêu gọi hành động -->
+    <section class="cta-section">
+        <div class="container d-flex flex-column align-items-center text-center">
+            <h2>Sẵn sàng bắt đầu?</h2>
+            <p>Tham gia cùng hàng ngàn thành viên đang kiếm tiền từ ý kiến của họ</p>
+            <a href="<?= $url($urls, 'register', '/register') ?>" class="btn btn-outline-gradient">Đăng ký miễn phí</a>
+        </div>
+    </section>
+
 
     <?php include BASE_PATH . '/app/Views/partials/_footer.php'; ?>
     <script><?php @include __DIR__ . '/../home/script.js'; ?></script>

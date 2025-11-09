@@ -42,7 +42,7 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                     <h1 class="test">Chia sẻ ý kiến của bạn vì một thế giới tốt đẹp hơn</h1>
                     <p>Trả lời khảo sát và trở thành một phần của surveygo. Kiếm thêm thu nhập dễ dàng!</p>
                     <div class="hero-buttons d-flex gap-3 flex-wrap">
-                        <a href="<?= $url($urls, 'login', '/login')?>" class="btn btn-gradient">Bắt đầu ngay</a>
+                        <a href="#" id="btn-start" class="btn btn-gradient">Bắt đầu ngay</a>
                         <a href="#features" class="btn btn-outline-gradient">Tìm hiểu thêm</a>
                     </div>
                 </div>
@@ -178,5 +178,33 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
     <?php include BASE_PATH . '/app/Views/partials/_footer.php'; ?>
     <script><?php @include __DIR__ . '/../home/script.js'; ?></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <script>
+        // handle nút bắt đầu ngay
+        document.addEventListener('DOMContentLoaded', function() {
+            var btnStart = document.getElementById('btn-start');
+            if (btnStart) {
+                btnStart.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    try {
+                        var user = localStorage.getItem('app.user');
+                        if (user) {
+                            var brand = document.querySelector('a.navbar-brand');
+                            var base = brand ? (brand.getAttribute('href') || '/') : '/';
+                            if (base.endsWith('/')) base = base.slice(0, -1);
+                            window.location.href = base + '/home';
+                        } else {
+                            var brand = document.querySelector('a.navbar-brand');
+                            var base = brand ? (brand.getAttribute('href') || '/') : '/';
+                            if (base.endsWith('/')) base = base.slice(0, -1);
+                            window.location.href = base + '/login';
+                        }
+                    } catch(err) {
+                        var brand = document.querySelector('a.navbar-brand');
+                        var base = brand ? (brand.getAttribute('href') || '/') : '/';
+                        if (base.endsWith('/')) base = base.slice(0, -1);
+                        window.location.href = base + '/login';
+                    }
+                });
+            }
+        });
+    </script>

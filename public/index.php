@@ -21,6 +21,7 @@ $router->get('/home', [HomeController::class, 'homeAfterLogin']);
 $router->get('/features', [HomeController::class, 'features']);
 $router->get('/login', [HomeController::class, 'login']);
 $router->get('/register', [HomeController::class, 'register']);
+$router->get('/profile', [HomeController::class, 'profile']);
 
 // Health check route.
 $router->get('/api/health', fn () => Response::json([

@@ -56,8 +56,20 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
                         <i class="fas fa-calendar me-1"></i>Sự kiện
                     </a>
                 </li>
+                <!-- User Dropdown (hidden by default) -->
+                <li class="nav-item dropdown" id="nav-user" style="display: none;">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user-circle me-1"></i><span id="nav-username">Tài khoản</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="<?= $url($urls, 'home', '/home') ?>">Trang của tôi</a></li>
+                        <li><a class="dropdown-item" href="<?= $url($urls, 'profile', '/profile') ?>">Trang cá nhân</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><button class="dropdown-item" id="btn-logout" type="button"><i class="fas fa-sign-out-alt me-1"></i>Đăng xuất</button></li>
+                    </ul>
+                </li>
             </ul>
-            <a class="btn btn-gradient" href="<?= $url($urls, 'register', '/register') ?>">Đăng ký ngay</a>
+            <a class="btn btn-gradient" href="<?= $url($urls, 'register', '/register') ?>" id="register-btn">Đăng ký ngay</a>
         </div>
     </div>
 </nav>
@@ -65,65 +77,33 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
 // Client-side navbar auth toggle using localStorage
 (function(){
   try {
-    var raw = localStorage.getItem('app.user');
-    var user = raw ? JSON.parse(raw) : null;
-    var nav = document.querySelector('#mainNav .navbar-nav');
-    if (!nav) return;
-
-    // Helpers
-    var q = function(sel){ return nav.querySelector(sel); };
-    var qa = function(sel){ return nav.querySelectorAll(sel); };
-
-    // Find login/register links by href
-    var links = qa('a.nav-link');
-    var loginLi = null, registerLi = null;
-    links.forEach(function(a){
-      var href = a.getAttribute('href') || '';
-      if (href.indexOf('/login') !== -1) loginLi = a.closest('li');
-      if (href.indexOf('/register') !== -1) registerLi = a.closest('li');
-    });
-
-    var registerBtn = nav.parentElement.querySelector('a.btn-gradient');
-    if (registerBtn && registerBtn.getAttribute('href').indexOf('/register') !== -1) {
-      registerBtn._isRegisterBtn = true;
-    }
-
-    var ensureUserDropdown = function(name){
-      var existing = document.getElementById('nav-user');
-      if (existing) { existing.style.display = ''; existing.querySelector('#nav-username').textContent = name; return; }
-      var li = document.createElement('li');
-      li.className = 'nav-item dropdown';
-      li.id = 'nav-user';
-      li.innerHTML = '\n        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">\n          <span id="nav-username"></span>\n        </a>\n        <ul class="dropdown-menu dropdown-menu-end">\n          <li><a class="dropdown-item" href="/home">Trang của tôi</a></li>\n          <li><hr class="dropdown-divider"></li>\n          <li><button class="dropdown-item" id="btn-logout" type="button">Đăng xuất</button></li>\n        </ul>\n      ';
-      nav.appendChild(li);
-      var brand = document.querySelector('a.navbar-brand');
-      var base = brand ? (brand.getAttribute('href') || '/') : '/';
-      if (base.endsWith('/')) base = base.slice(0,-1);
-      var homeLink = li.querySelector('a.dropdown-item');
-      if (homeLink) homeLink.setAttribute('href', base + '/home');
-      var label = li.querySelector('#nav-username');
-      if (label) label.textContent = name;
-      var logoutBtn = li.querySelector('#btn-logout');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(){
-          try { localStorage.removeItem('app.user'); } catch(e) {}
-          var brand = document.querySelector('a.navbar-brand');
-          var base = brand ? (brand.getAttribute('href') || '/') : '/';
-          if (base.endsWith('/')) base = base.slice(0,-1);
-          window.location.href = base + '/login';
-        });
-      }
-    };
-
+    var user = null;
+    try {
+      var raw = localStorage.getItem('app.user');
+      user = raw ? JSON.parse(raw) : null;
+    } catch(e) {}
+    
+    var userDropdown = document.getElementById('nav-user');
+    var registerBtn = document.getElementById('register-btn');
+    var navUsername = document.getElementById('nav-username');
+    var logoutBtn = document.getElementById('btn-logout');
+    
     if (user && (user.name || user.email)) {
-      if (loginLi) loginLi.style.display = 'none';
-      if (registerLi) registerLi.style.display = 'none';
-      var registerBtn = nav.parentElement.querySelector('a.btn-gradient');
+      // User is logged in
+      if (userDropdown) userDropdown.style.display = 'block';
       if (registerBtn) registerBtn.style.display = 'none';
-      ensureUserDropdown(user.name || user.email || 'Tài khoản');
+      if (navUsername) navUsername.textContent = user.name || user.email || 'Tài khoản';
     } else {
-      var dropdown = document.getElementById('nav-user');
-      if (dropdown) dropdown.style.display = 'none';
+      // User not logged in
+      if (userDropdown) userDropdown.style.display = 'none';
+      if (registerBtn) registerBtn.style.display = 'block';
+    }
+    
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', function(){
+        try { localStorage.removeItem('app.user'); } catch(e) {}
+        window.location.href = window.location.origin + '/Surveygo/login';
+      });
     }
   } catch(e) {}
 })();

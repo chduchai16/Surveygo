@@ -1,0 +1,299 @@
+.user-info-section {
+    padding: 3rem 0;
+    min-height: calc(100vh - 80px - 100px);
+    margin-top: 2rem;
+}
+
+.page-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #333;
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.5rem;
+}
+
+.page-title i {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.page-subtitle {
+    color: #777;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* phần thông tin */
+.profile-card {
+    background: white;
+    border-radius: 15px;
+    padding: 1rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 100px;
+}
+
+.avatar-section {
+    position: relative;
+}
+
+.avatar-wrapper {
+    position: relative;
+    display: inline-block;
+}
+
+.avatar-img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    border: 5px solid #fff;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    object-fit: cover;
+}
+
+.avatar-upload-btn {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
+    background: var(--primary-gradient);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+}
+
+.avatar-upload-btn:hover {
+    transform: scale(1.1);
+}
+
+.user-fullname {
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #333;
+    margin: 1rem 0 0.5rem;
+}
+
+.user-stats {
+    display: flex;
+    justify-content: space-around;
+    gap: 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.stat-item i {
+    font-size: 1.5rem;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.stat-value {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #333;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #777;
+}
+
+.member-since {
+    color: #777;
+    font-size: 0.9rem;
+    padding: 1rem 0;
+    border-top: 1px solid #eee;
+}
+
+/* các tab */
+.custom-tabs {
+    border-radius: 15px;
+    padding: 0.5rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+
+.custom-tabs .nav-link {
+    border: none;
+    border-radius: 10px;
+    color: #555;
+    font-weight: 500;
+    padding: 0.75rem 1.5rem;
+    transition: all 0.3s;
+    margin: 0;
+}
+
+.custom-tabs .nav-link:hover {
+    background: #f8f9fa;
+}
+
+.custom-tabs .nav-link.active {
+    background: var(--primary-gradient);
+    color: white !important;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* tab thông tin */
+.info-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.card-header-custom {
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #eee;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header-custom h5 {
+    margin: 0;
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1rem;
+}
+
+.card-body {
+    padding: 2rem;
+}
+
+/* form */
+.form-label {
+    font-weight: 500;
+    color: #555;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
+
+.form-label i {
+    color: var(--primary-color);
+}
+
+.form-control,
+.form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    transition: all 0.3s;
+    font-size: 0.95rem;
+    padding: 0.65rem 1rem;
+    height: auto;
+    min-height: 42px;
+    line-height: 1.5;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.1);
+}
+
+.form-control:disabled,
+.form-select:disabled {
+    background-color: #f8f9fa;
+    cursor: not-allowed;
+}
+
+/* tab mật khẩu */
+.password-wrapper {
+    position: relative;
+}
+
+.password-toggle {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #999;
+    cursor: pointer;
+    transition: color 0.3s;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.password-toggle:hover {
+    color: var(--primary-color);
+}
+
+/* hoạt động */
+.activity-timeline {
+    position: relative;
+    padding-left: 50px;
+}
+
+.activity-item {
+    position: relative;
+    padding-bottom: 2rem;
+}
+
+.activity-item:last-child {
+    padding-bottom: 0;
+}
+
+.activity-item::before {
+    content: '';
+    position: absolute;
+    left: -30px;
+    top: 40px;
+    width: 2px;
+    height: calc(100% - 20px);
+    background: #e9ecef;
+}
+
+.activity-item:last-child::before {
+    display: none;
+}
+
+.activity-icon {
+    position: absolute;
+    left: -45px;
+    top: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 0.9rem;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+}
+
+.activity-content h6 {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 0.5rem;
+}
+
+.activity-content p {
+    margin: 0;
+    font-size: 0.85rem;
+}

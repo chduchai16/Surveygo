@@ -35,6 +35,11 @@ class HomeController extends Controller
         return $this->view('pages/auth/register', $this->pageData($request));
     }
 
+    public function profile(Request $request)
+    {
+        return $this->view('pages/profile/profile', $this->pageData($request));
+    }
+
     private function pageData(Request $request): array
     {
         $config = Container::get('config');
@@ -47,7 +52,7 @@ class HomeController extends Controller
             'baseUrl' => $baseUrl,
             'currentPath' => $request->uri(),
             'urls' => [
-                'home' => $this->urlFor($baseUrl, '/'),
+                'home' => $this->urlFor($baseUrl, '/home'),
                 'features' => $this->urlFor($baseUrl, '/features'),
                 'login' => $this->urlFor($baseUrl, '/login'),
                 'register' => $this->urlFor($baseUrl, '/register'),

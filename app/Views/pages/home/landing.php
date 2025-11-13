@@ -34,9 +34,9 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
             <div class="row align-items-center g-5">
                 <div class="col-lg-7">
                     <span class="badge rounded-pill text-bg-primary-subtle text-primary px-3 py-2 mb-3">MVC</span>
-                    <h1 class="display-5 fw-bold text-gradient mb-3">Khởi đầu nhanh với ứng dụng MVC</h1>
+                    <h1 class="display-5 fw-bold text-gradient mb-3">Surveygo - Hệ thông khảo sát trực tuyến tốt nhất Việt Nam</h1>
                     <p class="lead text-secondary mb-4">
-                        Dự án mẫu thuần PHP với Router đơn giản, Controller rõ ràng và giao diện landing.
+                        Dự án sử dụng mô hình MVC đơn giản, với PHP thuần, Router nhẹ, Controller rõ ràng và giao diện landing hiện đại.
                     </p>
                     <div class="d-flex flex-column flex-sm-row gap-3">
                         <a class="btn btn-outline-primary btn-lg" href="<?= htmlspecialchars($urls['features'], ENT_QUOTES, 'UTF-8') ?>">Xem tính năng</a>

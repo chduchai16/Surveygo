@@ -62,17 +62,22 @@
     text-align: center;
     box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
     transition: transform 0.3s, box-shadow 0.3s;
+    /* THÊM VIỀN MÀU ACCENT NHẸ */
+    border: 1px solid rgba(255, 179, 71, 0.1); 
 }
 
 .stat-card:hover {
     transform: translateY(-5px);
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    /* VIỀN MÀU ACCENT KHI HOVER */
+    border-color: var(--accent-color); 
 }
 
 .stat-icon {
     width: 50px;
     height: 50px;
-    background: var(--primary-gradient);
+    /* DÙNG ACCENT GRADIENT */
+    background: var(--accent-gradient);
     border-radius: 50%;
     display: inline-flex;
     align-items: center;
@@ -80,12 +85,15 @@
     color: white;
     font-size: 1.3rem;
     margin-bottom: 1rem;
+    /* ĐỔ BÓNG MÀU ACCENT */
+    box-shadow: 0 5px 15px rgba(255, 179, 71, 0.3);
 }
 
 .stat-number {
     font-size: 2rem;
     font-weight: 700;
-    color: #333;
+    /* SỐ LIỆU DÙNG MÀU ACCENT */
+    color: var(--accent-color); 
     margin-bottom: 0.3rem;
 }
 
@@ -151,8 +159,9 @@
     font-weight: 600;
 }
 
+/* BADGE "HOT" DÙNG ACCENT GRADIENT */
 .survey-badge.badge-hot {
-    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    background: var(--accent-gradient);
 }
 
 .survey-header {
@@ -220,9 +229,10 @@
     flex-shrink: 0;
 }
 
+/* ICON ĐỔI THƯỞNG DÙNG ACCENT COLOR */
 .activity-icon-reward {
-    background: rgba(255, 193, 7, 0.1);
-    color: #ffc107;
+    background: var(--accent-soft-bg);
+    color: var(--accent-color);
 }
 
 .activity-content {

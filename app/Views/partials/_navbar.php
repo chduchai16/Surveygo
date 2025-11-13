@@ -30,7 +30,7 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
 ?>
 <nav class="navbar navbar-expand-lg navbar-light fixed-top">
     <div class="container d-flex justify-content-between align-items-center">
-        <a class="navbar-brand" href="<?= $url($urls, 'home', '/') ?>">Surveygo</a>
+        <a class="navbar-brand" href="#" id="navbar-brand">Surveygo</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -47,7 +47,7 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#about">
+                    <a class="nav-link <?= $current === '/daily-rewards' ? 'active' : '' ?>" href="<?= rtrim($baseUrl, '/') ?>/daily-rewards">
                         <i class="fas fa-gift me-1"></i>Đổi điểm
                     </a>
                 </li>
@@ -62,7 +62,7 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
                         <i class="fas fa-user-circle me-1"></i><span id="nav-username">Tài khoản</span>
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
-                        <li><a class="dropdown-item" href="<?= $url($urls, 'home', '/home') ?>">Trang của tôi</a></li>
+                        <li><a class="dropdown-item" href="<?= $url($urls, 'home', '/home') ?>">Trang chủ</a></li>
                         <li><a class="dropdown-item" href="<?= $url($urls, 'profile', '/profile') ?>">Trang cá nhân</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><button class="dropdown-item" id="btn-logout" type="button"><i class="fas fa-sign-out-alt me-1"></i>Đăng xuất</button></li>
@@ -87,16 +87,21 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
     var registerBtn = document.getElementById('register-btn');
     var navUsername = document.getElementById('nav-username');
     var logoutBtn = document.getElementById('btn-logout');
+    var navBrand = document.getElementById('navbar-brand');
     
     if (user && (user.name || user.email)) {
       // User is logged in
       if (userDropdown) userDropdown.style.display = 'block';
       if (registerBtn) registerBtn.style.display = 'none';
       if (navUsername) navUsername.textContent = user.name || user.email || 'Tài khoản';
+      // Khi đăng nhập, logo đi tới /home
+      if (navBrand) navBrand.href = '<?= rtrim($baseUrl, '/') ?>/home';
     } else {
       // User not logged in
       if (userDropdown) userDropdown.style.display = 'none';
       if (registerBtn) registerBtn.style.display = 'block';
+      // Khi chưa đăng nhập, logo đi tới landing page (/)
+      if (navBrand) navBrand.href = '<?= rtrim($baseUrl, '/') ?: '/' ?>';
     }
     
     if (logoutBtn) {

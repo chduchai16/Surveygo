@@ -15,6 +15,10 @@ $urls['home'] = $urls['home'] ?? $__mk($__base, '/');
 $urls['features'] = $urls['features'] ?? $__mk($__base, '/features');
 $urls['login'] = $urls['login'] ?? $__mk($__base, '/login');
 $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
+
+// Hàm trợ giúp cho URL, giả định hàm này được định nghĩa ở đâu đó
+// hoặc chúng ta có thể sử dụng biến $urls trực tiếp
+$url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default; 
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -25,7 +29,6 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-    <!-- custom css -->
     <link rel="stylesheet" href="public/assets/css/landing-page.css">
     <link rel="stylesheet" href="public/assets/css/app.css">
     <link rel="stylesheet" href="public/assets/css/footer.css">
@@ -34,7 +37,6 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
 <body class="page page--home">
     <?php include BASE_PATH . '/app/Views/partials/_navbar.php'; ?>
 
-    <!-- Phần giới thiệu chính -->
     <section class="hero-section">
         <div class="container">
             <div class="row align-items-center">
@@ -43,7 +45,7 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                     <p>Trả lời khảo sát và trở thành một phần của surveygo. Kiếm thêm thu nhập dễ dàng!</p>
                     <div class="hero-buttons d-flex gap-3 flex-wrap">
                         <a href="#" id="btn-start" class="btn btn-gradient">Bắt đầu ngay</a>
-                        <a href="#features" class="btn btn-outline-gradient">Tìm hiểu thêm</a>
+                        <a href="#features" class="btn btn-outline-accent">Tìm hiểu thêm</a>
                     </div>
                 </div>
                 <div class="col-lg-6 text-center hero-image mt-5 mt-lg-0">
@@ -66,7 +68,6 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
         </div>
     </section>
 
-    <!-- Phần tính năng -->
     <section id="features" class="features-section">
         <div class="container">
             <div class="text-center">
@@ -132,7 +133,6 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
         </div>
     </section>
 
-    <!-- Cách thức hoạt động -->
     <section id="how-it-works" class="steps-section">
         <div class="container">
             <div class="text-center">
@@ -165,12 +165,11 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
         </div>
     </section>
 
-    <!-- Phần kêu gọi hành động -->
     <section class="cta-section">
         <div class="container d-flex flex-column align-items-center text-center">
             <h2>Sẵn sàng bắt đầu?</h2>
             <p>Tham gia cùng hàng ngàn thành viên đang kiếm tiền từ ý kiến của họ</p>
-            <a href="<?= $url($urls, 'register', '/register') ?>" class="btn btn-outline-gradient">Đăng ký miễn phí</a>
+            <a href="<?= $url($urls, 'register', '/register') ?>" class="btn btn-outline-accent">Đăng ký miễn phí</a>
         </div>
     </section>
 
@@ -188,23 +187,19 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                     try {
                         var user = localStorage.getItem('app.user');
                         if (user) {
-                            var brand = document.querySelector('a.navbar-brand');
-                            var base = brand ? (brand.getAttribute('href') || '/') : '/';
-                            if (base.endsWith('/')) base = base.slice(0, -1);
-                            window.location.href = base + '/home';
+                            // Nếu đã đăng nhập, chuyển hướng đến dashboard
+                            window.location.href = '<?= $urls['home'] ?? '/home' ?>';
                         } else {
-                            var brand = document.querySelector('a.navbar-brand');
-                            var base = brand ? (brand.getAttribute('href') || '/') : '/';
-                            if (base.endsWith('/')) base = base.slice(0, -1);
-                            window.location.href = base + '/login';
+                            // Nếu chưa đăng nhập, chuyển hướng đến trang login
+                            window.location.href = '<?= $urls['login'] ?? '/login' ?>';
                         }
                     } catch(err) {
-                        var brand = document.querySelector('a.navbar-brand');
-                        var base = brand ? (brand.getAttribute('href') || '/') : '/';
-                        if (base.endsWith('/')) base = base.slice(0, -1);
-                        window.location.href = base + '/login';
+                        // Nếu có lỗi, mặc định chuyển hướng đến login
+                        window.location.href = '<?= $urls['login'] ?? '/login' ?>';
                     }
                 });
             }
         });
     </script>
+</body>
+</html>

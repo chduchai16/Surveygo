@@ -40,6 +40,11 @@ class HomeController extends Controller
         return $this->view('pages/profile/profile', $this->pageData($request));
     }
 
+    public function dailyRewards(Request $request)
+    {
+        return $this->view('pages/daily-rewards/daily-rewards', $this->pageData($request));
+    }
+
     private function pageData(Request $request): array
     {
         $config = Container::get('config');

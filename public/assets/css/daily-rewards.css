@@ -1,0 +1,205 @@
+
+.page--daily-rewards {
+    background: linear-gradient(135deg, #f5f7fa 0%, #f0f0f8 100%);
+    min-height: 100vh;
+}
+
+.page-content {
+    padding: 2rem 0;
+    min-height: calc(100vh - 80px - 100px);
+    margin-top: 3rem;
+}
+
+.daily-reward-section {
+  padding: 2rem 0;
+  text-align: center;
+}
+
+.reward-header {
+    text-align: center;
+    margin-bottom: 3rem;
+}
+
+.reward-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 1rem;
+}
+
+.reward-subtitle {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+.daily-reward-section h1 {
+  font-size: 2.1rem;
+  font-weight: 700;
+  margin-bottom: 6px;
+  background: var(--primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.daily-reward-section p {
+  color: #6b7280;
+  margin-bottom: 22px;
+}
+
+/* ====== BOX ====== */
+.reward-box {
+  background: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 6px 30px rgba(2,6,23,0.06);
+  padding: 34px 28px;
+  margin-top: 20px;
+  transition: box-shadow .25s ease, transform .2s ease;
+}
+
+.reward-box:hover {
+  box-shadow: 0 10px 40px rgba(2,6,23,0.08);
+}
+
+/* ====== GRID 2 hàng x 5 ====== */
+.reward-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 18px;
+  margin-bottom: 20px;
+}
+
+
+/* ====== CARD ====== */
+.reward-card {
+  background: #fbfdff;
+  border-radius: 12px;
+  padding: 16px 12px;
+  text-align: center;
+  border: 1px solid rgba(15, 23, 36, 0.04);
+  transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.reward-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 22px rgba(15, 23, 36, 0.06);
+  border-color: rgba(102,126,234,0.15);
+}
+
+.reward-card .icon {
+  font-size: 1.6rem;
+  margin-bottom: 8px;
+  color: var(--primary-color, var(--primary-color-fallback));
+}
+
+.reward-card .day {
+  font-weight: 700;
+  font-size: 1rem;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.reward-card .points {
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+/* ====== CLAIMED CARD====== */
+.reward-card.claimed {
+  background: var(--primary-gradient, linear-gradient(90deg, var(--primary-color-fallback), #764ba2));
+  color: #fff;
+  padding: 10px 26px;
+  font-weight: 700;
+  border: none;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.reward-card.claimed .icon {
+  color: white;
+  filter: drop-shadow(0 4px 10px rgba(102,126,234,0.25));
+}
+
+.reward-card.claimed .day,
+.reward-card.claimed .points {
+  color: white;
+}
+
+.reward-card .badge-small {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--primary-color, var(--primary-color-fallback));
+  background: linear-gradient(90deg, rgba(102,126,234,0.12), rgba(118,75,162,0.08));
+  border: 1px solid rgba(102,126,234,0.12);
+}
+
+.reward-card.current {
+  box-shadow: 0 12px 36px rgba(102,126,234,0.18);
+  border: 2px solid rgba(102,126,234,0.22);
+  transform: translateY(-4px);
+}
+
+.reward-card.current::after {
+  content: '';
+  position: absolute;
+  pointer-events:none;
+  inset: -6px;
+  border-radius: 16px;
+  background: linear-gradient(90deg, rgba(102,126,234,0.06), rgba(118,75,162,0.06));
+  z-index: -1;
+}
+
+.claim-container {
+  text-align: center;
+  margin-top: 14px;
+}
+
+.btn-gradient {
+  background: var(--primary-gradient, linear-gradient(90deg, var(--primary-color-fallback), #764ba2));
+  color: #fff;
+  padding: 10px 26px;
+  border-radius: 50px;
+  font-weight: 700;
+  border: none;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+
+.btn-gradient:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 32px rgba(102,126,234,0.28);
+}
+
+.note-box {
+  text-align: left; 
+  background: #f9fbff;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-top: 25px;
+  box-shadow: 0 4px 14px rgba(102,126,234,0.08);
+  transition: box-shadow 0.3s ease;
+}
+
+.note-box h1 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--primary-color, #667eea);
+  margin-bottom: 12px; 
+}
+
+.note-box p {
+  margin-bottom: 6px; 
+  color: #444;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+

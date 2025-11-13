@@ -126,3 +126,18 @@ body {
 .badge.bg-gradient-custom {
     background: var(--primary-gradient);
 }
+
+/* Register button in navbar */
+#register-btn {
+    background: white !important;
+    color: var(--primary-color) !important;
+    border: 2px solid white !important;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+#register-btn:hover {
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: var(--secondary-color) !important;
+    box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+}

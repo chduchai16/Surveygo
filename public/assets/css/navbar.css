@@ -61,11 +61,11 @@ body {
 }
 
 .nav-link:hover {
-    color: white !important;
+    color: var(--accent-color) !important;
 }
 
 .nav-link.active {
-    color: white !important;
+    color: var(--accent-color) !important;
 }
 
 /* User Dropdown */

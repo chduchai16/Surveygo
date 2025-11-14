@@ -45,6 +45,11 @@ class HomeController extends Controller
         return $this->view('pages/daily-rewards/daily-rewards', $this->pageData($request));
     }
 
+    public function events(Request $request)
+    {
+        return $this->view('pages/events/events', $this->pageData($request));
+    }
+
     public function terms(Request $request)
     {
         return $this->view('pages/terms-of-use/terms-of-use', $this->pageData($request));
@@ -58,7 +63,7 @@ class HomeController extends Controller
         $baseUrl = $this->detectBaseUrl($request, $appConfig);
 
         return [
-            'appName' => (string)($appConfig['name'] ?? 'PHP Application'),
+            'appName' => (string) ($appConfig['name'] ?? 'PHP Application'),
             'baseUrl' => $baseUrl,
             'currentPath' => $request->uri(),
             'urls' => [
@@ -72,7 +77,7 @@ class HomeController extends Controller
 
     private function detectBaseUrl(Request $request, array $appConfig): string
     {
-        $configured = trim((string)($appConfig['base_url'] ?? ''));
+        $configured = trim((string) ($appConfig['base_url'] ?? ''));
         if ($configured !== '') {
             return rtrim($configured, '/');
         }
@@ -80,7 +85,7 @@ class HomeController extends Controller
         $https = $request->server('HTTPS');
         $scheme = (!empty($https) && $https !== 'off') ? 'https' : 'http';
         $host = $request->server('HTTP_HOST') ?? 'localhost';
-        $scriptName = (string)$request->server('SCRIPT_NAME', '');
+        $scriptName = (string) $request->server('SCRIPT_NAME', '');
         $basePath = str_replace('\\', '/', $scriptName);
         $basePath = rtrim(dirname($basePath), '/');
 

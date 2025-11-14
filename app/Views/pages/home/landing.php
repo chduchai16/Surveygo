@@ -199,7 +199,7 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
                         var user = localStorage.getItem('app.user');
                         if (user) {
                             // Nếu đã đăng nhập, chuyển hướng đến dashboard
-                            window.location.href = '<?= $urls['dashboard'] ?? '/dashboard' ?>';
+                            window.location.href = '<?= $urls['home'] ?? '/home' ?>';
                         } else {
                             // Nếu chưa đăng nhập, chuyển hướng đến trang login
                             window.location.href = '<?= $urls['login'] ?? '/login' ?>';

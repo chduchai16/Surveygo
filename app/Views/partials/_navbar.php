@@ -2,7 +2,7 @@
 $currentPath = $currentPath ?? ($_SERVER['REQUEST_URI'] ?? '/');
 $baseUrl = $baseUrl ?? '';
 $urls = $urls ?? [];
-$basePath = (string)(parse_url($baseUrl, PHP_URL_PATH) ?? '');
+$basePath = (string) (parse_url($baseUrl, PHP_URL_PATH) ?? '');
 $basePath = $basePath === '/' ? '' : rtrim($basePath, '/');
 
 $normalize = static function (string $path) use ($basePath): string {
@@ -22,97 +22,105 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
         return htmlspecialchars($given, ENT_QUOTES, 'UTF-8');
     }
 
-    $normalizedBase = rtrim((string)$baseUrl, '/');
-    $normalizedPath = '/' . ltrim((string)$fallbackPath, '/');
+    $normalizedBase = rtrim((string) $baseUrl, '/');
+    $normalizedPath = '/' . ltrim((string) $fallbackPath, '/');
     $computed = $normalizedBase === '' ? $normalizedPath : ($normalizedBase . $normalizedPath);
     return htmlspecialchars($computed, ENT_QUOTES, 'UTF-8');
 };
 ?>
-<nav class="navbar navbar-expand-lg navbar-light shadow-sm sticky-top bg-white bg-opacity-90">
-    <div class="container py-2">
-        <a class="navbar-brand fw-bold d-flex align-items-center gap-2" href="<?= $url($urls, 'home', '/') ?>">
-            <span class="badge bg-primary text-white rounded-circle p-3">*</span>
-            <span><?= htmlspecialchars($appName ?? 'PHP App', ENT_QUOTES, 'UTF-8') ?></span>
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+<nav class="navbar navbar-expand-lg navbar-light fixed-top">
+    <div class="container d-flex justify-content-between align-items-center">
+        <a class="navbar-brand" href="#" id="navbar-brand">Surveygo</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
+            aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
-        <div class="collapse navbar-collapse justify-content-end" id="mainNav">
-            <ul class="navbar-nav gap-lg-3">
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item">
-                    <a class="nav-link <?= $current === '/' ? 'active' : '' ?>" href="<?= $url($urls, 'home', '/') ?>">Trang chủ</a>
+                    <a class="nav-link <?= $current === '/features' ? 'active' : '' ?>"
+                        href="<?= $url($urls, 'features', '/features') ?>">
+                        <i class="fas fa-poll me-1"></i>Khảo sát
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $current === '/features' ? 'active' : '' ?>" href="<?= $url($urls, 'features', '/features') ?>">Tính năng</a>
+                    <a class="nav-link" href="#how-it-works">
+                        <i class="fas fa-bolt me-1"></i>Quick Poll
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $current === '/login' ? 'active' : '' ?>" href="<?= $url($urls, 'login', '/login') ?>">Đăng nhập</a>
+                    <a class="nav-link">
+                        <i class="fas fa-gift me-1"></i>Đổi điểm
+                    </a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link <?= $current === '/register' ? 'active' : '' ?>" href="<?= $url($urls, 'register', '/register') ?>">Đăng ký</a>
+                    <a class="nav-link <?= $current === '/events' ? 'active' : '' ?>"
+                        href="<?= rtrim($baseUrl, '/') ?>/events">
+                        <i class="fas fa-calendar me-1"></i>Sự kiện
+                    </a>
+                </li>
+                <!-- User Dropdown (hidden by default) -->
+                <li class="nav-item dropdown" id="nav-user" style="display: none;">
+                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"
+                        aria-expanded="false">
+                        <i class="fas fa-user-circle me-1"></i><span id="nav-username">Tài khoản</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="<?= $url($urls, 'home', '/home') ?>">Trang chủ</a></li>
+                        <li><a class="dropdown-item" href="<?= $url($urls, 'profile', '/profile') ?>">Trang cá nhân</a>
+                        </li>
+                        <li><a class="dropdown-item" href="<?= $url($urls, 'daily-rewards', '/daily-rewards') ?>">Điểm
+                                danh</a></li>
+                        <li>
+                            <hr class="dropdown-divider">
+                        </li>
+                        <li><button class="dropdown-item" id="btn-logout" type="button"><i
+                                    class="fas fa-sign-out-alt me-1"></i>Đăng xuất</button></li>
+                    </ul>
                 </li>
             </ul>
-            
+            <a class="btn btn-gradient" href="<?= $url($urls, 'register', '/register') ?>" id="register-btn">Đăng ký
+                ngay</a>
         </div>
     </div>
 </nav>
 <script>
-// Client-side navbar auth toggle using localStorage
-(function(){
-  try {
-    var raw = localStorage.getItem('app.user');
-    var user = raw ? JSON.parse(raw) : null;
-    var nav = document.querySelector('#mainNav .navbar-nav');
-    if (!nav) return;
+    // Client-side navbar auth toggle using localStorage
+    (function () {
+        try {
+            var user = null;
+            try {
+                var raw = localStorage.getItem('app.user');
+                user = raw ? JSON.parse(raw) : null;
+            } catch (e) { }
 
-    // Helpers
-    var q = function(sel){ return nav.querySelector(sel); };
-    var qa = function(sel){ return nav.querySelectorAll(sel); };
+            var userDropdown = document.getElementById('nav-user');
+            var registerBtn = document.getElementById('register-btn');
+            var navUsername = document.getElementById('nav-username');
+            var logoutBtn = document.getElementById('btn-logout');
+            var navBrand = document.getElementById('navbar-brand');
 
-    // Find login/register links by href
-    var links = qa('a.nav-link');
-    var loginLi = null, registerLi = null;
-    links.forEach(function(a){
-      var href = a.getAttribute('href') || '';
-      if (href.indexOf('/login') !== -1) loginLi = a.closest('li');
-      if (href.indexOf('/register') !== -1) registerLi = a.closest('li');
-    });
+            if (user && (user.name || user.email)) {
+                // User is logged in
+                if (userDropdown) userDropdown.style.display = 'block';
+                if (registerBtn) registerBtn.style.display = 'none';
+                if (navUsername) navUsername.textContent = user.name || user.email || 'Tài khoản';
+                // Khi đăng nhập, logo đi tới /home
+                if (navBrand) navBrand.href = '<?= rtrim($baseUrl, '/') ?>/home';
+            } else {
+                // User not logged in
+                if (userDropdown) userDropdown.style.display = 'none';
+                if (registerBtn) registerBtn.style.display = 'block';
+                // Khi chưa đăng nhập, logo đi tới landing page (/)
+                if (navBrand) navBrand.href = '<?= rtrim($baseUrl, '/') ?: '/' ?>';
+            }
 
-    var ensureUserDropdown = function(name){
-      var existing = document.getElementById('nav-user');
-      if (existing) { existing.style.display = ''; existing.querySelector('#nav-username').textContent = name; return; }
-      var li = document.createElement('li');
-      li.className = 'nav-item dropdown';
-      li.id = 'nav-user';
-      li.innerHTML = '\n        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">\n          <span id="nav-username"></span>\n        </a>\n        <ul class="dropdown-menu dropdown-menu-end">\n          <li><a class="dropdown-item" href="/home">Trang của tôi</a></li>\n          <li><hr class="dropdown-divider"></li>\n          <li><button class="dropdown-item" id="btn-logout" type="button">Đăng xuất</button></li>\n        </ul>\n      ';
-      nav.appendChild(li);
-      var brand = document.querySelector('a.navbar-brand');
-      var base = brand ? (brand.getAttribute('href') || '/') : '/';
-      if (base.endsWith('/')) base = base.slice(0,-1);
-      var homeLink = li.querySelector('a.dropdown-item');
-      if (homeLink) homeLink.setAttribute('href', base + '/home');
-      var label = li.querySelector('#nav-username');
-      if (label) label.textContent = name;
-      var logoutBtn = li.querySelector('#btn-logout');
-      if (logoutBtn) {
-        logoutBtn.addEventListener('click', function(){
-          try { localStorage.removeItem('app.user'); } catch(e) {}
-          var brand = document.querySelector('a.navbar-brand');
-          var base = brand ? (brand.getAttribute('href') || '/') : '/';
-          if (base.endsWith('/')) base = base.slice(0,-1);
-          window.location.href = base + '/login';
-        });
-      }
-    };
-
-    if (user && (user.name || user.email)) {
-      if (loginLi) loginLi.style.display = 'none';
-      if (registerLi) registerLi.style.display = 'none';
-      ensureUserDropdown(user.name || user.email || 'Tài khoản');
-    } else {
-      var dropdown = document.getElementById('nav-user');
-      if (dropdown) dropdown.style.display = 'none';
-    }
-  } catch(e) {}
-})();
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', function () {
+                    try { localStorage.removeItem('app.user'); } catch (e) { }
+                    window.location.href = window.location.origin + '/Surveygo/login';
+                });
+            }
+        } catch (e) { }
+    })();
 </script>

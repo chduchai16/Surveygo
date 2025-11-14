@@ -19,11 +19,15 @@ $router->post('/api/login', [App\Controllers\AuthController::class, 'login']);
 $router->get('/', [HomeController::class, 'home']);
 $router->get('/home', [HomeController::class, 'homeAfterLogin']);
 $router->get('/features', [HomeController::class, 'features']);
+$router->get('/daily-rewards', [HomeController::class, 'dailyRewards']);
+$router->get('/events', [HomeController::class, 'events']);
+$router->get('/terms-of-use', [HomeController::class, 'terms']);
 $router->get('/login', [HomeController::class, 'login']);
 $router->get('/register', [HomeController::class, 'register']);
+$router->get('/profile', [HomeController::class, 'profile']);
 
 // Health check route.
-$router->get('/api/health', fn () => Response::json([
+$router->get('/api/health', fn() => Response::json([
     'error' => false,
     'message' => 'API is running',
     'time' => date(DATE_ATOM),

@@ -42,18 +42,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (data && data.data && data.data.user) {
           localStorage.setItem('app.user', JSON.stringify(data.data.user));
         }
-      } catch (_) {}
+      } catch (_) { }
 
       showMsg('Đăng nhập thành công. Đang chuyển hướng...', 'success');
-      // Redirect to app base + /home
-      const brand = document.querySelector('a.navbar-brand');
-      let base = (brand && brand.getAttribute('href')) || '/';
-      if (base.endsWith('/')) {
-        base = base.slice(0, -1);
-      }
-      const redirectUrl = base + '/home';
+      // Redirect to /home
       setTimeout(() => {
-        window.location.href = redirectUrl;
+        window.location.href = '/Surveygo/home';
       }, 800);
     } catch (err) {
       showMsg('Có lỗi xảy ra. Vui lòng thử lại.', 'danger');

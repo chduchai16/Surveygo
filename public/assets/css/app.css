@@ -1,24 +1,45 @@
 :root {
-    --page-bg: linear-gradient(145deg, #f5f7ff 0%, #ffffff 55%, #eef2ff 100%);
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --primary-color: #667eea;
+    --secondary-color: #764ba2;
+    
+    --accent-color: #ffb347; /* Vàng Ánh Cam */
+    --secondary-accent: #ec4899; /* MÀU HỒNG MỚI */
+    --accent-gradient: linear-gradient(45deg, #ffb347 0%, #ff9f57 100%);
+    --secondary-accent-gradient: linear-gradient(45deg, #ec4899 0%, #d946ef 100%); /* GRADIENT HỒNG */
+
     --card-bg: rgba(255, 255, 255, 0.95);
-    --card-border: rgba(179, 189, 227, 0.35);
-    --card-shadow: 0 18px 38px rgba(31, 42, 68, 0.12);
-    --muted: #6c7a99;
-    --accent: #4c6ef5;
-    --accent-soft: rgba(76, 110, 245, 0.08);
-    --token-bg: #f8faff;
-    --token-border: #d9e1ff;
-    font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    --card-border: rgba(102, 126, 234, 0.1);
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+
+    --token-bg: rgba(31, 42, 68, 0.03);
+    --token-border: rgba(31, 42, 68, 0.1);
+    
+    /* Biến accent cũ (màu xanh) - Giữ lại nếu vẫn đang dùng ở đâu đó */
+    --accent: #4c6ef5; 
+    --accent-soft: rgba(76, 110, 245, 0.06);
+    
+    /* === Bảng màu trung tính (Xám Lạnh) === */
+    --text-primary: #1e293b;     /* Xanh đen (Văn bản chính) */
+    --text-secondary: #64748b;   /* Xám (Văn bản phụ) */
+    --border-color: #e2e8f0;     /* Viền */
+    --background-light: #f8fafc; /* Nền nhạt */
+
+    /* === Màu ngữ nghĩa === */
+    --success-color: #10b981;  /* Xanh lá cây */
+    --error-color: #f43f5e;    /* Đỏ */
+    --warning-color: #f59e0b;  /* Vàng/Hổ phách */
 }
 
 body {
-    background: var(--page-bg);
-    color: #1f2a44;
-    min-height: 100vh;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    color: var(--text-primary); /* Đặt màu chữ mặc định cho body */
+    background-color: #fff; /* Đảm bảo nền body là màu trắng */
 }
 
 .text-gradient {
-    background: linear-gradient(120deg, #4c6ef5 0%, #8a5cf5 50%, #ef5dbb 100%);
+    /* Điều chỉnh gradient để bao gồm màu hồng */
+    background: linear-gradient(120deg, var(--primary-color) 0%, var(--secondary-accent) 50%, var(--accent-color) 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
@@ -32,6 +53,8 @@ body {
     padding: 2rem;
 }
 
+/* Các class feature-card đã được định nghĩa trong landing-page.css, 
+   chỉ giữ lại nếu nó được dùng chung ở các trang khác */
 .feature-card {
     background: var(--card-bg);
     border: 1px solid var(--card-border);
@@ -43,30 +66,8 @@ body {
     padding: 2rem;
 }
 
-.btn-soft-primary {
-    background: var(--accent-soft);
-    color: var(--accent);
-    border: 1px solid rgba(76, 110, 245, 0.12);
-}
-
-.btn-soft-primary:hover {
-    background: rgba(76, 110, 245, 0.18);
-    color: var(--accent);
-}
-
-.btn-soft-secondary {
-    background: rgba(31, 42, 68, 0.06);
-    color: #1f2a44;
-    border: 1px solid rgba(31, 42, 68, 0.1);
-}
-
-.btn-soft-secondary:hover {
-    background: rgba(31, 42, 68, 0.1);
-    color: #1f2a44;
-}
-
 .page-content {
-    margin-top: 0;
+    margin-top: 1rem;
 }
 
 .page .card {
@@ -81,7 +82,7 @@ body {
     font-size: 0.9rem;
     background: var(--token-bg);
     border: 1px solid var(--token-border);
-    color: #24335b;
+    color: var(--text-primary); /* Dùng màu text chính mới */
 }
 
 .token-output {
@@ -92,7 +93,7 @@ body {
     padding: 1.25rem;
     font-family: 'JetBrains Mono', ui-monospace, 'SFMono-Regular', 'Courier New', monospace;
     font-size: 0.95rem;
-    color: var(--muted);
+    color: var(--text-secondary); /* Dùng màu text phụ mới */
     overflow-x: auto;
 }
 
@@ -101,35 +102,35 @@ body {
 }
 
 .form-feedback.success {
-    color: #1f7a5c;
+    color: var(--success-color); /* Dùng biến mới */
 }
 
 .form-feedback.error {
-    color: #d94d4d;
+    color: var(--error-color); /* Dùng biến mới */
 }
 
 .bg-body-light {
-    background: rgba(255, 255, 255, 0.7);
+    background: var(--background-light) !important; /* Dùng biến mới, thêm !important để ghi đè bootstrap nếu cần */
 }
 
 .navbar .nav-link.active {
-    color: var(--accent) !important;
+    color: var(--secondary-accent) !important; /* Đổi màu active thành hồng */
     font-weight: 600;
 }
 
 .navbar .nav-link {
-    color: #2f3a5a;
+    color: var(--text-secondary); /* Đổi màu nav link thành xám phụ */
 }
 
 .navbar .nav-link:hover {
-    color: var(--accent);
+    color: var(--secondary-accent); /* Đổi màu hover thành hồng */
 }
 
 code {
     padding: 2px 6px;
     border-radius: 6px;
     background: rgba(15, 23, 55, 0.07);
-    color: #1f2a44;
+    color: var(--text-primary); /* Dùng màu text chính mới */
     font-size: 0.9em;
 }
 
@@ -141,4 +142,128 @@ code {
     .feature-card .card-body {
         padding: 1.5rem;
     }
+}
+
+/* === BỘ NÚT MỚI === */
+
+/* 1. NÚT PRIMARY (Xanh/Tím) */
+.btn-primary-gradient {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 0.65rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+}
+
+.btn-primary-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    color: white;
+}
+
+.btn-outline-primary {
+    background: transparent;
+    color: var(--primary-color);
+    border: 2px solid var(--primary-color);
+    padding: 0.45rem 1.2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    text-align: center;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary-gradient);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.5);
+}
+
+
+/* 2. NÚT ACCENT (Vàng Cam) */
+.btn-accent {
+    background: var(--accent-gradient);
+    color: white;
+    padding: 0.65rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+}
+
+.btn-accent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255, 179, 71, 0.4);
+    color: white;
+}
+
+.btn-outline-accent {
+    background: transparent;
+    color: var(--accent-color);
+    border: 2px solid var(--accent-color);
+    padding: 0.45rem 1.2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    text-align: center;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-outline-accent:hover {
+    background: var(--accent-gradient);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 5px 15px rgba(255, 179, 71, 0.5);
+}
+
+
+/* 3. NÚT SECONDARY ACCENT (Hồng) */
+.btn-secondary-accent {
+    background: var(--secondary-accent-gradient);
+    color: white;
+    padding: 0.65rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+    border: none;
+}
+
+.btn-secondary-accent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(236, 72, 153, 0.4);
+    color: white;
+}
+
+.btn-outline-secondary-accent {
+    background: transparent;
+    color: var(--secondary-accent);
+    border: 2px solid var(--secondary-accent);
+    padding: 0.45rem 1.2rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s;
+    text-align: center;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn-outline-secondary-accent:hover {
+    background: var(--secondary-accent-gradient);
+    color: white;
+    border-color: transparent;
+    box-shadow: 0 5px 15px rgba(236, 72, 153, 0.5);
 }

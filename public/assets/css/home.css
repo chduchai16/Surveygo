@@ -1,0 +1,276 @@
+.welcome-section {
+    padding: 3rem 0 2rem;
+    margin-top: 2rem;
+}
+
+.welcome-title {
+    font-size: 2.5rem;
+    color: #333;
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.welcome-text {
+    font-size: 1.1rem;
+    color: #666;
+}
+
+.welcome-text strong {
+    color: var(--primary-color);
+}
+
+.points-card {
+    background: var(--primary-gradient);
+    padding: 1.5rem 2rem;
+    border-radius: 15px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+}
+
+.points-icon {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.points-label {
+    opacity: 0.8;
+}
+
+.points-value {
+    font-size: 2rem;
+    font-weight: 700;
+}
+
+/* ========== STATS SECTION ========== */
+.stats-section {
+    padding: 2rem 0 3rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 15px;
+    text-align: center;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+    /* THÊM VIỀN MÀU ACCENT NHẸ */
+    border: 1px solid rgba(255, 179, 71, 0.1); 
+}
+
+.stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    /* VIỀN MÀU ACCENT KHI HOVER */
+    border-color: var(--accent-color); 
+}
+
+.stat-icon {
+    width: 50px;
+    height: 50px;
+    /* DÙNG ACCENT GRADIENT */
+    background: var(--accent-gradient);
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    /* ĐỔ BÓNG MÀU ACCENT */
+    box-shadow: 0 5px 15px rgba(255, 179, 71, 0.3);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    /* SỐ LIỆU DÙNG MÀU ACCENT */
+    color: var(--accent-color); 
+    margin-bottom: 0.3rem;
+}
+
+
+/* ========== SURVEYS SECTION ========== */
+.surveys-section {
+    padding: 3rem 0;
+    background: white;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.section-title {
+    font-size: 2rem;
+    color: #333;
+    font-weight: 700;
+    margin: 0;
+}
+
+.view-all {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.3s;
+}
+
+.view-all:hover {
+    color: var(--secondary-color);
+}
+
+.survey-card {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 15px;
+    padding: 1.5rem;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    transition: all 0.3s;
+}
+
+.survey-card:hover {
+    border-color: var(--primary-color);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.15);
+    transform: translateY(-5px);
+}
+
+.survey-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: var(--secondary-accent-gradient);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 15px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+/* BADGE "HOT" DÙNG ACCENT GRADIENT */
+.survey-badge.badge-hot {
+    background: var(--accent-gradient);
+}
+
+.survey-header {
+    margin-bottom: 1rem;
+}
+
+.survey-title {
+    font-size: 1.2rem;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 0.8rem;
+}
+
+.survey-meta {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.survey-desc {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}
+
+/* phần hoạt động */
+.activity-section {
+    padding: 3rem 0;
+}
+
+.activity-list {
+    background: white;
+    border-radius: 15px;
+    padding: 1.5rem;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+}
+
+.activity-item {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.activity-item:last-child {
+    border-bottom: none;
+}
+
+.activity-item:hover {
+    background: #f8f9fa;
+    border-radius: 15px;
+}
+
+.activity-icon {
+    width: 45px;
+    height: 45px;
+    background: rgba(102, 126, 234, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--primary-color);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+/* ICON ĐỔI THƯỞNG DÙNG ACCENT COLOR */
+.activity-icon-reward {
+    background: var(--accent-soft-bg);
+    color: var(--accent-color);
+}
+
+.activity-content {
+    flex-grow: 1;
+}
+
+.activity-content h4 {
+    font-size: 1rem;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 0.3rem;
+}
+
+.activity-content p {
+    font-size: 0.8rem;
+    opacity: 0.8;
+    margin: 0;
+}
+
+.activity-time {
+    font-size: 0.85rem;
+    color: #999;
+    flex-shrink: 0;
+}
+
+/* ========== BUTTONS ========== */
+.btn-gradient {
+    background: var(--primary-gradient);
+    color: white;
+    padding: 0.65rem 1.5rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.btn-gradient:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+    color: white;
+}

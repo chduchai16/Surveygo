@@ -2,451 +2,239 @@
 /** @var string $appName */
 /** @var array $urls */
 
-$appName = $appName ?? 'PHP Application';
-$urls = $urls ?? [];
-
-// Ensure URLs have absolute base prefix even if controller didn't pass them.
-$__base = rtrim((string)($baseUrl ?? ''), '/');
-$__mk = static function (string $base, string $path): string {
-	$p = '/' . ltrim($path, '/');
-	return $base === '' ? $p : ($base . $p);
-};
-$urls['home'] = $urls['home'] ?? $__mk($__base, '/');
-$urls['features'] = $urls['features'] ?? $__mk($__base, '/features');
-$urls['login'] = $urls['login'] ?? $__mk($__base, '/login');
-$urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
-
-// Đã loại bỏ các biến CSS không được sử dụng trong mã PHP/HTML này.
+$appName = $appName ?? 'Surveygo';
+$urls = $urls ?? []; // Giả định $urls được truyền vào
 ?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= htmlspecialchars($appName . ' - Profile', ENT_QUOTES, 'UTF-8') ?></title>
+    <title>Thông tin tài khoản - <?= htmlspecialchars($appName, ENT_QUOTES, 'UTF-8') ?></title>
+    
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-    <link rel="stylesheet" href="public/assets/css/profile.css">
     <link rel="stylesheet" href="public/assets/css/app.css">
-    <link rel="stylesheet" href="public/assets/css/footer.css">
     <link rel="stylesheet" href="public/assets/css/navbar.css">
+    <link rel="stylesheet" href="public/assets/css/footer.css">
+    <link rel="stylesheet" href="public/assets/css/profile.css">
 </head>
 <body class="page page--profile">
-    <?php include BASE_PATH . '/app/Views/partials/_navbar.php'; ?>
 
-    <main class="page-content profile-page">
-        <section class="user-info-section">
-            <div class="container">
-                <div class="row">
-                    <div class="col-lg-3 mb-4">
-                        <div class="profile-card text-center">
-                            <div class="avatar-section mb-3">
-                                <div class="avatar-wrapper">
-                                    <img src="https://ui-avatars.com/api/?name=Nguyen+Van+A&size=150&background=667eea&color=fff"
-                                         alt="Avatar" class="avatar-img" id="avatarPreview">
-                                    <label for="avatarUpload" class="avatar-upload-btn">
-                                        <i class="fas fa-camera"></i>
-                                    </label>
-                                    <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
-                                </div>
+    <?php  include BASE_PATH . '/app/Views/partials/_navbar.php'; ?>
+
+    <div class="user-info-section">
+        <div class="container">
+            <div class="row g-4">
+
+                <div class="col-lg-4">
+                    <div class="profile-card">
+                        
+                        <div class="text-center avatar-section">
+                            <div class="avatar-wrapper">
+                                <img src="https://ui-avatars.com/api/?name=T&background=ec4899&color=fff&size=150" alt="Avatar" class="avatar-img">
+                                <label for="avatar-upload" class="avatar-upload-btn" title="Đổi avatar">
+                                    <i class="fas fa-camera"></i>
+                                    <input type="file" id="avatar-upload" class="d-none">
+                                </label>
                             </div>
-                            <h4 class="user-fullname">Nguyễn Văn A</h4>
+                            <h5 class="user-fullname">Tên Người Dùng</h5>
+                            <p class="member-since">Thành viên từ 01/01/2025</p>
+                        </div>
 
-                            <div class="user-stats mt-4">
-                                <div class="stat-item">
-                                    <i class="fas fa-coins"></i>
-                                    <span class="stat-value">1,250</span>
-                                    <span class="stat-label">Điểm thưởng</span>
-                                </div>
-                                <div class="stat-item">
-                                    <i class="fas fa-clipboard-check"></i>
-                                    <span class="stat-value">24</span>
-                                    <span class="stat-label">Khảo sát</span>
-                                </div>
+                        <div class="user-stats">
+                            <div class="stat-item">
+                                <i class="fas fa-file-alt"></i>
+                                <span class="stat-value">12</span>
+                                <span class="stat-label">Khảo sát</span>
                             </div>
-
-                            <div class="member-since mt-3">
-                                <small>Thành viên từ 01/2024</small>
+                            <div class="stat-item">
+                                <i class="fas fa-coins"></i>
+                                <span class="stat-value">150k</span>
+                                <span class="stat-label">Điểm</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fas fa-check-circle"></i>
+                                <span class="stat-value">8</span>
+                                <span class="stat-label">Đã rút</span>
                             </div>
                         </div>
+
+                        <nav class="profile-nav nav flex-column nav-pills">
+                            <a class="nav-link active" href="#account" data-bs-toggle="tab">
+                                <i class="fas fa-user-circle me-3"></i>Tài khoản
+                            </a>
+                            <a class="nav-link" href="#password" data-bs-toggle="tab">
+                                <i class="fas fa-key me-3"></i>Đổi mật khẩu
+                            </a>
+                            <a class="nav-link" href="#activity" data-bs-toggle="tab">
+                                <i class="fas fa-chart-line me-3"></i>Hoạt động
+                            </a>
+                        </nav>
+
                     </div>
+                </div>
 
-                    <div class="col-lg-9">
-                        <ul class="nav custom-tabs nav-pills mb-4" id="profileTabs" role="tablist">
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link active" id="info-tab" data-bs-toggle="pill" data-bs-target="#info"
-                                        type="button" role="tab" aria-controls="info" aria-selected="true">
-                                    <i class="fas fa-user me-2"></i>Thông tin chung
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="security-tab" data-bs-toggle="pill" data-bs-target="#security"
-                                        type="button" role="tab" aria-controls="security" aria-selected="false">
-                                    <i class="fas fa-lock me-2"></i>Bảo mật
-                                </button>
-                            </li>
-                            <li class="nav-item" role="presentation">
-                                <button class="nav-link" id="activity-tab" data-bs-toggle="pill" data-bs-target="#activity"
-                                        type="button" role="tab" aria-controls="activity" aria-selected="false">
-                                    <i class="fas fa-history me-2"></i>Hoạt động
-                                </button>
-                            </li>
-                        </ul>
-
-                        <div class="tab-content" id="profileTabsContent">
-                            <div class="tab-pane fade show active" id="info" role="tabpanel" aria-labelledby="info-tab">
-                                <div class="info-card">
-                                    <div class="card-header-custom">
-                                        <h5><i class="fas fa-id-card me-2"></i>Thông tin cá nhân</h5>
-                                        <button class="btn btn-accent" id="editBtn">
-                                            <i class="fas fa-edit me-1"></i>Chỉnh sửa
-                                        </button>
-                                    </div>
-                                    <div class="card-body">
-                                        <form id="userInfoForm">
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="fullName" class="form-label">
-                                                        <i class="fas fa-user me-2"></i>Họ và tên
-                                                    </label>
-                                                    <input type="text" class="form-control" id="fullName"
-                                                           value="Nguyễn Văn A" disabled>
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="gender" class="form-label">
-                                                        <i class="fas fa-venus-mars me-2"></i>Giới tính
-                                                    </label>
-                                                    <select class="form-select" id="gender" disabled>
-                                                        <option value="male" selected>Nam</option>
-                                                        <option value="female">Nữ</option>
-                                                        <option value="other">Khác</option>
-                                                    </select>
-                                                </div>
+                <div class="col-lg-8">
+                    <div class="tab-content">
+                        
+                        <div class="tab-pane fade show active" id="account">
+                            <div class="info-card">
+                                <div class="card-header-custom">
+                                    <h5><i class="fas fa-user-edit me-2"></i>Thông tin cá nhân</h5>
+                                    <button class="btn btn-primary-gradient btn-sm">Lưu thay đổi</button>
+                                </div>
+                                <div class="card-body">
+                                    <form>
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Họ tên</label>
+                                                <input type="text" class="form-control" value="Tên Người Dùng">
                                             </div>
-
-                                            <div class="row">
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="birthday" class="form-label">
-                                                        <i class="fas fa-birthday-cake me-2"></i>Ngày sinh
-                                                    </label>
-                                                    <input type="date" class="form-control" id="birthday" value="1995-05-15"
-                                                           disabled>
-                                                </div>
-                                                <div class="col-md-6 mb-3">
-                                                    <label for="phone" class="form-label">
-                                                        <i class="fas fa-phone me-2"></i>Số điện thoại
-                                                    </label>
-                                                    <input type="tel" class="form-control" id="phone" value="0123456789"
-                                                           disabled>
-                                                </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Email</label>
+                                                <input type="email" class="form-control" value="user@email.com" disabled>
                                             </div>
-
-                                            <div class="mb-3">
-                                                <label for="email" class="form-label">
-                                                    <i class="fas fa-envelope me-2"></i>Email
-                                                </label>
-                                                <input type="email" class="form-control" id="email"
-                                                       value="nguyenvana@example.com" disabled>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Số điện thoại</label>
+                                                <input type="text" class="form-control" placeholder="Chưa cập nhật">
                                             </div>
-
-                                            <div class="mb-3">
-                                                <label for="address" class="form-label">
-                                                    <i class="fas fa-map-marker-alt me-2"></i>Địa chỉ
-                                                </label>
-                                                <textarea class="form-control" id="address" rows="2"
-                                                          disabled>123 Đường ABC, Quận 1, TP. Hồ Chí Minh</textarea>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Giới tính</label>
+                                                <select class="form-select">
+                                                    <option value="male">Nam</option>
+                                                    <option value="female">Nữ</option>
+                                                    <option value="other">Khác</option>
+                                                </select>
                                             </div>
-
-                                            <div class="mb-3">
-                                                <label for="bio" class="form-label">
-                                                    <i class="fas fa-info-circle me-2"></i>Giới thiệu bản thân
-                                                </label>
-                                                <textarea class="form-control" id="bio" rows="3"
-                                                          disabled>Tôi là người yêu thích khảo sát và nghiên cứu thị trường.</textarea>
-                                            </div>
-
-                                            <div class="d-flex gap-3" id="formActions" style="display: none;">
-                                                <button type="submit" class="btn btn-gradient" id="saveBtn">
-                                                    <i class="fas fa-save me-2"></i>Lưu thay đổi
-                                                </button>
-                                                <button type="button" class="btn btn-outline-accent" id="cancelBtn">
-                                                    <i class="fas fa-times me-2"></i>Hủy
-                                                </button>
-                                            </div>
-                                        </form>
-                                    </div>
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="tab-pane fade" id="security" role="tabpanel" aria-labelledby="security-tab">
-                                <div class="info-card mb-4">
-                                    <div class="card-header-custom">
-                                        <h5><i class="fas fa-key me-2"></i>Đổi mật khẩu</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <form id="changePasswordForm">
-                                            <div class="mb-3">
-                                                <label for="currentPassword" class="form-label">
-                                                    <i class="fas fa-lock me-2"></i>Mật khẩu hiện tại
-                                                </label>
-                                                <div class="password-wrapper">
-                                                    <input type="password" class="form-control" id="currentPassword"
-                                                           placeholder="Nhập mật khẩu hiện tại">
-                                                    <button type="button" class="password-toggle"
-                                                            onclick="togglePassword('currentPassword', 'toggleIcon1')">
-                                                        <i class="fas fa-eye" id="toggleIcon1"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="newPassword" class="form-label">
-                                                    <i class="fas fa-lock me-2"></i>Mật khẩu mới
-                                                </label>
-                                                <div class="password-wrapper">
-                                                    <input type="password" class="form-control" id="newPassword"
-                                                           placeholder="Nhập mật khẩu mới">
-                                                    <button type="button" class="password-toggle"
-                                                            onclick="togglePassword('newPassword', 'toggleIcon2')">
-                                                        <i class="fas fa-eye" id="toggleIcon2"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <div class="mb-3">
-                                                <label for="confirmPassword" class="form-label">
-                                                    <i class="fas fa-lock me-2"></i>Xác nhận mật khẩu mới
-                                                </label>
-                                                <div class="password-wrapper">
-                                                    <input type="password" class="form-control" id="confirmPassword"
-                                                           placeholder="Nhập lại mật khẩu mới">
-                                                    <button type="button" class="password-toggle"
-                                                            onclick="togglePassword('confirmPassword', 'toggleIcon3')">
-                                                        <i class="fas fa-eye" id="toggleIcon3"></i>
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <button type="submit" class="btn btn-gradient">
-                                                <i class="fas fa-save me-2"></i>Đổi mật khẩu
-                                            </button>
-                                        </form>
-                                    </div>
+                        <div class="tab-pane fade" id="password">
+                            <div class="info-card">
+                                <div class="card-header-custom">
+                                    <h5><i class="fas fa-lock me-2"></i>Bảo mật & Mật khẩu</h5>
+                                    <button class="btn btn-primary-gradient btn-sm">Cập nhật</button>
+                                </div>
+                                <div class="card-body">
+                                    <form>
+                                        <div class="mb-3 password-wrapper">
+                                            <label class="form-label">Mật khẩu hiện tại</label>
+                                            <input type="password" class="form-control">
+                                            <button type="button" class="password-toggle"><i class="fas fa-eye"></i></button>
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Mật khẩu mới</label>
+                                            <input type="password" class="form-control">
+                                        </div>
+                                        <div class="mb-3">
+                                            <label class="form-label">Xác nhận mật khẩu mới</label>
+                                            <input type="password" class="form-control">
+                                        </div>
+                                    </form>
                                 </div>
                             </div>
+                        </div>
 
-                            <div class="tab-pane fade" id="activity" role="tabpanel" aria-labelledby="activity-tab">
-                                <div class="info-card">
-                                    <div class="card-header-custom">
-                                        <h5><i class="fas fa-history me-2"></i>Lịch sử hoạt động</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="activity-timeline">
-                                            <div class="activity-item">
-                                                <div class="activity-icon bg-success">
-                                                    <i class="fas fa-check"></i>
-                                                </div>
-                                                <div class="activity-content">
-                                                    <h6>Hoàn thành khảo sát "Khảo sát trải nghiệm người dùng"</h6>
-                                                    <p class="text-muted mb-0">
-                                                        <small><i class="fas fa-clock me-1"></i>Hôm nay, 14:30</small>
-                                                    </p>
-                                                </div>
+                        <div class="tab-pane fade" id="activity">
+                            <div class="info-card">
+                                <div class="card-header-custom">
+                                    <h5><i class="fas fa-history me-2"></i>Lịch sử hoạt động</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="activity-timeline">
+                                        <div class="activity-item">
+                                            <div class="activity-icon icon-accent"> <i class="fas fa-poll"></i>
                                             </div>
-
-                                            <div class="activity-item">
-                                                <div class="activity-icon bg-info">
-                                                    <i class="fas fa-gift"></i>
-                                                </div>
-                                                <div class="activity-content">
-                                                    <h6>Đổi 500 điểm lấy voucher Shopee 50K</h6>
-                                                    <p class="text-muted mb-0">
-                                                        <small><i class="fas fa-clock me-1"></i>Hôm qua, 10:15</small>
-                                                    </p>
-                                                </div>
+                                            <div class="activity-content">
+                                                <h6>Hoàn thành khảo sát "Thói quen tiêu dùng"</h6>
+                                                <p>+ 50 điểm - 1 giờ trước</p>
                                             </div>
-
-                                            <div class="activity-item">
-                                                <div class="activity-icon bg-success">
-                                                    <i class="fas fa-check"></i>
-                                                </div>
-                                                <div class="activity-content">
-                                                    <h6>Hoàn thành Quick Poll về sản phẩm công nghệ</h6>
-                                                    <p class="text-muted mb-0">
-                                                        <small><i class="fas fa-clock me-1"></i>2 ngày trước, 16:45</small>
-                                                    </p>
-                                                </div>
+                                        </div>
+                                        <div class="activity-item">
+                                            <div class="activity-icon icon-secondary-accent"> <i class="fas fa-user-check"></i>
                                             </div>
-
-                                            <div class="activity-item">
-                                                <div class="activity-icon bg-warning">
-                                                    <i class="fas fa-user-edit"></i>
-                                                </div>
-                                                <div class="activity-content">
-                                                    <h6>Cập nhật thông tin cá nhân</h6>
-                                                    <p class="text-muted mb-0">
-                                                        <small><i class="fas fa-clock me-1"></i>1 tuần trước, 09:20</small>
-                                                    </p>
-                                                </div>
+                                            <div class="activity-content">
+                                                <h6>Cập nhật thông tin cá nhân</h6>
+                                                <p>2 ngày trước</p>
                                             </div>
-
-                                            <div class="activity-item">
-                                                <div class="activity-icon bg-primary">
-                                                    <i class="fas fa-sign-in-alt"></i>
-                                                </div>
-                                                <div class="activity-content">
-                                                    <h6>Đăng nhập tài khoản</h6>
-                                                    <p class="text-muted mb-0">
-                                                        <small><i class="fas fa-clock me-1"></i>2 tuần trước, 08:00</small>
-                                                    </p>
-                                                </div>
+                                        </div>
+                                        <div class="activity-item">
+                                            <div class="activity-icon icon-primary"> <i class="fas fa-gift"></i>
+                                            </div>
+                                            <div class="activity-content">
+                                                <h6>Đổi 1000 điểm lấy thẻ cào 100k</h6>
+                                                <p>5 ngày trước</p>
                                             </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
             </div>
-        </section>
-    </main>
+        </div>
+    </div>
 
     <?php include BASE_PATH . '/app/Views/partials/_footer.php'; ?>
-
+    
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        // Ẩn/hiện mật khẩu
-        function togglePassword(inputId, iconId) {
-            const passwordInput = document.getElementById(inputId);
-            const toggleIcon = document.getElementById(iconId);
-
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                toggleIcon.classList.remove('fa-eye');
-                toggleIcon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                toggleIcon.classList.remove('fa-eye-slash');
-                toggleIcon.classList.add('fa-eye');
-            }
-        }
-
-        // Xem trước ảnh đại diện
-        document.getElementById('avatarUpload').addEventListener('change', function (e) {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function (event) {
-                    document.getElementById('avatarPreview').src = event.target.result;
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-
-        const editBtn = document.getElementById('editBtn');
-        const cancelBtn = document.getElementById('cancelBtn');
-        const formActions = document.getElementById('formActions');
-        const formInputs = document.querySelectorAll('#userInfoForm input, #userInfoForm select, #userInfoForm textarea');
-
-        let originalValues = {};
-
-        editBtn.addEventListener('click', function () {
-            // Lưu giá trị ban đầu và cho phép chỉnh sửa form
-            formInputs.forEach(input => {
-                originalValues[input.id] = input.value;
-                input.disabled = false;
-            });
-
-            // Ẩn nút "Chỉnh sửa" và hiện "Lưu"/"Hủy"
-            this.style.display = 'none';
-            formActions.style.display = 'flex';
-        });
-
-        cancelBtn.addEventListener('click', function () {
-            // Khôi phục giá trị ban đầu và vô hiệu hóa form
-            formInputs.forEach(input => {
-                if (originalValues[input.id] !== undefined) {
-                    input.value = originalValues[input.id];
+        // Lấy thông tin user từ localStorage khi trang load
+        document.addEventListener('DOMContentLoaded', function() {
+            try {
+                const userJson = localStorage.getItem('app.user');
+                if (userJson) {
+                    const user = JSON.parse(userJson);
+                    
+                    // Cập nhật thông tin cá nhân
+                    if (user.name) {
+                        document.querySelector('.user-fullname').textContent = user.name;
+                        const fullNameInput = document.querySelector('input[value="Tên Người Dùng"]');
+                        if (fullNameInput) {
+                            fullNameInput.value = user.name;
+                        }
+                    }
+                    
+                    if (user.email) {
+                        const emailInput = document.querySelector('input[type="email"]');
+                        if (emailInput) {
+                            emailInput.value = user.email;
+                        }
+                    }
+                    
+                    // Cập nhật avatar với tên user
+                    if (user.name) {
+                        const avatarImg = document.querySelector('.avatar-img');
+                        if (avatarImg) {
+                            const encodedName = encodeURIComponent(user.name);
+                            avatarImg.src = `https://ui-avatars.com/api/?name=${encodedName}&background=ec4899&color=fff&size=150`;
+                        }
+                    }
+                    
+                    // Cập nhật member since date
+                    if (user.created_at) {
+                        const createdDate = new Date(user.created_at);
+                        const monthYear = createdDate.toLocaleDateString('vi-VN', { year: 'numeric', month: '2-digit' });
+                        const memberSince = document.querySelector('.member-since');
+                        if (memberSince) {
+                            memberSince.textContent = `Thành viên từ ${monthYear}`;
+                        }
+                    }
+                    
+                    console.log('Thông tin user đã được cập nhật:', user);
+                } else {
+                    console.warn('Không tìm thấy thông tin user trong localStorage');
                 }
-                input.disabled = true;
-            });
-
-            // Hiện nút "Chỉnh sửa" và ẩn "Lưu"/"Hủy"
-            editBtn.style.display = 'inline-block';
-            formActions.style.display = 'none';
-        });
-
-        // Gửi form thông tin người dùng
-        document.getElementById('userInfoForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            // Lấy giá trị từ form
-            const fullName = document.getElementById('fullName').value;
-            const email = document.getElementById('email').value;
-            const phone = document.getElementById('phone').value;
-
-            // Kiểm tra dữ liệu
-            if (!fullName || !email || !phone) {
-                alert('Vui lòng điền đầy đủ thông tin bắt buộc: Họ và tên, Email, Số điện thoại!');
-                return;
+            } catch (error) {
+                console.error('Lỗi khi đọc thông tin user:', error);
             }
-
-            // Giả lập quá trình lưu (ví dụ: AJAX call)
-            setTimeout(() => {
-                // Cập nhật tên người dùng trên sidebar
-                document.querySelector('.user-fullname').textContent = fullName;
-                
-                // Cập nhật tên người dùng trên thanh menu (nếu có, dùng class .user-name)
-                const userNameElement = document.querySelector('.user-name');
-                if (userNameElement) {
-                    userNameElement.textContent = fullName;
-                }
-
-                // Hiển thị thông báo thành công
-                alert('Cập nhật thông tin thành công!');
-
-                // Vô hiệu hóa form và khôi phục nút
-                formInputs.forEach(input => {
-                    input.disabled = true;
-                });
-                editBtn.style.display = 'inline-block';
-                formActions.style.display = 'none';
-                
-            }, 500);
-        });
-
-        // đổi mật khẩu
-        document.getElementById('changePasswordForm').addEventListener('submit', function (e) {
-            e.preventDefault();
-
-            const currentPassword = document.getElementById('currentPassword').value;
-            const newPassword = document.getElementById('newPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-
-            // Kiểm tra dữ liệu
-            if (!currentPassword || !newPassword || !confirmPassword) {
-                alert('Vui lòng điền đầy đủ thông tin!');
-                return;
-            }
-
-            if (newPassword.length < 8) {
-                alert('Mật khẩu mới phải có ít nhất 8 ký tự!');
-                return;
-            }
-
-            if (newPassword !== confirmPassword) {
-                alert('Mật khẩu xác nhận không khớp!');
-                return;
-            }
-
-            // Giả lập quá trình đổi mật khẩu
-            setTimeout(() => {
-                // Xóa dữ liệu form
-                document.getElementById('changePasswordForm').reset();
-                alert('Đổi mật khẩu thành công!');
-            }, 500);
         });
     </script>
 </body>

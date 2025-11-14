@@ -95,7 +95,7 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
     <section id="surveys" class="surveys-section">
         <div class="container">
             <div class="section-header">
-                <h2 class="section-title">Khảo sát mới dành cho bạn (3)</h2>
+                <h2 class="section-title">Khảo sát mới dành cho bạn (6)</h2>
                 <a href="<?= $url($urls, 'surveys', '/surveys') ?>" class="view-all">Xem tất cả <i
                         class="fas fa-arrow-right ms-1"></i></a>
                 </div>
@@ -155,6 +155,63 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
                             </div>
                         <p class="survey-desc">Chia sẻ thói quen tập luyện và quan điểm về lối
                             sống lành mạnh của bạn.</p>
+                        <a href="#" class="btn btn-gradient mt-auto w-100">Bắt đầu ngay</a>
+                        </div>
+                    </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="survey-card">
+                        <div class="survey-badge">
+                            <i class="fas fa-star me-1"></i>Mới
+                            </div>
+                        <div class="survey-header">
+                            <h3 class="survey-title">Khảo sát về thói quen ăn uống</h3>
+                            <div class="survey-meta">
+                                <span class="text-primary fw-bold"><i
+                                        class="fas fa-coins me-1"></i>+55 điểm</span>
+                                <span><i class="fas fa-clock me-1"></i>10 phút</span>
+                                </div>
+                            </div>
+                        <p class="survey-desc">Chia sẻ sở thích ăn uống của bạn và các xu hướng
+                            tiêu dùng thực phẩm.</p>
+                        <a href="#" class="btn btn-gradient mt-auto w-100">Bắt đầu ngay</a>
+                        </div>
+                    </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="survey-card">
+                        <div class="survey-badge badge-hot">
+                            <i class="fas fa-fire me-1"></i>Hot
+                            </div>
+                        <div class="survey-header">
+                            <h3 class="survey-title">Khảo sát về du lịch và du lịch</h3>
+                            <div class="survey-meta">
+                                <span class="text-primary fw-bold"><i
+                                        class="fas fa-coins me-1"></i>+70 điểm</span>
+                                <span><i class="fas fa-clock me-1"></i>15 phút</span>
+                                </div>
+                            </div>
+                        <p class="survey-desc">Cho chúng tôi biết về những trải nghiệm du lịch
+                            yêu thích của bạn và các điểm đến mơ ước.</p>
+                        <a href="#" class="btn btn-gradient mt-auto w-100">Bắt đầu ngay</a>
+                        </div>
+                    </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <div class="survey-card">
+                        <div class="survey-badge">
+                            <i class="fas fa-star me-1"></i>Mới
+                            </div>
+                        <div class="survey-header">
+                            <h3 class="survey-title">Khảo sát về giải trí & truyền hình</h3>
+                            <div class="survey-meta">
+                                <span class="text-primary fw-bold"><i
+                                        class="fas fa-coins me-1"></i>+45 điểm</span>
+                                <span><i class="fas fa-clock me-1"></i>8 phút</span>
+                                </div>
+                            </div>
+                        <p class="survey-desc">Chia sẻ sở thích giải trí, phim ảnh và các chương
+                            trình TV yêu thích của bạn.</p>
                         <a href="#" class="btn btn-gradient mt-auto w-100">Bắt đầu ngay</a>
                         </div>
                     </div>

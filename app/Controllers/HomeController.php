@@ -55,6 +55,11 @@ class HomeController extends Controller
         return $this->view('pages/terms-of-use/terms-of-use', $this->pageData($request));
     }
 
+    public function contact(Request $request)
+    {
+        return $this->view('pages/contact/contact', $this->pageData($request));
+    }
+
     private function pageData(Request $request): array
     {
         $config = Container::get('config');

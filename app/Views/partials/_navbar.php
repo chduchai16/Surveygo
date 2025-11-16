@@ -53,6 +53,12 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
                         <i class="fas fa-calendar me-1"></i>Sự kiện
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a class="nav-link <?= $current === '/contact' ? 'active' : '' ?>"
+                        href="<?= rtrim($baseUrl, '/') ?>/contact">
+                        <i class="fas fa-envelope me-1"></i>Liên hệ
+                    </a>
+                </li>
                 <!-- User Dropdown (hidden by default) -->
                 <li class="nav-item dropdown" id="nav-user" style="display: none;">
                     <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown"

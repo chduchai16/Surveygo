@@ -20,7 +20,7 @@
                     <li><a href="#">Trung tâm trợ giúp</a></li>
                     <li><a href="/terms-of-use">Điều khoản sử dụng</a></li>
                     <li><a href="#">Chính sách bảo mật</a></li>
-                    <li><a href="#">Liên hệ</a></li>
+                    <li><a href="/contact">Liên hệ</a></li>
                 </ul>
             </div>
             <div class="col-md-6 col-lg-3">

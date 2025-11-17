@@ -193,7 +193,7 @@ $urls['home'] = $urls['home'] ?? $__mk($__base, '/');
                                 <p><strong>Email: </strong><a
                                         href="mailto:support@surveygo.com">support@surveygo.com</a></p>
                                 <p><strong>Địa chỉ:</strong> 448 Lạch Tray, Lê Chân, Hải Phòng, Việt Nam</p>
-                                <p><strong>Điện thoại: </strong><a href="tel:0382116948">0382116948</a></p>
+                                <p><strong>Điện thoại: </strong><a href="tel:0382116940">0382116940</a></p>
                             </div>
                         </div>
                     </div>

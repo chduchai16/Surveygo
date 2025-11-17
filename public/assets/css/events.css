@@ -66,9 +66,20 @@ body.page-mission-hub {
     background: linear-gradient(135deg, #bdc3c7 0%, #2c3e50 100%);
     box-shadow: none;
 }
-.daily-mission-card.checked-in:hover { transform: none; }
-.daily-mission-card.checked-in .mission-icon { color: #10b981; }
-.daily-mission-card.checked-in .btn { background-color: #f0f0f0; color: #777; cursor: not-allowed; }
+
+.daily-mission-card.checked-in:hover {
+    transform: none;
+}
+
+.daily-mission-card.checked-in .mission-icon {
+    color: #10b981;
+}
+
+.daily-mission-card.checked-in .btn {
+    background-color: #f0f0f0;
+    color: #777;
+    cursor: not-allowed;
+}
 
 
 /* 4. Nội dung chính (2 cột) */
@@ -88,7 +99,7 @@ body.page-mission-hub {
 .sidebar-column {
     background: var(--hub-card-bg, white);
     border: 1px solid var(--hub-card-border, #e2e8f0);
-    border-radius: 16px; /* Bo tròn góc */
+    border-radius: 16px;
     padding: 1.5rem;
     box-shadow: var(--hub-card-shadow, 0 4px 20px rgba(0, 0, 0, 0.08));
 }
@@ -100,27 +111,24 @@ body.page-mission-hub {
 
 /* 4.1. Cột Feed (Trái) - Đơn giản hóa card bên trong */
 .event-card-feed {
-    /* THAY ĐỔI: Bỏ style card-in-card, chỉ giữ lại vạch ngăn */
     background: transparent;
     border: none;
     box-shadow: none;
     border-radius: 0;
     /* padding: 0; -> Đã có padding ở .event-card-content */
     margin-bottom: 1.5rem;
-    padding-bottom: 1.5rem; /* Thêm padding dưới */
-    border-bottom: 1px solid var(--hub-card-border, #e2e8f0); /* Vạch ngăn cách */
-    display: flex; 
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--hub-card-border, #e2e8f0);
+    display: flex;
 }
 
 .event-card-feed:last-of-type {
-    /* Xóa vạch của card cuối cùng */
     border-bottom: none;
     margin-bottom: 0;
     padding-bottom: 0;
 }
 
 .event-card-feed:hover {
-    /* Tắt hiệu ứng hover của card con */
     transform: none;
     box-shadow: none;
 }
@@ -131,22 +139,47 @@ body.page-mission-hub {
     flex-shrink: 0;
     background-size: cover;
     background-position: center;
-    border-radius: 8px; /* THAY ĐỔI: Thêm bo góc cho ảnh */
+    border-radius: 8px;
 }
-.event-card-content { padding: 0 0 0 1.5rem; /* THAY ĐỔI: Cập nhật padding */ display: flex; flex-direction: column; }
-.event-date { font-size: 0.85rem; font-weight: 600; color: var(--primary-color); margin-bottom: 0.5rem; }
-.event-title { font-size: 1.15rem; font-weight: 700; color: var(--hub-text-primary); margin-bottom: 0.5rem; }
-.event-desc { font-size: 0.95rem; color: var(--hub-text-secondary); margin-bottom: 1rem; flex-grow: 1; }
-.event-join-btn { align-self: flex-start; }
+
+.event-card-content {
+    padding: 0 0 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-date {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--primary-color);
+    margin-bottom: 0.5rem;
+}
+
+.event-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--hub-text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.event-desc {
+    font-size: 0.95rem;
+    color: var(--hub-text-secondary);
+    margin-bottom: 1rem;
+    flex-grow: 1;
+}
+
+.event-join-btn {
+    align-self: flex-start;
+}
 
 /* Danh sách người thắng - Đơn giản hóa item */
 .winner-list .winner-item {
-    /* THAY ĐỔI: Bỏ style card-in-card */
     background: transparent;
     border: none;
     box-shadow: none;
     border-radius: 0;
-    padding: 1rem 0; /* Chỉ padding trên dưới */
+    padding: 1rem 0;
     border-bottom: 1px solid var(--hub-card-border, #e2e8f0);
     margin-bottom: 0;
     display: flex;
@@ -160,26 +193,41 @@ body.page-mission-hub {
 }
 
 .winner-list .winner-item:hover {
-    /* THAY ĐỔI: Bỏ hover */
     background-color: transparent;
     border-color: transparent;
 }
 
 /* Style cho winner-item con (giữ nguyên) */
-.winner-icon { font-size: 1.5rem; color: var(--accent-color); margin-right: 1rem; }
-.winner-info { flex-grow: 1; }
-.winner-title { display: block; font-weight: 600; color: var(--hub-text-primary); }
-.winner-date { display: block; font-size: 0.85rem; color: var(--hub-text-secondary); }
+.winner-icon {
+    font-size: 1.5rem;
+    color: var(--accent-color);
+    margin-right: 1rem;
+}
+
+.winner-info {
+    flex-grow: 1;
+}
+
+.winner-title {
+    display: block;
+    font-weight: 600;
+    color: var(--hub-text-primary);
+}
+
+.winner-date {
+    display: block;
+    font-size: 0.85rem;
+    color: var(--hub-text-secondary);
+}
 
 
 /* 4.2. Cột Sidebar (Phải) - Đơn giản hóa card bên trong */
 .sidebar-card {
-    /* THAY ĐỔI: Bỏ style card-in-card */
     background: transparent;
     border: none;
     box-shadow: none;
     border-radius: 0;
-    padding: 1.5rem 0; /* Padding trên dưới */
+    padding: 1.5rem 0;
     margin-bottom: 1rem;
     border-bottom: 1px solid var(--hub-card-border, #e2e8f0);
     text-align: center;
@@ -192,9 +240,22 @@ body.page-mission-hub {
 }
 
 /* Style cho sidebar-card con (giữ nguyên) */
-.sidebar-card .card-icon { font-size: 2.5rem; margin-bottom: 1rem; }
-.sidebar-card .card-title { font-size: 1.2rem; font-weight: 700; color: var(--hub-text-primary); }
-.sidebar-card .card-desc { font-size: 0.95rem; color: var(--hub-text-secondary); margin-bottom: 1.5rem; }
+.sidebar-card .card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.sidebar-card .card-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--hub-text-primary);
+}
+
+.sidebar-card .card-desc {
+    font-size: 0.95rem;
+    color: var(--hub-text-secondary);
+    margin-bottom: 1.5rem;
+}
 
 /* --- Responsive --- */
 @media (max-width: 991px) {
@@ -227,12 +288,14 @@ body.page-mission-hub {
     .event-card-feed {
         flex-direction: column;
     }
+
     .event-card-img {
         width: 100%;
         height: 180px;
     }
+
     .event-card-content {
-        padding: 1.5rem 0 0 0; /* THAY ĐỔI: Bỏ padding trái */
+        padding: 1.5rem 0 0 0;
     }
 
     .winner-item {
@@ -240,6 +303,7 @@ body.page-mission-hub {
         text-align: center;
         gap: 0.75rem;
     }
+
     .winner-info {
         flex-grow: 0;
     }

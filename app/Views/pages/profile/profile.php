@@ -97,8 +97,7 @@ $urls = $urls ?? []; // Giả định $urls được truyền vào
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Email</label>
-                                                <input type="email" class="form-control" value="user@email.com"
-                                                    disabled>
+                                                <input type="email" class="form-control" value="user@email.com">
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Số điện thoại</label>
@@ -128,17 +127,27 @@ $urls = $urls ?? []; // Giả định $urls được truyền vào
                                     <form>
                                         <div class="mb-3 password-wrapper">
                                             <label class="form-label">Mật khẩu hiện tại</label>
-                                            <input type="password" class="form-control">
-                                            <button type="button" class="password-toggle"><i
-                                                    class="fas fa-eye"></i></button>
+                                            <input type="password" class="form-control password-input-current"
+                                                id="current-password">
+                                            <button type="button" class="password-toggle"
+                                                onclick="togglePasswordField('current-password', 'toggle-current')"><i
+                                                    class="fas fa-eye" id="toggle-current"></i></button>
                                         </div>
-                                        <div class="mb-3">
+                                        <div class="mb-3 password-wrapper">
                                             <label class="form-label">Mật khẩu mới</label>
-                                            <input type="password" class="form-control">
+                                            <input type="password" class="form-control password-input-new"
+                                                id="new-password">
+                                            <button type="button" class="password-toggle"
+                                                onclick="togglePasswordField('new-password', 'toggle-new')"><i
+                                                    class="fas fa-eye" id="toggle-new"></i></button>
                                         </div>
-                                        <div class="mb-3">
+                                        <div class="mb-3 password-wrapper">
                                             <label class="form-label">Xác nhận mật khẩu mới</label>
-                                            <input type="password" class="form-control">
+                                            <input type="password" class="form-control password-input-confirm"
+                                                id="confirm-password">
+                                            <button type="button" class="password-toggle"
+                                                onclick="togglePasswordField('confirm-password', 'toggle-confirm')"><i
+                                                    class="fas fa-eye" id="toggle-confirm"></i></button>
                                         </div>
                                     </form>
                                 </div>
@@ -242,6 +251,22 @@ $urls = $urls ?? []; // Giả định $urls được truyền vào
                 console.error('Lỗi khi đọc thông tin user:', error);
             }
         });
+
+        // Function toggle password visibility
+        function togglePasswordField(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
     </script>
 </body>
 

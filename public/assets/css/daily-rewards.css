@@ -48,10 +48,8 @@
 /* ====== LƯỚI PHẦN THƯỞNG (ĐÃ CẬP NHẬT) ====== */
 .reward-grid {
   display: grid;
-  /* Desktop: 6 cột */
   grid-template-columns: repeat(6, 1fr);
   gap: 0.75rem;
-  /* Giảm khoảng cách 1 chút */
   margin-bottom: 2.5rem;
 }
 
@@ -82,7 +80,6 @@
   background: #f8f9fc;
   border-radius: 12px;
   padding: 1rem 0.5rem;
-  /* Padding nhỏ lại */
   text-align: center;
   border: 2px solid #e9ecef;
   transition: all 0.3s ease;
@@ -90,7 +87,6 @@
   flex-direction: column;
   justify-content: center;
   min-height: 110px;
-  /* Chiều cao nhỏ lại (từ 140px) */
 
   opacity: 0.7;
   filter: grayscale(80%);
@@ -98,9 +94,7 @@
 
 .reward-card .icon {
   font-size: 1.5rem;
-  /* Icon nhỏ lại (từ 1.8rem) */
   margin-bottom: 0.5rem;
-  /* Margin nhỏ lại */
   color: #aebecd;
   transition: all 0.3s ease;
 }
@@ -108,14 +102,12 @@
 .reward-card .day {
   font-weight: 700;
   font-size: 0.9rem;
-  /* Chữ nhỏ lại (từ 1rem) */
   color: #555;
   margin-bottom: 0.25rem;
 }
 
 .reward-card .points {
   font-size: 0.8rem;
-  /* Chữ nhỏ lại (từ 0.9rem) */
   font-weight: 600;
   color: #777;
 }
@@ -173,7 +165,6 @@
 .reward-card.claimed .icon {
   color: white;
   font-size: 1.6rem;
-  /* Icon 'check' nhỏ lại (từ 2rem) */
 }
 
 .reward-card.claimed .day,

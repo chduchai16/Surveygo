@@ -89,19 +89,19 @@
 /* Tính năng */
 .features-section {
     padding: 6rem 0;
-    background: var(--background-light); /* Dùng màu xám nhạt mới */
+    background: var(--background-light);
 }
 
 .section-title {
     font-size: 2.5rem;
     margin-bottom: 1rem;
-    color: var(--text-primary); /* Dùng màu text chính mới */
+    color: var(--text-primary);
     font-weight: 700;
 }
 
 .section-subtitle {
     font-size: 1.2rem;
-    color: var(--text-secondary); /* Dùng màu text phụ mới */
+    color: var(--text-secondary);
     margin-bottom: 4rem;
 }
 
@@ -109,16 +109,16 @@
     background: var(--card-bg);
     padding: 2.5rem;
     border-radius: 15px;
-    box-shadow: var(--card-shadow); /* Dùng biến shadow */
+    box-shadow: var(--card-shadow);
     transition: transform 0.3s, box-shadow 0.3s, border 0.3s;
     height: 100%;
-    border: 1px solid var(--border-color); /* Dùng màu viền xám mới */
+    border: 1px solid var(--border-color);
 }
 
 .feature-card:hover {
     transform: translateY(-10px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
-    border: 1px solid var(--accent-color); /* Viền màu accent khi hover */
+    border: 1px solid var(--accent-color);
 }
 
 .feature-icon {
@@ -131,66 +131,66 @@
     justify-content: center;
     margin-bottom: 1.5rem;
     font-size: 2rem;
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3); /* Shadow primary */
-    transition: background 0.3s, box-shadow 0.3s; /* Thêm transition */
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    transition: background 0.3s, box-shadow 0.3s;
 }
 
 .feature-card:hover .feature-icon {
-    background: var(--accent-gradient); /* Đổi sang gradient accent khi hover */
-    box-shadow: 0 10px 30px rgba(255, 179, 71, 0.3); /* Shadow accent khi hover */
+    background: var(--accent-gradient);
+    box-shadow: 0 10px 30px rgba(255, 179, 71, 0.3);
 }
 
-.feature-icon--secondary { /* Icon thứ cấp dùng màu hồng */
-    background: linear-gradient(45deg, var(--secondary-accent) 0%, #d946ef 100%); /* Gradient hồng */
-    box-shadow: 0 10px 30px rgba(236, 72, 153, 0.3); /* Shadow hồng */
+.feature-icon--secondary {
+    background: linear-gradient(45deg, var(--secondary-accent) 0%, #d946ef 100%);
+    box-shadow: 0 10px 30px rgba(236, 72, 153, 0.3);
 }
 
 .feature-card:hover .feature-icon--secondary {
-    background: var(--primary-gradient); /* Đổi sang primary khi hover */
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3); /* Shadow primary khi hover */
+    background: var(--primary-gradient);
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
 }
 
 
 .feature-card h3 {
     font-size: 1.5rem;
-    color: var(--text-primary); /* Tiêu đề card dùng màu text chính */
+    color: var(--text-primary);
 }
 
 /* Cách hoạt động */
 .steps-section {
     padding: 6rem 0;
-    background: var(--background-light); /* Dùng màu xám nhạt mới */
+    background: var(--background-light);
 }
 
 .step {
     transition: all 0.3s ease;
     padding: 2rem;
     border-radius: 15px;
-    border: 1px solid var(--border-color); /* Dùng viền xám mặc định */
-    background: white; /* Nền trắng */
+    border: 1px solid var(--border-color);
+    background: white;
 }
 
 .step:hover {
     transform: translateY(-10px);
-    border: 1px solid var(--secondary-accent); /* Viền màu hồng khi hover */
-    background: rgba(236, 72, 153, 0.05); /* Nền hồng nhạt khi hover */
-    box-shadow: 0 15px 40px rgba(236, 72, 153, 0.2); /* Shadow hồng khi hover */
+    border: 1px solid var(--secondary-accent);
+    background: rgba(236, 72, 153, 0.05);
+    box-shadow: 0 15px 40px rgba(236, 72, 153, 0.2);
 }
 
 .step h3 {
-    color: var(--text-primary); /* Dùng màu text chính */
+    color: var(--text-primary);
     margin: 1rem 0;
     font-weight: 700;
 }
 
 .step p {
-    color: var(--text-secondary); /* Dùng màu text phụ */
+    color: var(--text-secondary);
 }
 
 .step-number {
     width: 80px;
     height: 80px;
-    background: var(--accent-gradient); /* Mặc định là accent (vàng cam) */
+    background: var(--accent-gradient);
     color: white;
     border-radius: 50%;
     display: flex;
@@ -203,9 +203,9 @@
     transition: all 0.3s ease;
 }
 
-.step-number--secondary { /* Số bước dùng màu hồng */
-    background: linear-gradient(45deg, var(--secondary-accent) 0%, #d946ef 100%); /* Gradient hồng */
-    box-shadow: 0 10px 30px rgba(236, 72, 153, 0.4); /* Shadow hồng */
+.step-number--secondary {
+    background: linear-gradient(45deg, var(--secondary-accent) 0%, #d946ef 100%);
+    box-shadow: 0 10px 30px rgba(236, 72, 153, 0.4);
 }
 
 .step:hover .step-number {
@@ -214,7 +214,7 @@
 }
 
 .step:hover .step-number--secondary {
-    transform: scale(1.1) rotate(-5deg); /* Thêm hiệu ứng rotate ngược cho hồng */
+    transform: scale(1.1) rotate(-5deg);
     box-shadow: 0 15px 40px rgba(236, 72, 153, 0.6);
 }
 
@@ -242,7 +242,8 @@
     .hero-section {
         padding-top: 80px;
         padding-bottom: 60px;
-        min-height: auto; /* Allow height to adjust */
+        min-height: auto;
+        /* Allow height to adjust */
     }
 
     .hero-section h1 {
@@ -272,18 +273,21 @@
         margin-bottom: 3rem;
     }
 
-    .feature-card, .step {
+    .feature-card,
+    .step {
         padding: 2rem;
     }
 
-    .feature-icon, .step-number {
+    .feature-icon,
+    .step-number {
         width: 50px;
         height: 50px;
         font-size: 1.5rem;
         margin-bottom: 1rem;
     }
 
-    .feature-card h3, .step h3 {
+    .feature-card h3,
+    .step h3 {
         font-size: 1.3rem;
     }
 
@@ -300,37 +304,50 @@
     .hero-section h1 {
         font-size: 2.2rem;
     }
+
     .hero-section p {
         font-size: 1rem;
     }
+
     .hero-buttons {
         flex-direction: column;
     }
+
     .hero-buttons .btn {
         width: 100%;
         text-align: center;
     }
+
     .section-title {
         font-size: 1.8rem;
     }
+
     .section-subtitle {
         font-size: 0.9rem;
         margin-bottom: 2rem;
     }
-    .feature-card, .step {
+
+    .feature-card,
+    .step {
         padding: 1.5rem;
     }
-    .feature-icon, .step-number {
+
+    .feature-icon,
+    .step-number {
         width: 45px;
         height: 45px;
         font-size: 1.3rem;
     }
-    .feature-card h3, .step h3 {
+
+    .feature-card h3,
+    .step h3 {
         font-size: 1.2rem;
     }
+
     .cta-section h2 {
         font-size: 1.8rem;
     }
+
     .cta-section p {
         font-size: 0.95rem;
     }

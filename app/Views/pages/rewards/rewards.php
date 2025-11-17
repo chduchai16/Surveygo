@@ -237,7 +237,7 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
                                 <p class="reward-price"><strong>5,000</strong> điểm</p>
                                 <p class="reward-desc">Tai nghe không dây chất lượng cao, giao hàng 3-5 ngày</p>
                                 <button class="btn btn-warning w-100 reward-btn" data-points="5000" data-type="gift">
-                                    <i class="fas fa-arrow-right me-2"></i>Đặt Hàng
+                                    <i class="fas fa-arrow-right me-2"></i>Đổi ngay
                                 </button>
                             </div>
                         </div>
@@ -251,7 +251,7 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
                                 <p class="reward-price"><strong>1,500</strong> điểm</p>
                                 <p class="reward-desc">Pin sạc dự phòng 20000mAh, giao hàng 2-3 ngày</p>
                                 <button class="btn btn-warning w-100 reward-btn" data-points="1500" data-type="gift">
-                                    <i class="fas fa-arrow-right me-2"></i>Đặt Hàng
+                                    <i class="fas fa-arrow-right me-2"></i>Đổi ngay
                                 </button>
                             </div>
                         </div>
@@ -265,7 +265,7 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
                                 <p class="reward-price"><strong>8,000</strong> điểm</p>
                                 <p class="reward-desc">Bàn phím cơ chuyên gaming RGB, giao hàng 5-7 ngày</p>
                                 <button class="btn btn-warning w-100 reward-btn" data-points="8000" data-type="gift">
-                                    <i class="fas fa-arrow-right me-2"></i>Đặt Hàng
+                                    <i class="fas fa-arrow-right me-2"></i>Đổi ngay
                                 </button>
                             </div>
                         </div>

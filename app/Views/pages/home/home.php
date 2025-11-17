@@ -14,22 +14,16 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
 <head>
 
     <meta charset="utf-8">
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title><?= htmlspecialchars($appName . ' - Home', ENT_QUOTES, 'UTF-8') ?></title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
-
-    <link rel="stylesheet" href="public/assets/css/home.css">
-
     <link rel="stylesheet" href="public/assets/css/app.css">
-
-    <link rel="stylesheet" href="public/assets/css/footer.css">
-
     <link rel="stylesheet" href="public/assets/css/navbar.css">
+    <link rel="stylesheet" href="public/assets/css/footer.css">
+    <link rel="stylesheet" href="public/assets/css/home.css">
 
     <style>
         <?php @include __DIR__ . '/home.css'; ?>
@@ -39,15 +33,15 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
 <body class="page page--home">
     <?php include BASE_PATH . '/app/Views/partials/_navbar.php'; ?>
 
-    <section class="welcome-section">
+    <section class="welcome-section pt-5 pb-4">
         <div class="container">
-            <div class="row align-items-center">
-                <div class="col-lg-6">
+            <div class="row align-items-center g-4">
+                <div class="col-lg-6 welcome-container">
                     <h1 class="welcome-title" id="welcome-text">Xin chào! 👋</h1>
                     <p class="welcome-text text-muted">Hãy hoàn thành các khảo sát mới để tiếp tục
                         tăng thu nhập của bạn.</p>
                 </div>
-                <div class="col-lg-6 text-lg-end mt-4 mt-lg-0">
+                <div class="col-lg-6 text-lg-end">
                     <div class="points-card d-inline-flex align-items-center justify-content-between w-100 p-3 p-md-4">
                         <div class="points-info text-start">
                             <div class="points-label">Điểm hiện có</div>
@@ -63,7 +57,54 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
         </div>
     </section>
 
-    <section class="charts-section">
+    <section class="quick-actions-section pb-5">
+        <div class="container">
+            <h2 class="section-title mb-4">Hành động nhanh</h2>
+            <div class="row g-3 g-lg-4">
+                <div class="col-md-4">
+                    <a href="#" class="action-card">
+                        <div class="action-icon"
+                            style="--icon-bg: var(--primary-color-soft); --icon-color: var(--primary-color);">
+                            <i class="fas fa-user-edit"></i>
+                        </div>
+                        <div class="action-content">
+                            <h5>Hoàn thành hồ sơ</h5>
+                            <p>Nhận +50 điểm và các khảo sát tốt hơn.</p>
+                        </div>
+                        <i class="fas fa-chevron-right action-arrow"></i>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="#" class="action-card">
+                        <div class="action-icon"
+                            style="--icon-bg: var(--success-color-soft); --icon-color: var(--success-color);">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="action-content">
+                            <h5>Điểm danh hàng ngày</h5>
+                            <p>Nhận phần thưởng đăng nhập mỗi ngày.</p>
+                        </div>
+                        <i class="fas fa-chevron-right action-arrow"></i>
+                    </a>
+                </div>
+                <div class="col-md-4">
+                    <a href="#" class="action-card">
+                        <div class="action-icon"
+                            style="--icon-bg: var(--accent-color-soft); --icon-color: var(--accent-color);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="action-content">
+                            <h5>Mời bạn bè</h5>
+                            <p>Nhận hoa hồng từ bạn bè của bạn.</p>
+                        </div>
+                        <i class="fas fa-chevron-right action-arrow"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="charts-section bg-body-light py-5">
         <div class="container">
             <div class="row g-4">
                 <div class="col-lg-7">
@@ -86,7 +127,7 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
         </div>
     </section>
 
-    <section id="surveys" class="surveys-section">
+    <section id="surveys" class="surveys-section py-5">
         <div class="container">
             <div class="section-header">
                 <h2 class="section-title">Khảo sát mới dành cho bạn (6)</h2>
@@ -170,7 +211,7 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
 
                 <div class="col-lg-4 col-md-6">
                     <div class="survey-card">
-                        <div class="survey-badge badge-hot">
+                        _           <div class="survey-badge badge-hot">
                             <i class="fas fa-fire me-1"></i>Hot
                         </div>
                         <div class="survey-header">
@@ -193,7 +234,7 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
                         </div>
                         <div class="survey-header">
                             <h3 class="survey-title">Khảo sát về giải trí & truyền hình</h3>
-                            <div class="survey-meta">
+                            _         <div class="survey-meta">
                                 <span class="text-primary fw-bold"><i class="fas fa-coins me-1"></i>+45 điểm</span>
                                 <span><i class="fas fa-clock me-1"></i>8 phút</span>
                             </div>
@@ -207,7 +248,7 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
         </div>
     </section>
 
-    <section class="activity-section">
+    <section class="activity-section bg-body-light py-5">
         <div class="container">
             <h2 class="section-title mb-3">Hoạt động gần đây</h2>
             <div class="activity-list">
@@ -249,12 +290,10 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
 
     <?php include BASE_PATH . '/app/Views/partials/_footer.php'; ?>
 
-
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <script>
-        // Cá nhân hóa bằng localStorage: đọc thông tin người dùng đã lưu sau đăng nhập
         document.addEventListener('DOMContentLoaded', () => {
             try {
                 const raw = localStorage.getItem('app.user');
@@ -268,19 +307,17 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
                     welcomeText.textContent = `Xin chào, ${name}! 👋`;
                 }
 
-                // Cập nhật điểm nếu có
                 if (user.points) {
                     const userPointsEl = document.getElementById('user-points');
-                    const totalPointsEl = document.getElementById('total-points');
                     if (userPointsEl) userPointsEl.textContent = user.points.toLocaleString('vi-VN');
-                    if (totalPointsEl) totalPointsEl.textContent = user.points.toLocaleString('vi-VN');
                 }
             } catch (_) {
                 // ignore
             }
         });
+    </script>
 
-        // Khởi tạo Chart.js biểu đồ
+    <script>
         document.addEventListener('DOMContentLoaded', function () {
             try {
                 // --- Biểu đồ 1: Điểm kiếm được (Biểu đồ cột) ---
@@ -292,9 +329,8 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
                             labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
                             datasets: [{
                                 label: 'Điểm kiếm được',
-                                // Dữ liệu giả lập (thay thế bằng dữ liệu thật)
                                 data: [120, 190, 300, 500, 220, 350],
-                                backgroundColor: 'rgba(99, 102, 241, 0.8)', // Màu primary
+                                backgroundColor: 'rgba(99, 102, 241, 0.8)',
                                 borderColor: 'rgba(99, 102, 241, 1)',
                                 borderWidth: 1,
                                 borderRadius: 5
@@ -303,16 +339,8 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    display: false
-                                }
-                            }
+                            scales: { y: { beginAtZero: true } },
+                            plugins: { legend: { display: false } }
                         }
                     });
                 }
@@ -326,38 +354,27 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
                             labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
                             datasets: [{
                                 label: 'Khảo sát',
-                                // Dữ liệu giả lập (thay thế bằng dữ liệu thật)
-                                data: [3, 5, 2, 4, 6, 1, 3], // Tổng = 24 (khớp stat-card)
+                                data: [3, 5, 2, 4, 6, 1, 3],
                                 fill: true,
-                                backgroundColor: 'rgba(236, 72, 153, 0.1)', // Màu accent
+                                backgroundColor: 'rgba(236, 72, 153, 0.1)',
                                 borderColor: 'rgba(236, 72, 153, 1)',
-                                tension: 0.3 // Làm mịn đường cong
+                                tension: 0.3
                             }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true
-                                }
-                            },
-                            plugins: {
-                                legend: {
-                                    display: false
-                                }
-                            }
+                            scales: { y: { beginAtZero: true } },
+                            plugins: { legend: { display: false } }
                         }
                     });
                 }
             } catch (e) {
                 console.error("Lỗi khi khởi tạo biểu đồ:", e);
             }
-
         });
     </script>
 
 </body>
-
 
 </html>

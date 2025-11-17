@@ -86,7 +86,7 @@ $urls = $urls ?? []; // Giả định $urls được truyền vào
                             <div class="info-card">
                                 <div class="card-header-custom">
                                     <h5><i class="fas fa-user-edit me-2"></i>Thông tin cá nhân</h5>
-                                    <button class="btn btn-primary-gradient btn-sm">Lưu thay đổi</button>
+                                    <button class="btn btn-primary-gradient btn-sm">Cập nhật</button>
                                 </div>
                                 <div class="card-body">
                                     <form>

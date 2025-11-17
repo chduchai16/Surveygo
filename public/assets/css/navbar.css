@@ -48,6 +48,13 @@ body {
     background-clip: unset;
     -webkit-text-fill-color: unset;
     color: var(--accent-color) !important;
+    text-shadow: 0 0 10px rgba(243, 156, 18, 0.4), 0 0 20px rgba(243, 156, 18, 0.2);
+    transition: all 0.3s ease;
+}
+
+.navbar-brand:hover {
+    text-shadow: 0 0 15px rgba(243, 156, 18, 0.6), 0 0 30px rgba(243, 156, 18, 0.3);
+    transform: scale(1.02);
 }
 
 .nav-link {

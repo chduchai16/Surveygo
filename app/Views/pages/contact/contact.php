@@ -148,7 +148,7 @@ $url = static fn($urls_array, $key, $default) => $urls_array[$key] ?? $default;
                             </div>
                             <div class="info-content">
                                 <h3>Số Điện Thoại</h3>
-                                <p><a href="tel:081919898908">08 1919 8989</a></p>
+                                <p><a href="tel:081919898908">0382116940</a></p>
                             </div>
                         </div>
                     </div>

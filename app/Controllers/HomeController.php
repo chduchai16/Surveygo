@@ -32,12 +32,12 @@ class HomeController extends Controller
 
     public function profile(Request $request)
     {
-        return $this->view('pages/profile/profile', $this->pageData($request));
+        return $this->view('pages/user/profile', $this->pageData($request));
     }
 
     public function dailyRewards(Request $request)
     {
-        return $this->view('pages/daily-rewards/daily-rewards', $this->pageData($request));
+        return $this->view('pages/user/daily-rewards', $this->pageData($request));
     }
 
     public function events(Request $request)
@@ -47,17 +47,17 @@ class HomeController extends Controller
 
     public function rewards(Request $request)
     {
-        return $this->view('pages/rewards/rewards', $this->pageData($request));
+        return $this->view('pages/user/rewards', $this->pageData($request));
     }
 
     public function terms(Request $request)
     {
-        return $this->view('pages/terms-of-use/terms-of-use', $this->pageData($request));
+        return $this->view('pages/info/terms-of-use', $this->pageData($request));
     }
 
     public function contact(Request $request)
     {
-        return $this->view('pages/contact/contact', $this->pageData($request));
+        return $this->view('pages/info/contact', $this->pageData($request));
     }
 
     public function surveys(Request $request)

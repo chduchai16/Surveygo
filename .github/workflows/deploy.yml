@@ -87,8 +87,12 @@ jobs:
           WEB_RESET_URL: ${{ secrets.WEB_RESET_URL }}
         run: |
           set -e
-          URL="${WEB_RESET_URL:-https://surveygo.ducdz.xyz/scripts/reset_db.php}"
-          RESPONSE=$(curl -sS -X POST "$URL" \
+          if [ -z "$WEB_RESET_URL" ]; then
+            echo "WEB_RESET_URL is not set"
+            exit 1
+          fi
+
+          RESPONSE=$(curl -sS -X POST "$WEB_RESET_URL" \
             -d "token=${{ secrets.RESET_SECRET }}")
 
           echo "Response: $RESPONSE"

@@ -14,8 +14,7 @@ class Survey
     private string $tieuDe;
     private ?string $moTa;
     private ?string $loaiKhaoSat;
-    private ?string $thoiGianBatDau;
-    private ?string $thoiGianKetThuc;
+    private ?int $thoiLuongDuTinh;
     private int $maNguoiTao;
     private string $trangThai;
     private int $diemThuong;
@@ -27,18 +26,17 @@ class Survey
 
     public function __construct(array $attributes)
     {
-        $this->id = (int)($attributes['id'] ?? 0);
+        $this->id = (int) ($attributes['id'] ?? 0);
         $this->maKhaoSat = $attributes['maKhaoSat'] ?? '';
         $this->tieuDe = $attributes['tieuDe'] ?? '';
         $this->moTa = $attributes['moTa'] ?? null;
         $this->loaiKhaoSat = $attributes['loaiKhaoSat'] ?? null;
-        $this->thoiGianBatDau = $attributes['thoiGianBatDau'] ?? null;
-        $this->thoiGianKetThuc = $attributes['thoiGianKetThuc'] ?? null;
-        $this->maNguoiTao = (int)($attributes['maNguoiTao'] ?? 0);
+        $this->thoiLuongDuTinh = $attributes['thoiLuongDuTinh'] ? (int) $attributes['thoiLuongDuTinh'] : null;
+        $this->maNguoiTao = (int) ($attributes['maNguoiTao'] ?? 0);
         $this->trangThai = $attributes['trangThai'] ?? 'draft';
-        $this->diemThuong = (int)($attributes['diemThuong'] ?? 0);
-        $this->danhMuc = $attributes['danhMuc'] ? (int)$attributes['danhMuc'] : null;
-        $this->maSuKien = $attributes['maSuKien'] ? (int)$attributes['maSuKien'] : null;
+        $this->diemThuong = (int) ($attributes['diemThuong'] ?? 0);
+        $this->danhMuc = $attributes['danhMuc'] ? (int) $attributes['danhMuc'] : null;
+        $this->maSuKien = $attributes['maSuKien'] ? (int) $attributes['maSuKien'] : null;
         $this->trangThaiKiemDuyet = $attributes['trangThaiKiemDuyet'] ?? 'pending';
         $this->createdAt = $attributes['created_at'] ?? '';
         $this->updatedAt = $attributes['updated_at'] ?? '';
@@ -56,6 +54,82 @@ class Survey
         $rows = $statement->fetchAll();
 
         return array_map(fn($row) => new self($row), $rows);
+    }
+
+    /**
+     * Lấy danh sách khảo sát với phân trang và lọc
+     * 
+     * @param int $page Trang hiện tại (bắt đầu từ 1)
+     * @param int $limit Số khảo sát trên mỗi trang
+     * @param array $filters Mảng lọc: ['search' => '', 'trangThai' => '', 'danhMuc' => '']
+     * @return array ['surveys' => [...], 'total' => int, 'page' => int, 'limit' => int, 'totalPages' => int]
+     */
+    public static function paginate(int $page = 1, int $limit = 10, array $filters = []): array
+    {
+        /** @var PDO $db */
+        $db = Container::get('db');
+
+        // Validate page & limit
+        $page = max(1, (int) $page);
+        $limit = max(1, min(100, (int) $limit)); // Max 100 items per page
+        $offset = ($page - 1) * $limit;
+
+        // Build WHERE clause
+        $where = [];
+        $params = [];
+
+        if (!empty($filters['search'])) {
+            $where[] = "(tieuDe LIKE :search OR moTa LIKE :search)";
+            $params[':search'] = '%' . $filters['search'] . '%';
+        }
+
+        if (!empty($filters['trangThai'])) {
+            $where[] = "trangThai = :trangThai";
+            $params[':trangThai'] = $filters['trangThai'];
+        }
+
+        if (!empty($filters['danhMuc'])) {
+            $where[] = "danhMuc = :danhMuc";
+            $params[':danhMuc'] = (int) $filters['danhMuc'];
+        }
+
+        if (!empty($filters['quickPoll'])) {
+            $where[] = "soLuongCauHoi = 1";
+        }
+
+        $whereClause = !empty($where) ? 'WHERE ' . implode(' AND ', $where) : '';
+
+        // Get total count
+        $countSql = "SELECT COUNT(*) as total FROM surveys {$whereClause}";
+        $countStmt = $db->prepare($countSql);
+        $countStmt->execute($params);
+        $total = (int) $countStmt->fetch()['total'];
+
+        // Get paginated results
+        $sql = "SELECT * FROM surveys {$whereClause} ORDER BY created_at DESC LIMIT :offset, :limit";
+        $stmt = $db->prepare($sql);
+
+        // Bind params
+        foreach ($params as $key => $value) {
+            $stmt->bindValue($key, $value);
+        }
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+
+        $stmt->execute();
+        $rows = $stmt->fetchAll();
+
+        $surveys = array_map(fn($row) => new self($row), $rows);
+
+        $totalPages = (int) ceil($total / $limit);
+
+        return [
+            'surveys' => $surveys,
+            'total' => $total,
+            'page' => $page,
+            'limit' => $limit,
+            'totalPages' => $totalPages,
+        ];
     }
 
     /**
@@ -121,8 +195,8 @@ class Survey
 
         try {
             $statement = $db->prepare(
-                'INSERT INTO surveys (maKhaoSat, tieuDe, moTa, loaiKhaoSat, thoiGianBatDau, thoiGianKetThuc, maNguoiTao, trangThai, diemThuong, danhMuc, soLuongCauHoi, soNguoiThamGia, maSuKien, trangThaiKiemDuyet, created_at, updated_at)
-                VALUES (:ma, :tieu, :mo, :loai, :start, :end, :user, :status, :diem, :danh, :soluong, :songuoi, :sukien, :kiemduyet, :created, :updated)'
+                'INSERT INTO surveys (maKhaoSat, tieuDe, moTa, loaiKhaoSat, thoiLuongDuTinh, maNguoiTao, trangThai, diemThuong, danhMuc, soLuongCauHoi, soNguoiThamGia, maSuKien, trangThaiKiemDuyet, created_at, updated_at)
+                VALUES (:ma, :tieu, :mo, :loai, :thoiluo, :user, :status, :diem, :danh, :soluong, :songuoi, :sukien, :kiemduyet, :created, :updated)'
             );
 
             $statement->execute([
@@ -130,21 +204,20 @@ class Survey
                 ':tieu' => $data['tieuDe'],
                 ':mo' => $data['moTa'] ?? null,
                 ':loai' => $data['loaiKhaoSat'] ?? null,
-                ':start' => $data['thoiGianBatDau'] ?? null,
-                ':end' => $data['thoiGianKetThuc'] ?? null,
+                ':thoiluo' => $data['thoiLuongDuTinh'] ?? null,
                 ':user' => $data['maNguoiTao'],
                 ':status' => $data['trangThai'] ?? 'draft',
-                ':diem' => (int)($data['diemThuong'] ?? 0),
+                ':diem' => (int) ($data['diemThuong'] ?? 0),
                 ':danh' => $data['danhMuc'] ?? null,
                 ':soluong' => 0,
-                ':songuoi' => (int)($data['soNguoiThamGia'] ?? 0),
+                ':songuoi' => (int) ($data['soNguoiThamGia'] ?? 0),
                 ':sukien' => $data['maSuKien'] ?? null,
                 ':kiemduyet' => 'pending',
                 ':created' => $now,
                 ':updated' => $now,
             ]);
 
-            $id = (int)$db->lastInsertId();
+            $id = (int) $db->lastInsertId();
             return self::find($id);
         } catch (\PDOException $e) {
             return null; // Duplicate maKhaoSat hoặc lỗi DB
@@ -164,8 +237,7 @@ class Survey
         $tieuDe = $data['tieuDe'] ?? $this->tieuDe;
         $moTa = $data['moTa'] ?? $this->moTa;
         $loaiKhaoSat = $data['loaiKhaoSat'] ?? $this->loaiKhaoSat;
-        $thoiGianBatDau = $data['thoiGianBatDau'] ?? $this->thoiGianBatDau;
-        $thoiGianKetThuc = $data['thoiGianKetThuc'] ?? $this->thoiGianKetThuc;
+        $thoiLuongDuTinh = $data['thoiLuongDuTinh'] ?? $this->thoiLuongDuTinh;
         $trangThai = $data['trangThai'] ?? $this->trangThai;
         $diemThuong = $data['diemThuong'] ?? $this->diemThuong;
         $danhMuc = $data['danhMuc'] ?? $this->danhMuc;
@@ -173,7 +245,7 @@ class Survey
         $trangThaiKiemDuyet = $data['trangThaiKiemDuyet'] ?? $this->trangThaiKiemDuyet;
 
         $statement = $db->prepare(
-            'UPDATE surveys SET tieuDe = :tieu, moTa = :mo, loaiKhaoSat = :loai, thoiGianBatDau = :start, thoiGianKetThuc = :end,
+            'UPDATE surveys SET tieuDe = :tieu, moTa = :mo, loaiKhaoSat = :loai, thoiLuongDuTinh = :thoiluo,
              trangThai = :status, diemThuong = :diem, danhMuc = :danh, maSuKien = :sukien, trangThaiKiemDuyet = :kiemduyet, updated_at = :updated WHERE id = :id'
         );
 
@@ -181,10 +253,9 @@ class Survey
             ':tieu' => $tieuDe,
             ':mo' => $moTa,
             ':loai' => $loaiKhaoSat,
-            ':start' => $thoiGianBatDau,
-            ':end' => $thoiGianKetThuc,
+            ':thoiluo' => $thoiLuongDuTinh,
             ':status' => $trangThai,
-            ':diem' => (int)$diemThuong,
+            ':diem' => (int) $diemThuong,
             ':danh' => $danhMuc,
             ':sukien' => $maSuKien,
             ':kiemduyet' => $trangThaiKiemDuyet,
@@ -250,8 +321,7 @@ class Survey
             'tieuDe' => $this->tieuDe,
             'moTa' => $this->moTa,
             'loaiKhaoSat' => $this->loaiKhaoSat,
-            'thoiGianBatDau' => $this->thoiGianBatDau,
-            'thoiGianKetThuc' => $this->thoiGianKetThuc,
+            'thoiLuongDuTinh' => $this->thoiLuongDuTinh,
             'maNguoiTao' => $this->maNguoiTao,
             'trangThai' => $this->trangThai,
             'diemThuong' => $this->diemThuong,
@@ -264,11 +334,32 @@ class Survey
     }
 
     // Getters
-    public function getId(): int { return $this->id; }
-    public function getMaKhaoSat(): string { return $this->maKhaoSat; }
-    public function getTieuDe(): string { return $this->tieuDe; }
-    public function getMoTa(): ?string { return $this->moTa; }
-    public function getMaNguoiTao(): int { return $this->maNguoiTao; }
-    public function getTrangThai(): string { return $this->trangThai; }
-    public function getTrangThaiKiemDuyet(): string { return $this->trangThaiKiemDuyet; }
+    public function getId(): int
+    {
+        return $this->id;
+    }
+    public function getMaKhaoSat(): string
+    {
+        return $this->maKhaoSat;
+    }
+    public function getTieuDe(): string
+    {
+        return $this->tieuDe;
+    }
+    public function getMoTa(): ?string
+    {
+        return $this->moTa;
+    }
+    public function getMaNguoiTao(): int
+    {
+        return $this->maNguoiTao;
+    }
+    public function getTrangThai(): string
+    {
+        return $this->trangThai;
+    }
+    public function getTrangThaiKiemDuyet(): string
+    {
+        return $this->trangThaiKiemDuyet;
+    }
 }

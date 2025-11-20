@@ -15,10 +15,10 @@ $urls = $urls ?? [];
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
 
     <!-- custom css -->
-    <link rel="stylesheet" href="public/assets/css/register.css">
+    <link rel="stylesheet" href="public/assets/css/auth/register.css">
     <link rel="stylesheet" href="public/assets/css/app.css">
-    <link rel="stylesheet" href="public/assets/css/footer.css">
-    <link rel="stylesheet" href="public/assets/css/navbar.css">
+    <link rel="stylesheet" href="public/assets/css/components/footer.css">
+    <link rel="stylesheet" href="public/assets/css/components/navbar.css">
 
     <style>
         <?php @include __DIR__ . '/../register/style.css'; ?>
@@ -26,7 +26,7 @@ $urls = $urls ?? [];
 </head>
 
 <body class="page page--auth">
-    <?php include BASE_PATH . '/app/Views/partials/_navbar.php'; ?>
+    <?php include BASE_PATH . '/app/Views/components/client/_navbar.php'; ?>
 
     <section class="auth-section">
         <div class="container">
@@ -190,7 +190,7 @@ $urls = $urls ?? [];
             }
         });
     </script>
-    <script><?php @include __DIR__ . '/../register/script.js'; ?></script>
+    <script><?php @include __DIR__ . '/script.js'; ?></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 

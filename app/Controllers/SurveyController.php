@@ -9,33 +9,62 @@ use App\Core\Request;
 use App\Core\Container;
 use App\Models\Survey;
 use App\Models\Question;
+use App\Models\User;
+use App\Models\SurveySubmission;
+use App\Models\UserResponse;
 use PDO;
 
 class SurveyController extends Controller
 {
     /**
      * GET /api/surveys
-     * Lấy danh sách khảo sát (hỗ trợ filter theo trangThai)
+     * Lấy danh sách khảo sát với phân trang và lọc
+     * 
+     * Query params:
+     * - page: int (default: 1)
+     * - limit: int (default: 10, max: 100)
+     * - search: string (tìm kiếm trong tiêu đề và mô tả)
+     * - trangThai: string (lọc theo trạng thái: hoạtĐộng, draft, published, etc.)
+     * - danhMuc: int (lọc theo danh mục ID)
+     * - quickPoll: bool (nếu true, chỉ lấy surveys có 1 câu hỏi)
+     * 
+     * Ví dụ: GET /api/surveys?page=1&limit=6&search=sức khỏe&trangThai=hoạtĐộng
+     *        GET /api/surveys?page=1&limit=6&quickPoll=true
      */
     public function index(Request $request)
     {
-        $trangThai = $request->query('trangThai', null);
+        $page = (int) ($request->query('page') ?? 1);
+        $limit = (int) ($request->query('limit') ?? 10);
 
-        if ($trangThai) {
-            // Filter by status
-            /** @var PDO $db */
-            $db = Container::get('db');
-            $stmt = $db->prepare('SELECT * FROM surveys WHERE trangThai = :status ORDER BY created_at DESC');
-            $stmt->execute([':status' => $trangThai]);
-            $rows = $stmt->fetchAll();
-            $surveys = array_map(fn($row) => new Survey($row), $rows);
-        } else {
-            $surveys = Survey::all();
+        $filters = [];
+
+        if ($search = $request->query('search')) {
+            $filters['search'] = $search;
         }
+
+        if ($trangThai = $request->query('trangThai')) {
+            $filters['trangThai'] = $trangThai;
+        }
+
+        if ($danhMuc = $request->query('danhMuc')) {
+            $filters['danhMuc'] = $danhMuc;
+        }
+
+        if ($request->query('quickPoll')) {
+            $filters['quickPoll'] = true;
+        }
+
+        $result = Survey::paginate($page, $limit, $filters);
 
         return $this->json([
             'error' => false,
-            'data' => array_map(fn($s) => $s->toArray(), $surveys),
+            'data' => array_map(fn($s) => $s->toArray(), $result['surveys']),
+            'meta' => [
+                'total' => $result['total'],
+                'page' => $result['page'],
+                'limit' => $result['limit'],
+                'totalPages' => $result['totalPages'],
+            ],
         ]);
     }
 
@@ -54,7 +83,7 @@ class SurveyController extends Controller
             ], 422);
         }
 
-        $survey = Survey::find((int)$id);
+        $survey = Survey::find((int) $id);
         if (!$survey) {
             return $this->json([
                 'error' => true,
@@ -64,12 +93,12 @@ class SurveyController extends Controller
 
         $questions = Question::findBySurvey($survey->getId());
 
+        $surveyData = $survey->toArray();
+        $surveyData['questions'] = array_map(fn($q) => $q->toArray(), $questions);
+
         return $this->json([
             'error' => false,
-            'data' => [
-                ...($survey->toArray()),
-                'questions' => array_map(fn($q) => $q->toArray(), $questions),
-            ],
+            'data' => $surveyData,
         ]);
     }
 
@@ -122,7 +151,7 @@ class SurveyController extends Controller
             ], 422);
         }
 
-        $survey = Survey::find((int)$id);
+        $survey = Survey::find((int) $id);
         if (!$survey) {
             return $this->json([
                 'error' => true,
@@ -148,7 +177,7 @@ class SurveyController extends Controller
         }
 
         // Reload
-        $survey = Survey::find((int)$id);
+        $survey = Survey::find((int) $id);
 
         return $this->json([
             'error' => false,
@@ -172,7 +201,7 @@ class SurveyController extends Controller
             ], 422);
         }
 
-        $survey = Survey::find((int)$id);
+        $survey = Survey::find((int) $id);
         if (!$survey) {
             return $this->json([
                 'error' => true,
@@ -208,7 +237,7 @@ class SurveyController extends Controller
             ], 422);
         }
 
-        $survey = Survey::find((int)$id);
+        $survey = Survey::find((int) $id);
         if (!$survey) {
             return $this->json([
                 'error' => true,
@@ -233,7 +262,7 @@ class SurveyController extends Controller
         }
 
         // Reload
-        $survey = Survey::find((int)$id);
+        $survey = Survey::find((int) $id);
 
         return $this->json([
             'error' => false,
@@ -258,7 +287,7 @@ class SurveyController extends Controller
             ], 422);
         }
 
-        $survey = Survey::find((int)$id);
+        $survey = Survey::find((int) $id);
         if (!$survey) {
             return $this->json([
                 'error' => true,
@@ -282,7 +311,7 @@ class SurveyController extends Controller
         }
 
         // Reload
-        $survey = Survey::find((int)$id);
+        $survey = Survey::find((int) $id);
 
         return $this->json([
             'error' => false,
@@ -340,7 +369,7 @@ class SurveyController extends Controller
             ], 422);
         }
 
-        $question = Question::find((int)$id);
+        $question = Question::find((int) $id);
         if (!$question) {
             return $this->json([
                 'error' => true,
@@ -366,7 +395,7 @@ class SurveyController extends Controller
         }
 
         // Reload
-        $question = Question::find((int)$id);
+        $question = Question::find((int) $id);
 
         return $this->json([
             'error' => false,
@@ -390,7 +419,7 @@ class SurveyController extends Controller
             ], 422);
         }
 
-        $question = Question::find((int)$id);
+        $question = Question::find((int) $id);
         if (!$question) {
             return $this->json([
                 'error' => true,
@@ -493,5 +522,153 @@ class SurveyController extends Controller
     {
         $date = \DateTime::createFromFormat('Y-m-d H:i:s', $dateTime);
         return $date && $date->format('Y-m-d H:i:s') === $dateTime;
+    }
+
+    /**
+     * POST /api/surveys/{id}/submit
+     * Nộp bài khảo sát - tạo survey submission + user responses
+     * 
+     * Request body:
+     * {
+     *   "userId": 1,
+     *   "answers": {
+     *     "1": "Buổi sáng",
+     *     "2": "5",
+     *     "3": "[\"7\", \"8\"]"
+     *   }
+     * }
+     */
+    public function submit(Request $request)
+    {
+        // Get survey ID from route parameter
+        $surveyId = (int) $request->getAttribute('id');
+        $userId = (int) $request->input('userId');
+        $answers = $request->input('answers') ?? [];
+
+        // Validate inputs
+        if (!$surveyId || !$userId || !is_array($answers)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Invalid survey ID, user ID, or answers format.',
+            ], 422);
+        }
+
+        // Check if survey exists
+        $survey = Survey::find($surveyId);
+        if (!$survey) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Survey not found.',
+            ], 404);
+        }
+
+        // Check if user exists
+        $user = User::findById($userId);
+        if (!$user) {
+            return $this->json([
+                'error' => true,
+                'message' => 'User not found.',
+            ], 404);
+        }
+
+        // Check if user already submitted this survey
+        $existingSubmission = SurveySubmission::findBySurveyAndUser($surveyId, $userId);
+        if ($existingSubmission) {
+            return $this->json([
+                'error' => true,
+                'message' => 'User already submitted this survey.',
+            ], 409);
+        }
+
+        try {
+            // Create survey submission record
+            $submission = SurveySubmission::create([
+                'maKhaoSat' => $surveyId,
+                'maNguoiDung' => $userId,
+                'trangThai' => 'submitted',
+                'diemDat' => 0,
+                'ghiChu' => 'Submitted at ' . date('Y-m-d H:i:s'),
+            ]);
+
+            if (!$submission) {
+                return $this->json([
+                    'error' => true,
+                    'message' => 'Failed to create submission record.',
+                ], 500);
+            }
+
+            // Get all questions for this survey to validate
+            $questions = Question::findBySurvey($surveyId);
+            $questionIds = array_map(fn($q) => $q->getId(), $questions);
+
+            // Create user response for each answered question
+            foreach ($answers as $questionId => $answer) {
+                $questionId = (int) $questionId;
+
+                // Validate question belongs to this survey
+                if (!in_array($questionId, $questionIds)) {
+                    continue; // Skip invalid question IDs
+                }
+
+                // Create user response
+                UserResponse::create([
+                    'maCauHoi' => $questionId,
+                    'maNguoiDung' => $userId,
+                    'maKhaoSat' => $surveyId,
+                    'noiDungTraLoi' => $answer, // Already formatted as JSON string from frontend
+                ]);
+            }
+
+            return $this->json([
+                'error' => false,
+                'message' => 'Survey submitted successfully.',
+                'data' => [
+                    'submissionId' => $submission->getId(),
+                ],
+            ], 201);
+
+        } catch (\Exception $e) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Error submitting survey: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * GET /api/surveys/{id}/check-submission
+     * Kiểm tra xem user đã submit khảo sát này chưa
+     */
+    public function checkSubmission(Request $request)
+    {
+        $surveyId = (int) $request->getAttribute('id');
+        $userId = (int) $request->query('userId');
+
+        if (!$surveyId || !$userId) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Survey ID and User ID are required.',
+            ], 422);
+        }
+
+        // Check if survey exists
+        $survey = Survey::find($surveyId);
+        if (!$survey) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Survey not found.',
+            ], 404);
+        }
+
+        // Check if user already submitted this survey
+        $submission = SurveySubmission::findBySurveyAndUser($surveyId, $userId);
+
+        return $this->json([
+            'error' => false,
+            'data' => [
+                'hasSubmitted' => (bool) $submission,
+                'submission' => $submission ? $submission->toArray() : null,
+            ],
+        ]);
     }
 }

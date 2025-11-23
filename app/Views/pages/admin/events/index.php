@@ -21,6 +21,14 @@ $appName = $appName ?? 'Admin - Quản lý Events';
         <div class="d-flex justify-content-between align-items-center w-100">
             <h5 class="mb-0"><i class="fas fa-calendar me-2"></i>Quản lý Events</h5>
             <div class="header-actions">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Tìm kiếm sự kiện..." id="search-input">
+                </div>
+                <div class="notification-icon">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </div>
                 <div class="user-menu" id="admin-user-menu">
                     <div class="user-avatar">AD</div>
                 </div>
@@ -40,187 +48,219 @@ $appName = $appName ?? 'Admin - Quản lý Events';
                 </button>
             </div>
 
-            <!-- Events Controls -->
-            <div class="d-flex justify-content-between align-items-center my-3">
-                <div>
-                    <label class="mb-0">Hiển thị
-                        <select id="events-page-size" class="form-select form-select-sm d-inline-block w-auto ms-2">
-                            <option value="6">6</option>
-                            <option value="12" selected>12</option>
-                            <option value="24">24</option>
-                        </select>
-                    </label>
+            <!-- Filters -->
+            <div class="card mb-4 fade-in">
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label class="form-label fw-bold">Loại</label>
+                            <select class="form-select" id="filter-type">
+                                <option value="">Tất cả</option>
+                                <option value="upcoming">Sắp diễn ra</option>
+                                <option value="ongoing">Đang diễn ra</option>
+                                <option value="completed">Đã kết thúc</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex align-items-end">
+                            <button class="btn btn-outline-secondary w-100" id="reset-filters">
+                                <i class="fas fa-redo me-2"></i>Đặt lại
+                            </button>
+                        </div>
+                    </div>
                 </div>
-                <nav id="events-pagination"></nav>
             </div>
 
-            <!-- Events Grid -->
-            <div class="row g-4" id="events-container"></div>
+            <!-- Events Table -->
+            <div class="card fade-in" style="animation-delay: 0.1s">
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 80px;">Mã</th>
+                                    <th style="width: 300px;">Tiêu đề</th>
+                                    <th style="width: 160px;">Thời gian</th>
+                                    <th style="width: 180px;">Người tạo</th>
+                                    <th style="width: 120px;">Khảo sát</th>
+                                    <th style="width: 140px;">Thao tác</th>
+                                </tr>
+                            </thead>
+                            <tbody id="events-table-body">
+                                <tr>
+                                    <td colspan="6" class="text-center py-5">
+                                        <div class="spinner-border text-primary" role="status">
+                                            <span class="visually-hidden">Đang tải...</span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-center mt-3" id="events-pagination"></div>
+                </div>
+            </div>
         </div>
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/public/assets/js/admin-mock-data.js"></script>
     <script>
-        // Pagination state
+        // events admin: client-side filtering + pagination (uses AdminMockData.events)
+        let filteredEvents = [...AdminMockData.events];
         let eventsCurrentPage = 1;
-        const eventsPageSizeSelect = document.getElementById('events-page-size');
-
-        function getFilteredEvents() {
-            // Placeholder for filters/search integration
-            return AdminMockData.events.slice();
-        }
+        const itemsPerPage = 10;
 
         function getPaginated(items, page, pageSize) {
             const total = items.length;
             const totalPages = Math.max(1, Math.ceil(total / pageSize));
             page = Math.min(Math.max(1, page), totalPages);
             const start = (page - 1) * pageSize;
-            const data = items.slice(start, start + pageSize);
             return {
-                data,
-                meta: {
-                    total,
-                    page,
-                    pageSize,
-                    totalPages,
-                    startIndex: start,
-                    endIndex: start + data.length - 1
-                }
+                data: items.slice(start, start + pageSize),
+                meta: { total, page, pageSize, totalPages, startIndex: start }
             };
         }
 
-        function renderEvents() {
-            const all = getFilteredEvents();
-            const pageSize = parseInt(eventsPageSizeSelect.value, 10) || 12;
-            const pag = getPaginated(all, eventsCurrentPage, pageSize);
-            const container = document.getElementById('events-container');
+        function renderEventsTable(events) {
+            const tbody = document.getElementById('events-table-body');
+            if (!events || events.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-5 text-muted">Không tìm thấy sự kiện nào</td></tr>';
+                return;
+            }
 
-            container.innerHTML = pag.data.map((event, idx) => `
-                <div class="col-md-6 fade-in" style="animation-delay: ${(pag.meta.startIndex + idx) * 0.03}s">
-                    <div class="card h-100">
-                        <div class="card-body">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <div>
-                                    <span class="badge badge-light">${event.code}</span>
-                                    <span class="badge ${AdminHelpers.getStatusBadge(event.status)} ms-2">
-                                        ${AdminHelpers.getStatusText(event.status)}
-                                    </span>
-                                </div>
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-icon btn-outline-secondary" data-bs-toggle="dropdown">
-                                        <i class="fas fa-ellipsis-v"></i>
-                                    </button>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="#"><i class="fas fa-edit me-2"></i>Chỉnh sửa</a></li>
-                                        <li><a class="dropdown-item" href="#"><i class="fas fa-trash me-2"></i>Xóa</a></li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <h5 class="mb-3">${event.title}</h5>
-                            <div class="mb-2">
-                                <i class="fas fa-calendar text-primary me-2"></i>
-                                <strong>Bắt đầu:</strong> ${AdminHelpers.formatDateTime(event.startDate)}
-                            </div>
-                            <div class="mb-2">
-                                <i class="fas fa-calendar-check text-success me-2"></i>
-                                <strong>Kết thúc:</strong> ${AdminHelpers.formatDateTime(event.endDate)}
-                            </div>
-                            <div class="mb-2">
-                                <i class="fas fa-map-marker-alt text-danger me-2"></i>
-                                <strong>Địa điểm:</strong> ${event.location}
-                            </div>
-                            <div class="mb-3">
-                                <i class="fas fa-user text-info me-2"></i>
-                                <strong>Người tạo:</strong> ${event.creator}
-                            </div>
-                            <div class="d-flex gap-3 pt-3 border-top">
-                                <div class="text-center flex-fill">
-                                    <div class="fw-bold text-primary">${event.participants}</div>
-                                    <small class="text-muted">Người tham gia</small>
-                                </div>
-                                <div class="text-center flex-fill">
-                                    <div class="fw-bold text-success">${event.surveys}</div>
-                                    <small class="text-muted">Khảo sát</small>
-                                </div>
+            tbody.innerHTML = events.map(ev => `
+                <tr class="slide-in">
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="badge bg-light text-dark">${ev.code}</span>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="fw-bold text-truncate" style="max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ev.title}</div>
+                        <small class="text-muted d-block">${ev.location}</small>
+                        <div class="mt-1">
+                            <span class="badge ${AdminHelpers.getStatusBadge(ev.status)}">${AdminHelpers.getStatusText(ev.status)}</span>
+                            <small class="ms-2 text-primary fw-bold">${ev.participants} tham gia</small>
+                        </div>
+                    </td>
+                    <td>${AdminHelpers.formatDateTime(ev.startDate)}<br/><small class="text-muted">→ ${AdminHelpers.formatDateTime(ev.endDate)}</small></td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="user-avatar" style="width:36px;height:36px;border-radius:6px;background:${AdminHelpers.getAvatarColor(ev.creator)};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:600;">${getInitials(ev.creator)}</div>
+                            <div>
+                                <div class="fw-bold">${ev.creator}</div>
+                                <small class="text-muted">${AdminHelpers.getStatusText(ev.status)}</small>
                             </div>
                         </div>
-                    </div>
-                </div>
+                    </td>
+                    <td class="text-center"><span class="text-success fw-bold">${ev.surveys}</span></td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <button class="btn btn-icon btn-outline-primary" title="Xem chi tiết"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-icon btn-outline-success" title="Chỉnh sửa"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-icon btn-outline-danger" title="Xóa"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
             `).join('');
-
-            document.getElementById('total-events').textContent = all.length;
-            renderEventsPagination(pag.meta);
         }
 
-        function renderEventsPagination(meta) {
-            const nav = document.getElementById('events-pagination');
-            if (!nav) return;
-
-            const maxPagesToShow = 5;
-            let startPage = Math.max(1, meta.page - 2);
-            let endPage = Math.min(meta.totalPages, meta.page + 2);
-
-            // Expand range when near edges
-            if (meta.page <= 2) {
-                endPage = Math.min(meta.totalPages, maxPagesToShow);
-            }
-            if (meta.page >= meta.totalPages - 1) {
-                startPage = Math.max(1, meta.totalPages - (maxPagesToShow - 1));
+        function renderPagination(total, page, pageSize) {
+            const container = document.getElementById('events-pagination');
+            if (!container) return;
+            const totalPages = Math.ceil(total / pageSize) || 1;
+            if (totalPages <= 1) {
+                container.innerHTML = '';
+                return;
             }
 
-            let html = '<ul class="pagination mb-0">';
+            let html = '<ul class="pagination justify-content-center">';
+            if (page > 1) html += `<li class="page-item"><button class="page-link" onclick="changePage(${page - 1})">← Trước</button></li>`;
 
-            // Prev
-            html += `<li class="page-item ${meta.page === 1 ? 'disabled' : ''}"><button class="page-link" onclick="changeEventsPage(${meta.page - 1})">&laquo;</button></li>`;
+            const startPage = Math.max(1, page - 2);
+            const endPage = Math.min(totalPages, page + 2);
 
             if (startPage > 1) {
-                html += `<li class="page-item"><button class="page-link" onclick="changeEventsPage(1)">1</button></li>`;
-                if (startPage > 2) html += `<li class="page-item disabled"><span class="page-link">…</span></li>`;
+                html += `<li class="page-item"><button class="page-link" onclick="changePage(1)">1</button></li>`;
+                if (startPage > 2) html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
             }
 
-            for (let p = startPage; p <= endPage; p++) {
-                html += `<li class="page-item ${p === meta.page ? 'active' : ''}"><button class="page-link" onclick="changeEventsPage(${p})">${p}</button></li>`;
+            for (let i = startPage; i <= endPage; i++) {
+                if (i === page) html += `<li class="page-item active"><span class="page-link">${i}</span></li>`;
+                else html += `<li class="page-item"><button class="page-link" onclick="changePage(${i})">${i}</button></li>`;
             }
 
-            if (endPage < meta.totalPages) {
-                if (endPage < meta.totalPages - 1) html += `<li class="page-item disabled"><span class="page-link">…</span></li>`;
-                html += `<li class="page-item"><button class="page-link" onclick="changeEventsPage(${meta.totalPages})">${meta.totalPages}</button></li>`;
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) html += '<li class="page-item disabled"><span class="page-link">...</span></li>';
+                html += `<li class="page-item"><button class="page-link" onclick="changePage(${totalPages})">${totalPages}</button></li>`;
             }
 
-            // Next
-            html += `<li class="page-item ${meta.page === meta.totalPages ? 'disabled' : ''}"><button class="page-link" onclick="changeEventsPage(${meta.page + 1})">&raquo;</button></li>`;
+            if (page < totalPages) html += `<li class="page-item"><button class="page-link" onclick="changePage(${page + 1})">Tiếp →</button></li>`;
             html += '</ul>';
-
-            nav.innerHTML = html;
+            container.innerHTML = html;
         }
 
-        function changeEventsPage(page) {
-            const all = getFilteredEvents();
-            const pageSize = parseInt(eventsPageSizeSelect.value, 10) || 12;
-            const totalPages = Math.max(1, Math.ceil(all.length / pageSize));
-            if (page < 1) page = 1;
-            if (page > totalPages) page = totalPages;
+        function changePage(page) {
             eventsCurrentPage = page;
-            renderEvents();
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            loadEvents();
+            const tableTop = document.querySelector('.table-responsive');
+            if (tableTop) tableTop.scrollIntoView({ behavior: 'smooth' });
         }
 
-        // Wire up page size change
-        eventsPageSizeSelect.addEventListener('change', () => {
-            eventsCurrentPage = 1;
-            renderEvents();
-        });
+        window.changePage = changePage;
 
-        // Expose change function globally for inline onclicks
-        window.changeEventsPage = changeEventsPage;
+        function applyFilters() {
+            const type = document.getElementById('filter-type').value;
+            const search = document.getElementById('search-input').value.trim().toLowerCase();
+
+            filteredEvents = AdminMockData.events.filter(ev => {
+                if (type && ev.status !== type) return false;
+                if (search) {
+                    const hay = (ev.title + ' ' + ev.location + ' ' + ev.creator).toLowerCase();
+                    if (!hay.includes(search)) return false;
+                }
+                return true;
+            });
+
+            eventsCurrentPage = 1;
+            loadEvents();
+        }
+
+        document.getElementById('filter-type').addEventListener('change', applyFilters);
+        document.getElementById('search-input').addEventListener('input', applyFilters);
+        document.getElementById('reset-filters').addEventListener('click', () => {
+            document.getElementById('filter-type').value = '';
+            document.getElementById('search-input').value = '';
+            applyFilters();
+        });
 
         document.getElementById('admin-user-menu')?.addEventListener('click', () => {
             if (confirm('Đăng xuất?')) window.location.href = '/login';
         });
 
-        // Initial render
-        renderEvents();
+        // Returns two-letter initials for a full name (e.g. "Nguyễn Văn A" -> "NA")
+        function getInitials(name) {
+            if (!name) return '';
+            const parts = name.trim().split(/\s+/).filter(Boolean);
+            if (parts.length === 1) {
+                return parts[0].slice(0, 2).toUpperCase();
+            }
+            const first = parts[0][0] || '';
+            const last = parts[parts.length - 1][0] || '';
+            return (first + last).toUpperCase();
+        }
+
+        function loadEvents() {
+            const pag = getPaginated(filteredEvents, eventsCurrentPage, itemsPerPage);
+            renderEventsTable(pag.data);
+            renderPagination(pag.meta.total, pag.meta.page, pag.meta.pageSize);
+            document.getElementById('total-events').textContent = pag.meta.total;
+        }
+
+        // initial
+        applyFilters();
     </script>
 </body>
 

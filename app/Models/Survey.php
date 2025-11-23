@@ -24,6 +24,7 @@ class Survey
     private string $trangThaiKiemDuyet;
     private string $createdAt;
     private string $updatedAt;
+    private ?string $event_id ;
 
     public function __construct(array $attributes)
     {
@@ -42,6 +43,7 @@ class Survey
         $this->trangThaiKiemDuyet = $attributes['trangThaiKiemDuyet'] ?? 'pending';
         $this->createdAt = $attributes['created_at'] ?? '';
         $this->updatedAt = $attributes['updated_at'] ?? '';
+        $this->event_id = $attributes['event_id'] ?? null;
     }
 
     /**
@@ -198,8 +200,8 @@ class Survey
 
         try {
             $statement = $db->prepare(
-                'INSERT INTO surveys (maKhaoSat, tieuDe, moTa, loaiKhaoSat, thoiLuongDuTinh, isQuickPoll, maNguoiTao, trangThai, diemThuong, danhMuc, soLuongCauHoi, soNguoiThamGia, maSuKien, trangThaiKiemDuyet, created_at, updated_at)
-                VALUES (:ma, :tieu, :mo, :loai, :thoiluong, :isquickpoll, :user, :status, :diem, :danh, :soluong, :songuoi, :sukien, :kiemduyet, :created, :updated)'
+                'INSERT INTO surveys (maKhaoSat, tieuDe, moTa, loaiKhaoSat, thoiLuongDuTinh, isQuickPoll, maNguoiTao, trangThai, diemThuong, danhMuc, soLuongCauHoi, soNguoiThamGia, maSuKien, trangThaiKiemDuyet, created_at, updated_at, event_id)
+                VALUES (:ma, :tieu, :mo, :loai, :thoiluong, :isquickpoll, :user, :status, :diem, :danh, :soluong, :songuoi, :sukien, :kiemduyet, :created, :updated, :event_id?)'
             );
 
             $statement->execute([
@@ -219,6 +221,7 @@ class Survey
                 ':kiemduyet' => 'pending',
                 ':created' => $now,
                 ':updated' => $now,
+                ':event_id' => $data['event_id'] ?? null,
             ]);
 
             $id = (int) $db->lastInsertId();
@@ -251,7 +254,7 @@ class Survey
 
         $statement = $db->prepare(
             'UPDATE surveys SET tieuDe = :tieu, moTa = :mo, loaiKhaoSat = :loai, thoiLuongDuTinh = :thoiluong, isQuickPoll = :isquickpoll,
-             trangThai = :status, diemThuong = :diem, danhMuc = :danh, maSuKien = :sukien, trangThaiKiemDuyet = :kiemduyet, updated_at = :updated WHERE id = :id'
+             trangThai = :status, diemThuong = :diem, danhMuc = :danh, maSuKien = :sukien, trangThaiKiemDuyet = :kiemduyet, updated_at = :updated, event_id = :event_id WHERE id = :id'
         );
 
         return $statement->execute([
@@ -266,6 +269,7 @@ class Survey
             ':sukien' => $maSuKien,
             ':kiemduyet' => $trangThaiKiemDuyet,
             ':updated' => $now,
+            ':event_id' => $this->event_id,
             ':id' => $this->id,
         ]);
     }

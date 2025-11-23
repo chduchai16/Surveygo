@@ -10,10 +10,14 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE TABLE IF NOT EXISTS events (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  maSuKien VARCHAR(10) NOT NULL UNIQUE,
+  maSuKien VARCHAR(20) NOT NULL UNIQUE,
   tenSuKien VARCHAR(255) NOT NULL,
   thoiGianBatDau DATETIME DEFAULT NULL,
   thoiGianKetThuc DATETIME DEFAULT NULL,
+  trangThai ENUM('upcoming','ongoing','completed') NOT NULL DEFAULT 'upcoming',
+  soNguoiThamGia INT UNSIGNED NOT NULL DEFAULT 0,
+  soKhaoSat INT UNSIGNED NOT NULL DEFAULT 0,
+  diaDiem VARCHAR(255) DEFAULT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   maNguoiTao INT UNSIGNED NOT NULL,
@@ -102,9 +106,11 @@ INSERT IGNORE INTO users (id, name, email, password, role, created_at, updated_a
   (3, 'Phạm Văn C', 'admin1@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', NOW(), NOW());
 
   
-INSERT IGNORE INTO events (id, maSuKien, tenSuKien, thoiGianBatDau, thoiGianKetThuc, maNguoiTao, created_at, updated_at) VALUES
-  (1, 'SK001', 'Sự kiện Khởi động Năm Mới', '2024-01-01 09:00:00', '2024-01-01 17:00:00', 1, NOW(), NOW()),
-  (2, 'SK002', 'Hội thảo Sức khỏe Cộng đồng', '2024-02-15 10:00:00', '2024-02-15 16:00:00', 2, NOW(), NOW());
+INSERT IGNORE INTO events (id, maSuKien, tenSuKien, thoiGianBatDau, thoiGianKetThuc, trangThai, soNguoiThamGia, soKhaoSat, diaDiem, maNguoiTao, created_at, updated_at) VALUES
+  (1, 'SK001', 'Sự kiện Khởi động Năm Mới', '2024-01-01 09:00:00', '2024-01-01 17:00:00', 'completed', 150, 3, 'Hội trường A', 1, NOW(), NOW()),
+  (2, 'SK002', 'Hội thảo Sức khỏe Cộng đồng', '2024-02-15 10:00:00', '2024-02-15 16:00:00', 'completed', 120, 2, 'Trung tâm Hội nghị', 2, NOW(), NOW()),
+  (3, 'SK003', 'Workshop về Digital Marketing 2024', '2024-03-10 09:00:00', '2024-03-10 16:00:00', 'ongoing', 85, 1, 'Khách sạn 5 sao', 1, NOW(), NOW()),
+  (4, 'SK004', 'Ngày hội Công nghệ', '2024-04-20 09:00:00', '2024-04-20 18:00:00', 'upcoming', 0, 0, 'Online', 3, NOW(), NOW());
 
 INSERT IGNORE INTO surveys (
   id, maKhaoSat, tieuDe, moTa, loaiKhaoSat, maNguoiTao, trangThai, diemThuong, danhMuc, 

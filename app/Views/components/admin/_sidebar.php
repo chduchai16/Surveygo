@@ -58,6 +58,27 @@ $currentPath = $currentPath ?? ($_SERVER['REQUEST_URI'] ?? '/');
                     <span>Sự kiện</span>
                 </a>
             </li>
+
+            <?php
+            // dynamic feedback count badge
+            $feedbackCount = 0;
+            try {
+                $db = \App\Core\Container::get('db');
+                $stmt = $db->query('SELECT COUNT(*) FROM feedbacks');
+                $feedbackCount = (int) $stmt->fetchColumn();
+            } catch (\Throwable $e) {
+                // ignore, show 0
+                $feedbackCount = 0;
+            }
+            ?>
+            <li class="nav-item">
+                <a class="nav-link <?= str_contains($currentPath, '/admin/feedbacks') ? 'active' : '' ?>"
+                    href="/admin/feedbacks">
+                    <i class="fas fa-comments"></i>
+                    <span>Feedbacks</span>
+                    <span class="badge badge-info ms-auto"><?= $feedbackCount ?></span>
+                </a>
+            </li>
         </ul>
 
         <div class="nav-section">PHÂN TÍCH</div>

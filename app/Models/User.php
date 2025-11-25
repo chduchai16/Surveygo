@@ -10,6 +10,7 @@ use PDO;
 class User
 {
     private int $id;
+    private string $code ;
     private string $name;
     private string $email;
     private string $password;
@@ -20,6 +21,7 @@ class User
     public function __construct(array $attributes)
     {
         $this->id = (int) ($attributes['id'] ?? 0);
+        $this->code = (string) ($attributes['code'] ??'');
         $this->name = $attributes['name'];
         $this->email = $attributes['email'];
         $this->password = $attributes['password'];
@@ -35,8 +37,9 @@ class User
 
         $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
 
-        $statement = $db->prepare('INSERT INTO users (name, email, password, role, created_at, updated_at) VALUES (:name, :email, :password, :role, :created_at, :updated_at)');
+        $statement = $db->prepare('INSERT INTO users (code, name, email, password, role, created_at, updated_at) VALUES (:code, :name, :email, :password, :role, :created_at, :updated_at)');
         $statement->execute([
+            ':code' => 'US' . str_pad((string)($db->lastInsertId() + 1), 3, '0', STR_PAD_LEFT),
             ':name' => $name,
             ':email' => $email,
             ':password' => $hashedPassword,
@@ -106,6 +109,7 @@ class User
     {
         return [
             'id' => $this->id,
+            'code' => $this->code ,
             'name' => $this->name,
             'email' => $this->email,
             'role' => $this->role,

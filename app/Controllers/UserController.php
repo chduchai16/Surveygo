@@ -44,6 +44,7 @@ class UserController extends Controller
             $arr = $u->toArray();
             return [
                 'id' => $arr['id'],
+                'code' => $arr['code'] ?? '',
                 'name' => $arr['name'],
                 'email' => $arr['email'],
                 'role' => $arr['role'],

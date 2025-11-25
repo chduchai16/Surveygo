@@ -45,6 +45,11 @@ class AdminController extends Controller
         return $this->view('pages/admin/settings/settings', $this->pageData($request));
     }
 
+    public function feedbacks(Request $request)
+    {
+        return $this->view('pages/admin/feedbacks/feedbacks', $this->pageData($request));
+    }
+
     private function pageData(Request $request): array
     {
         $config = Container::get('config');

@@ -38,17 +38,7 @@ $appName = $appName ?? 'Admin - Quản lý Users';
 
     <main class="admin-content">
         <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="mb-1">Quản lý Users</h2>
-                    <p class="text-muted mb-0">Tổng số: <strong id="total-users">0</strong> người dùng</p>
-                </div>
-                <button class="btn btn-primary">
-                    <i class="fas fa-user-plus me-2"></i>Thêm user mới
-                </button>
-            </div>
-
-            <!-- Filters -->
+            <!-- lọc -->
             <div class="card mb-4 fade-in">
                 <div class="card-body">
                     <div class="row g-3">
@@ -89,10 +79,16 @@ $appName = $appName ?? 'Admin - Quản lý Users';
             <!-- Users Table -->
             <div class="card fade-in" style="animation-delay: 0.1s">
                 <div class="card-body">
+                    <div class="d-flex justify-content-end mb-3">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Tạo user mới
+                        </button>
+                    </div>
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
                                 <tr>
+                                    <th>Mã</th>
                                     <th>User</th>
                                     <th>Email</th>
                                     <th style="width: 150px;">Vai trò</th>
@@ -118,6 +114,7 @@ $appName = $appName ?? 'Admin - Quản lý Users';
         // Server-driven users list via /api/users
         let currentPage = 1;
         const itemsPerPage = 10;
+        const totalUsersEl = document.getElementById('total-users');
 
         function renderPagination(total, page, pageSize) {
             const container = document.getElementById('users-pagination');
@@ -200,6 +197,7 @@ $appName = $appName ?? 'Admin - Quản lý Users';
 
                 tbody.innerHTML = data.map(user => `
                     <tr class="slide-in">
+                        <td><span class="badge badge-primary">${user.code || ''}</span></td>
                         <td>
                             <div class="d-flex align-items-center gap-2">
                                 <div class="user-avatar" style="width: 40px; height: 40px; background: ${AdminHelpers.getAvatarColor(user.name)};display:inline-flex;align-items:center;justify-content:center;color:#fff;font-weight:600;border-radius:6px;">
@@ -235,12 +233,12 @@ $appName = $appName ?? 'Admin - Quản lý Users';
                     </tr>
                 `).join('');
 
-                document.getElementById('total-users').textContent = meta.total || 0;
+                if (totalUsersEl) totalUsersEl.textContent = meta.total || 0;
                 renderPagination(meta.total || 0, meta.page || currentPage, meta.limit || itemsPerPage);
             } catch (err) {
                 tbody.innerHTML = `<tr><td colspan="8" class="text-center py-4 text-danger">Lỗi khi tải dữ liệu: ${err.message}</td></tr>`;
                 document.getElementById('users-pagination').innerHTML = '';
-                document.getElementById('total-users').textContent = '0';
+                if (totalUsersEl) totalUsersEl.textContent = '0';
                 console.error('loadUsers error', err);
             }
         }

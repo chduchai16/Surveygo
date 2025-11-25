@@ -38,17 +38,7 @@ $appName = $appName ?? 'Admin - Quản lý Events';
 
     <main class="admin-content">
         <div class="container-fluid">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="mb-1">Quản lý Events</h2>
-                    <p class="text-muted mb-0">Tổng số: <strong id="total-events">0</strong> sự kiện</p>
-                </div>
-                <button class="btn btn-primary">
-                    <i class="fas fa-plus me-2"></i>Tạo event mới
-                </button>
-            </div>
-
-            <!-- Filters -->
+            <!-- lọc -->
             <div class="card mb-4 fade-in">
                 <div class="card-body">
                     <div class="row g-3">
@@ -78,9 +68,14 @@ $appName = $appName ?? 'Admin - Quản lý Events';
                 </div>
             </div>
 
-            <!-- Events Table -->
+            <!-- dữ liệu-->
             <div class="card fade-in" style="animation-delay: 0.1s">
                 <div class="card-body">
+                    <div class="d-flex justify-content-end mb-3">
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus me-2"></i>Tạo event mới
+                        </button>
+                    </div>
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
@@ -115,9 +110,10 @@ $appName = $appName ?? 'Admin - Quản lý Events';
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="/public/assets/js/admin-helpers.js"></script>
     <script>
-        // events admin: server-driven pagination + search via /api/events
+        // phân trang + tìm kiếm
         let eventsCurrentPage = 1;
         const itemsPerPage = 10;
+        const totalEventsEl = document.getElementById('total-events');
 
         function renderEventsTable(events) {
             const tbody = document.getElementById('events-table-body');
@@ -130,7 +126,7 @@ $appName = $appName ?? 'Admin - Quản lý Events';
                 <tr class="slide-in">
                     <td>
                         <div class="d-flex align-items-center gap-2">
-                            <span class="badge bg-light text-dark">${ev.code}</span>
+                            <span class="badge badge-primary">${ev.code}</span>
                         </div>
                     </td>
                     <td>
@@ -278,11 +274,11 @@ $appName = $appName ?? 'Admin - Quản lý Events';
 
                 renderEventsTable(data);
                 renderPagination(meta.total || 0, meta.page || eventsCurrentPage, meta.limit || itemsPerPage);
-                document.getElementById('total-events').textContent = meta.total || 0;
+                if (totalEventsEl) totalEventsEl.textContent = meta.total || 0;
             } catch (err) {
                 tbody.innerHTML = `<tr><td colspan="6" class="text-center py-4 text-danger">Lỗi khi tải dữ liệu: ${err.message}</td></tr>`;
                 document.getElementById('events-pagination').innerHTML = '';
-                document.getElementById('total-events').textContent = '0';
+                if (totalEventsEl) totalEventsEl.textContent = '0';
                 // eslint-disable-next-line no-console
                 console.error('loadEvents error', err);
             }

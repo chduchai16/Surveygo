@@ -46,18 +46,7 @@ $appName = $appName ?? 'Admin - Quản lý Khảo sát';
 
     <main class="admin-content">
         <div class="container-fluid">
-            <!-- Header Actions -->
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <div>
-                    <h2 class="mb-1">Quản lý Khảo sát</h2>
-                    <p class="text-muted mb-0">Tổng số: <strong id="total-surveys">0</strong> khảo sát</p>
-                </div>
-                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSurveyModal">
-                    <i class="fas fa-plus me-2"></i>Tạo khảo sát mới
-                </button>
-            </div>
-
-            <!-- Filters -->
+            <!-- lọc -->
             <div class="card mb-4 fade-in">
                 <div class="card-body">
                     <div class="row g-3">
@@ -102,6 +91,11 @@ $appName = $appName ?? 'Admin - Quản lý Khảo sát';
             <!-- Surveys Table -->
             <div class="card fade-in" style="animation-delay: 0.1s">
                 <div class="card-body">
+                    <div class="d-flex justify-content-end mb-3">
+                        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createSurveyModal">
+                            <i class="fas fa-plus me-2"></i>Tạo khảo sát mới
+                        </button>
+                    </div>
                     <div class="table-responsive">
                         <table class="table">
                             <thead>
@@ -199,6 +193,7 @@ $appName = $appName ?? 'Admin - Quản lý Khảo sát';
     <script>
         let currentPage = 1;
         const itemsPerPage = 10;
+        const totalSurveysEl = document.getElementById('total-surveys');
 
         // Map filters và gọi api
         async function loadSurveys(page = 1) {
@@ -225,11 +220,11 @@ $appName = $appName ?? 'Admin - Quản lý Khảo sát';
                 if (res.ok && json && json.data) {
                     renderSurveysTable(json.data);
                     renderPagination(json.meta);
-                    document.getElementById('total-surveys').textContent = json.meta.total;
+                    if (totalSurveysEl) totalSurveysEl.textContent = json.meta.total;
                 } else {
                     tbody.innerHTML = '<tr><td colspan="8" class="text-center py-5 text-muted">Không có khảo sát.</td></tr>';
                     document.getElementById('pagination-container').innerHTML = '';
-                    document.getElementById('total-surveys').textContent = '0';
+                    if (totalSurveysEl) totalSurveysEl.textContent = '0';
                 }
             } catch (err) {
                 console.error('Lỗi khi lấy khảo sát:', err);
@@ -248,7 +243,7 @@ $appName = $appName ?? 'Admin - Quản lý Khảo sát';
 
             tbody.innerHTML = surveys.map(s => `
                 <tr class="slide-in">
-                    <td><span class="badge badge-light">${s.maKhaoSat || s.maKhaosat || ''}</span></td>
+                    <td><span class="badge badge-primary">${s.maKhaoSat || s.maKhaosat || ''}</span></td>
                     <td>
                         <div class="fw-bold">${s.tieuDe || s.tieu_de || ''}</div>
                         <small class="text-muted">Người tạo: ${s.maNguoiTao || '-'}</small>

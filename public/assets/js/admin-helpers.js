@@ -1,18 +1,18 @@
 // Lightweight helpers extracted from admin-mock-data.js
-const AdminHelpers = {
-    formatDate(dateString) {
+class AdminHelpers {
+    static formatDate(dateString) {
         if (!dateString) return '';
         const date = new Date(dateString);
         return date.toLocaleDateString('vi-VN');
-    },
+    }
 
-    formatDateTime(dateString) {
+    static formatDateTime(dateString) {
         if (!dateString) return '';
         const date = new Date(dateString);
         return date.toLocaleString('vi-VN');
-    },
+    }
 
-    getStatusBadge(status) {
+    static getStatusBadge(status) {
         const badges = {
             'approved': 'badge-success',
             'pending': 'badge-warning',
@@ -25,9 +25,9 @@ const AdminHelpers = {
             'upcoming': 'badge-primary'
         };
         return badges[status] || 'badge-secondary';
-    },
+    }
 
-    getStatusText(status) {
+    static getStatusText(status) {
         const texts = {
             'approved': 'Đã duyệt',
             'pending': 'Chờ duyệt',
@@ -40,27 +40,27 @@ const AdminHelpers = {
             'upcoming': 'Sắp diễn ra'
         };
         return texts[status] || status;
-    },
+    }
 
-    getRoleBadge(role) {
+    static getRoleBadge(role) {
         const badges = {
             'admin': 'badge-danger',
             'moderator': 'badge-warning',
             'user': 'badge-primary'
         };
         return badges[role] || 'badge-secondary';
-    },
+    }
 
-    getRoleText(role) {
+    static getRoleText(role) {
         const texts = {
             'admin': 'Quản trị viên',
             'moderator': 'Kiểm duyệt viên',
             'user': 'Người dùng'
         };
         return texts[role] || role;
-    },
+    }
 
-    getAvatarColor(name) {
+    static getAvatarColor(name) {
         if (!name || name.length === 0) return '#34495e';
         const colors = [
             '#3498db', '#2ecc71', '#f39c12', '#e74c3c', '#9b59b6',
@@ -69,6 +69,14 @@ const AdminHelpers = {
         const index = name.charCodeAt(0) % colors.length;
         return colors[index];
     }
-};
+}
 
-export default AdminHelpers;
+// Expose as a global for legacy pages which include this script with a normal <script> tag
+if (typeof window !== 'undefined') {
+    window.AdminHelpers = AdminHelpers;
+}
+
+// Also support CommonJS environments
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined') {
+    module.exports = AdminHelpers;
+}

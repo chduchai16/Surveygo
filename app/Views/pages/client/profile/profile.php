@@ -101,7 +101,7 @@ $urls = $urls ?? []; // Giả định $urls được truyền vào
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Số điện thoại</label>
-                                                <input type="text" class="form-control" placeholder="Số điện thoại">
+                                                <input id="input-phone" name="phone" type="text" class="form-control" placeholder="Số điện thoại">
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Giới tính</label>
@@ -202,7 +202,7 @@ $urls = $urls ?? []; // Giả định $urls được truyền vào
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const API_BASE = '<?= rtrim($baseUrl ?? '', '/') ?>';
+        const API_BASE = window.location.origin;
         // Lấy thông tin user từ localStorage khi trang load
         document.addEventListener('DOMContentLoaded', function () {
             try {
@@ -213,14 +213,14 @@ $urls = $urls ?? []; // Giả định $urls được truyền vào
                     // Cập nhật thông tin cá nhân
                     if (user.name) {
                         document.querySelector('.user-fullname').textContent = user.name;
-                        const fullNameInput = document.querySelector('input[value="Tên Người Dùng"]');
-                        if (fullNameInput) {
-                            fullNameInput.value = user.name;
+                        const nameInput = document.getElementById('input-name');
+                        if (nameInput) {
+                            nameInput.value = user.name;
                         }
                     }
 
                     if (user.email) {
-                        const emailInput = document.querySelector('input[type="email"]');
+                        const emailInput = document.getElementById('input-email');
                         if (emailInput) {
                             emailInput.value = user.email;
                         }
@@ -234,12 +234,19 @@ $urls = $urls ?? []; // Giả định $urls được truyền vào
                             avatarImg.src = `https://ui-avatars.com/api/?name=${encodedName}&background=ec4899&color=fff&size=150`;
                         }
                     }
+
+                    const phoneInput = document.getElementById('input-phone');
                     if (user.phone) {
-                        const phoneInput = document.querySelector('input[placeholder="Số điện thoại"]');
                         console.log('Cập nhật số điện thoại:', user.phone);
                         if (phoneInput) {
                             phoneInput.value = user.phone;
                         }
+                    }
+
+                    // Set gender select from user data
+                    const genderSelect = document.getElementById('input-gender');
+                    if (genderSelect && user.gender) {
+                        genderSelect.value = user.gender;
                     }
 
                     // Cập nhật member since date
@@ -320,7 +327,7 @@ $urls = $urls ?? []; // Giả định $urls được truyền vào
                             id: currentUser.id,
                             name: document.getElementById('input-name').value.trim(),
                             email: document.getElementById('input-email').value.trim(),
-                            phone: document.getElementById('input-phone').value.trim(),
+                            phone: (document.getElementById('input-phone') ? document.getElementById('input-phone').value.trim() : ''),
                             gender: document.getElementById('input-gender').value || '',
                         };
 

@@ -4,7 +4,6 @@ CREATE TABLE IF NOT EXISTS users (
   email VARCHAR(255) NOT NULL UNIQUE,
   phone VARCHAR(20) DEFAULT NULL,
   password VARCHAR(255) NOT NULL,
-  phone VARCHAR(20) DEFAULT NULL,
   gender ENUM('male','female','other') DEFAULT NULL,
   avatar LONGTEXT DEFAULT NULL,
   role ENUM('admin','moderator','user') NOT NULL DEFAULT 'user',
@@ -132,10 +131,10 @@ CREATE TABLE IF NOT EXISTS feedbacks (
   FOREIGN KEY (idNguoiDung) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO users (id, name, email, phone, password, role, created_at, updated_at) VALUES
-  (1, 'Nguyễn Văn A', 'user1@example.com', '0123456789', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user', NOW(), NOW()),
-  (2, 'Trần Thị B', 'user2@example.com', '0123456789', '$2y$10$92IXUNpkjO0rOO5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user', NOW(), NOW()),
-  (3, 'Phạm Văn C', 'admin1@example.com', '0123456789', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', NOW(), NOW());
+INSERT IGNORE INTO users (id, name, email, phone, gender, password, role, created_at, updated_at) VALUES
+  (1, 'Nguyễn Văn A', 'user1@example.com', '0123456789', 'male', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user', NOW(), NOW()),
+  (2, 'Trần Thị B', 'user2@example.com', '0123456789', 'female', '$2y$10$92IXUNpkjO0rOO5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'user', NOW(), NOW()),
+  (3, 'Phạm Văn C', 'admin1@example.com', '0123456789', 'male', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', NOW(), NOW());
 
 INSERT IGNORE INTO events (id, maSuKien, tenSuKien, thoiGianBatDau, thoiGianKetThuc, trangThai, soNguoiThamGia, soKhaoSat, diaDiem, maNguoiTao, created_at, updated_at) VALUES
   (1, 'SK001', 'Sự kiện Khởi động Năm Mới', '2024-01-01 09:00:00', '2024-01-01 17:00:00', 'completed', 150, 3, 'Hội trường A', 1, NOW(), NOW()),

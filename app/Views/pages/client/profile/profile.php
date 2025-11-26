@@ -101,7 +101,7 @@ $urls = $urls ?? []; // Giả định $urls được truyền vào
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Số điện thoại</label>
-                                                <input id="input-phone" type="text" class="form-control" placeholder="Chưa cập nhật">
+                                                <input type="text" class="form-control" placeholder="Số điện thoại">
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Giới tính</label>
@@ -232,6 +232,13 @@ $urls = $urls ?? []; // Giả định $urls được truyền vào
                         if (avatarImg) {
                             const encodedName = encodeURIComponent(user.name);
                             avatarImg.src = `https://ui-avatars.com/api/?name=${encodedName}&background=ec4899&color=fff&size=150`;
+                        }
+                    }
+                    if (user.phone) {
+                        const phoneInput = document.querySelector('input[placeholder="Số điện thoại"]');
+                        console.log('Cập nhật số điện thoại:', user.phone);
+                        if (phoneInput) {
+                            phoneInput.value = user.phone;
                         }
                     }
 

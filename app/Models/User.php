@@ -12,8 +12,8 @@ class User
     private int $id;
     private string $name;
     private string $email;
-    private string $password;
     private ?string $phone;
+    private string $password;
     private ?string $gender;
     private ?string $avatar;
     private string $role;
@@ -25,6 +25,7 @@ class User
         $this->id = (int) ($attributes['id'] ?? 0);
         $this->name = $attributes['name'];
         $this->email = $attributes['email'];
+        $this->phone = $attributes['phone'];
         $this->password = $attributes['password'];
         $this->phone = $attributes['phone'] ?? null;
         $this->gender = $attributes['gender'] ?? null;

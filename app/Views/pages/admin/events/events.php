@@ -66,7 +66,7 @@
         <div class="card-footer bg-white border-top-0 py-3">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="text-muted small">
-                    Tổng số: <span id="total-events" class="fw-bold">0</span> sự kiện
+                    Hiển thị <span id="total-events">0</span> kết quả
                 </div>
                 <div id="events-pagination"></div>
             </div>
@@ -108,8 +108,6 @@
                 return;
             }
 
-            // Lưu ý: Đảm bảo AdminHelpers đã được load từ file script bên trên hoặc layout
-            // Nếu chưa có, cần define fallback để tránh lỗi JS
             const Helpers = window.AdminHelpers || {
                 getStatusBadge: (s) => 'badge bg-secondary',
                 getStatusText: (s) => s,
@@ -120,7 +118,7 @@
             tbody.innerHTML = events.map(ev => `
                 <tr class="slide-in">
                     <td class="ps-4">
-                        <span class="badge bg-light text-dark border font-monospace">${ev.code || 'N/A'}</span>
+                        <span class="font-monospace text-dark">#${ev.code || ev.id || 'N/A'}</span>
                     </td>
                     <td>
                         <div class="fw-bold text-primary mb-1 text-truncate" style="max-width: 300px;">
@@ -147,14 +145,11 @@
                             </div>
                             <div class="d-flex flex-column" style="line-height: 1.2;">
                                 <span class="fw-bold small">${ev.creator}</span>
-                                <span class="text-muted" style="font-size: 0.75rem;">Người tạo</span>
                             </div>
                         </div>
                     </td>
                     <td class="text-center">
-                        <span class="badge bg-info bg-opacity-10 text-info border border-info px-3">
-                            ${ev.surveys || 0}
-                        </span>
+                        <span class="fw-bold text-primary">${ev.surveys || 0}</span>
                     </td>
                     <td class="text-end pe-4">
                         <div class="btn-group">

@@ -19,7 +19,7 @@
                         <input type="text" id="filter-search" class="form-control border-start-0 ps-0" placeholder="Tìm theo tên người dùng...">
                     </div>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-4">
                     <label class="form-label fw-bold small text-uppercase text-muted">Đánh giá</label>
                     <select class="form-select" id="filter-rating">
                         <option value="">Tất cả sao</option>
@@ -30,9 +30,9 @@
                         <option value="1">1 Sao (Rất tệ)</option>
                     </select>
                 </div>
-                <div class="col-md-3 d-flex align-items-end">
+                <div class="col-md-4 d-flex align-items-end">
                     <button class="btn btn-light w-100 border" id="reset-filters">
-                        <i class="fas fa-redo me-2"></i>Đặt lại
+                        <i class="fas fa-redo me-2"></i>Đặt lại bộ lọc
                     </button>
                 </div>
             </div>
@@ -45,7 +45,7 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr>
-                            <th class="ps-4" style="width: 80px;">#ID</th>
+                            <th class="ps-4" style="width: 80px;">Mã</th>
                             <th style="width: 200px;">Người gửi</th>
                             <th style="width: 150px;">Đánh giá</th>
                             <th>Nội dung bình luận</th>
@@ -68,7 +68,7 @@
         <div class="card-footer bg-white border-top-0 py-3">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="text-muted small">
-                    Tổng số: <span id="total-feedbacks" class="fw-bold">0</span> phản hồi
+                    Hiển thị <span id="total-feedbacks">0</span> kết quả
                 </div>
                 <div id="feedback-pagination"></div>
             </div>
@@ -189,9 +189,17 @@
 
             tbody.innerHTML = feedbacks.map(f => `
                 <tr class="slide-in">
-                    <td class="ps-4"><span class="text-muted small">#${f.id}</span></td>
+                    <td class="ps-4"><span class="font-monospace text-dark">#${f.ma || f.id}</span></td>
                     <td>
-                        <div class="fw-bold">${f.tenNguoiDung || f.username || 'Ẩn danh'}</div>
+                        <div class="d-flex align-items-center gap-2">
+                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center" 
+                                 style="width:32px; height:32px; font-size:0.8rem; background: ${window.AdminHelpers ? AdminHelpers.getAvatarColor(f.tenNguoiDung || f.username || '') : '#6c757d'}">
+                                ${(f.tenNguoiDung || f.username || 'Ẩn danh').split(' ').map(s=>s[0]).slice(0,2).join('').toUpperCase()}
+                            </div>
+                            <div class="d-flex flex-column" style="line-height:1.1;">
+                                <span class="fw-bold small">${f.tenNguoiDung || f.username || 'Ẩn danh'}</span>
+                            </div>
+                        </div>
                     </td>
                     <td>${renderStars(f.danhGia || f.rating || 0)}</td>
                     <td>
@@ -201,8 +209,10 @@
                     </td>
                     <td><small class="text-muted">${formatDate(f.created_at || f.ngayGui)}</small></td>
                     <td class="text-end pe-4">
-                        <button class="btn btn-sm btn-light text-primary" onclick="editFeedback(${f.id})" title="Sửa"><i class="fas fa-edit"></i></button>
-                        <button class="btn btn-sm btn-light text-danger" onclick="deleteFeedback(${f.id})" title="Xóa"><i class="fas fa-trash"></i></button>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-light text-primary" onclick="editFeedback(${f.id})" title="Sửa"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-light text-danger" onclick="deleteFeedback(${f.id})" title="Xóa"><i class="fas fa-trash"></i></button>
+                        </div>
                     </td>
                 </tr>
             `).join('');

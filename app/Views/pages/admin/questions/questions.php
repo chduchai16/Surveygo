@@ -12,7 +12,7 @@
     <div class="card mb-4 fade-in">
         <div class="card-body">
             <div class="row g-3">
-                <div class="col-md-4">
+                <div class="col-md-3">
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
                         <input type="text" id="search-input" class="form-control border-start-0 ps-0" placeholder="Tìm nội dung câu hỏi...">
@@ -34,9 +34,10 @@
                         <option value="KS002">Đánh giá dịch vụ</option>
                     </select>
                 </div>
-                <div class="col-md-2">
+                <div class="col-md-3">
                     <button class="btn btn-light w-100 border" onclick="resetFilters()">
                         <i class="fas fa-redo"></i>
+                        Đặt lại bộ lọc
                     </button>
                 </div>
             </div>
@@ -196,8 +197,10 @@
                     </td>
                     <td><small class="text-muted">${q.created_at}</small></td>
                     <td class="text-end pe-4">
-                        <button class="btn btn-sm btn-light text-primary" onclick="editQuestion(${q.id})" title="Sửa"><i class="fas fa-pen"></i></button>
-                        <button class="btn btn-sm btn-light text-danger" onclick="deleteQuestion(${q.id})" title="Xóa"><i class="fas fa-trash"></i></button>
+                        <div class="btn-group">
+                            <button class="btn btn-sm btn-light text-primary" onclick="editQuestion(${q.id})" title="Sửa"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-light text-danger" onclick="deleteQuestion(${q.id})" title="Xóa"><i class="fas fa-trash"></i></button>
+                        </div>
                     </td>
                 </tr>
             `).join('');
@@ -205,12 +208,11 @@
             totalEl.textContent = mockQuestions.length;
             showingEl.textContent = data.length;
             
-            // Render Pagination (Simple Mock)
             document.getElementById('pagination').innerHTML = `
-                <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
+                <li class="page-item disabled"><a class="page-link" href="#"><i class="fas fa-chevron-left"></i></a></li>
                 <li class="page-item active"><a class="page-link" href="#">1</a></li>
                 <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+                <li class="page-item"><a class="page-link" href="#"><i class="fas fa-chevron-right"></i></a></li>
             `;
         }
 

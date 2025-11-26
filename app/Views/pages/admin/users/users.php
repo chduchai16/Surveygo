@@ -51,7 +51,7 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr>
-                            <th class="ps-4" style="width: 80px;">#ID</th>
+                            <th class="ps-4" style="width: 80px;">Mã</th>
                             <th style="min-width: 200px;">Thông tin User</th>
                             <th>Email</th>
                             <th style="width: 140px;">Vai trò</th>
@@ -77,7 +77,7 @@
         <div class="card-footer bg-white border-top-0 py-3">
             <div class="d-flex justify-content-between align-items-center">
                 <div class="text-muted small">
-                    Tổng số: <span id="total-users" class="fw-bold">0</span> người dùng
+                    Hiển thị <span id="total-users">0</span> kết quả
                 </div>
                 <div id="users-pagination"></div>
             </div>
@@ -125,7 +125,7 @@
 
             tbody.innerHTML = users.map(user => `
                 <tr class="slide-in">
-                    <td class="ps-4"><span class="text-muted font-monospace small">#${user.code || user.id}</span></td>
+                    <td class="ps-4"><span class="font-monospace text-dark">#${user.code || user.id}</span></td>
                     <td>
                         <div class="d-flex align-items-center gap-3">
                             <div class="user-avatar shadow-sm" style="width: 36px; height: 36px; background: ${Helpers.getAvatarColor(user.name)}; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:600; border-radius:50%; font-size: 0.85rem;">
@@ -136,25 +136,25 @@
                             </div>
                         </div>
                     </td>
-                    <td class="text-muted small">${user.email}</td>
+                    <td>${user.email}</td>
                     <td>
-                        <span class="${Helpers.getRoleBadge(user.role)} bg-opacity-10 border">
+                        <span>
                             ${Helpers.getRoleText(user.role)}
                         </span>
                     </td>
                     <td>
-                        <span class="${Helpers.getStatusBadge(user.status || 'active')}">
+                        <span class="badge ${Helpers.getStatusBadge(user.status || 'active')}">
                             ${Helpers.getStatusText(user.status || 'active')}
                         </span>
                     </td>
-                    <td class="text-center"><span class="badge bg-light text-dark border">${user.surveys || 0}</span></td>
-                    <td class="text-center"><span class="fw-bold text-primary">${user.responses || 0}</span></td>
-                    <td class="text-muted small">${user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('vi-VN') : '-'}</td>
+                    <td class="text-center"><span class="fw-bold text-primary">${user.surveys || 0}</span></td>
+                    <td class="text-center"><span>${user.responses || 0}</span></td>
+                    <td>${user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('vi-VN') : '-'}</td>
                     <td class="text-end pe-4">
                         <div class="btn-group">
                             <button class="btn btn-sm btn-light text-primary" title="Xem" onclick="alert('Xem User ${user.id}')"><i class="fas fa-eye"></i></button>
                             <button class="btn btn-sm btn-light text-success" title="Sửa" onclick="alert('Sửa User ${user.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-light text-danger" title="Khóa" onclick="toggleStatus(${user.id})"><i class="fas fa-ban"></i></button>
+                            <button class="btn btn-sm btn-light text-danger" title="Khóa" onclick="toggleStatus(${user.id})"><i class="fas fa-trash"></i></button>
                         </div>
                     </td>
                 </tr>

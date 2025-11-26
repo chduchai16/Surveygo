@@ -55,7 +55,7 @@
                 <table class="table table-hover align-middle mb-0">
                     <thead class="bg-light">
                         <tr>
-                            <th class="ps-4" style="width: 80px;">#ID</th>
+                            <th class="ps-4" style="width: 100px;">Mã</th>
                             <th>Tiêu đề & Tác giả</th>
                             <th style="width: 120px;">Loại</th>
                             <th style="width: 120px;">Trạng thái</th>
@@ -152,7 +152,7 @@
         const itemsPerPage = 10;
         const totalSurveysEl = document.getElementById('total-surveys');
         
-        // Mock AdminHelpers nếu chưa load file js bên ngoài (để tránh lỗi)
+        // Mock AdminHelpers
         const AdminHelpers = window.AdminHelpers || {
             getStatusBadge: (status) => {
                 const map = { 'approved': 'success', 'pending': 'warning', 'draft': 'secondary', 'rejected': 'danger' };
@@ -171,11 +171,10 @@
         // --- Core Functions ---
 
         async function loadSurveys(page = 1) {
-            currentPage = page; // Update global state
+            currentPage = page; 
             
             const status = document.getElementById('filter-status').value;
             const category = document.getElementById('filter-category').value;
-            // Ưu tiên ô tìm kiếm trong bảng lọc
             const searchInput = document.getElementById('filter-search');
             const search = (searchInput ? searchInput.value : '').trim();
 
@@ -194,10 +193,14 @@
                 const res = await fetch(`/api/surveys?${params.toString()}`);
                 const json = await res.json();
                 
-                if (json && json.data && json.data.length > 0) {
-                    renderSurveysTable(json.data);
-                    renderPagination(json.meta);
-                    if (totalSurveysEl) totalSurveysEl.textContent = json.meta.total || json.data.length;
+                // Hỗ trợ cả cấu trúc {data: [...]} hoặc [...]
+                const data = Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
+                const meta = json.meta || { total: data.length, page: page, totalPages: 1 };
+
+                if (data.length > 0) {
+                    renderSurveysTable(data);
+                    renderPagination(meta);
+                    if (totalSurveysEl) totalSurveysEl.textContent = meta.total;
                 } else {
                     tbody.innerHTML = '<tr><td colspan="8" class="text-center py-5 text-muted"><i class="fas fa-folder-open mb-2 display-6"></i><br>Không tìm thấy dữ liệu.</td></tr>';
                     document.getElementById('pagination-container').innerHTML = '';
@@ -213,7 +216,11 @@
             const tbody = document.getElementById('surveys-table-body');
             tbody.innerHTML = surveys.map(s => `
                 <tr class="slide-in align-middle">
-                    <td class="ps-4"><span class="text-muted font-monospace">#${s.id}</span></td>
+                    <td class="ps-4">
+                        <span class="font-monospace text-dark" style="font-size: 0.9rem;">
+                            #${s.maKhaoSat || s.ma_khao_sat || s.id}
+                        </span>
+                    </td>
                     <td>
                         <div class="fw-bold text-primary">${s.tieuDe || s.tieu_de || 'Không tiêu đề'}</div>
                         <div class="small text-muted"><i class="fas fa-user-circle me-1"></i> ${s.maNguoiTao || 'Ẩn danh'}</div>
@@ -250,12 +257,11 @@
             }
 
             let html = '<ul class="pagination pagination-sm mb-0">';
-            // Nút Trước
+            // Prev
             html += `<li class="page-item ${meta.page === 1 ? 'disabled' : ''}">
                         <button class="page-link" onclick="loadSurveys(${meta.page - 1})"><i class="fas fa-chevron-left"></i></button>
                      </li>`;
 
-            // Logic hiển thị số trang (rút gọn)
             const startPage = Math.max(1, meta.page - 1);
             const endPage = Math.min(meta.totalPages, meta.page + 1);
 
@@ -275,7 +281,7 @@
                 html += `<li class="page-item"><button class="page-link" onclick="loadSurveys(${meta.totalPages})">${meta.totalPages}</button></li>`;
             }
 
-            // Nút Sau
+            // Next
             html += `<li class="page-item ${meta.page === meta.totalPages ? 'disabled' : ''}">
                         <button class="page-link" onclick="loadSurveys(${meta.page + 1})"><i class="fas fa-chevron-right"></i></button>
                      </li>`;
@@ -284,7 +290,6 @@
             container.innerHTML = html;
         }
 
-        // Debounce Function
         function debounce(fn, wait = 500) {
             let timer;
             return function(...args) {
@@ -293,7 +298,6 @@
             }
         }
 
-        // --- Event Listeners ---
         const debouncedLoad = debounce(() => loadSurveys(1));
 
         document.getElementById('filter-status').addEventListener('change', () => loadSurveys(1));
@@ -307,15 +311,12 @@
             loadSurveys(1);
         });
 
-        // Expose functions to global scope for HTML onclick access
         window.loadSurveys = loadSurveys;
         window.createSurvey = function() {
             alert("Tính năng đang phát triển: Gọi API tạo mới tại đây");
-            // Logic call API POST /api/surveys
         };
         window.deleteSurvey = function(id) {
             if(confirm('Bạn có chắc chắn muốn xóa khảo sát #' + id + '?')) {
-                // Logic call API DELETE
                 alert('Đã gửi yêu cầu xóa ' + id);
             }
         };

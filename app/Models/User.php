@@ -12,8 +12,10 @@ class User
     private int $id;
     private string $name;
     private string $email;
-    private string $phone;
+    private ?string $phone;
     private string $password;
+    private ?string $gender;
+    private ?string $avatar;
     private string $role;
     private string $createdAt;
     private string $updatedAt;
@@ -25,6 +27,9 @@ class User
         $this->email = $attributes['email'];
         $this->phone = $attributes['phone'];
         $this->password = $attributes['password'];
+        $this->phone = $attributes['phone'] ?? null;
+        $this->gender = $attributes['gender'] ?? null;
+        $this->avatar = $attributes['avatar'] ?? null;
         $this->role = $attributes['role'];
         $this->createdAt = $attributes['created_at'];
         $this->updatedAt = $attributes['updated_at'];
@@ -104,6 +109,20 @@ class User
         return $this->name;
     }
 
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function getGender(): ?string
+    {
+        return $this->gender;
+    }
+    public function getAvatar(): ?string
+    {
+        return $this->avatar;
+    }
+
     public function toArray(): array
     {
         return [
@@ -111,6 +130,8 @@ class User
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
+            'gender' => $this->gender,
+            'avatar' => $this->avatar,
             'role' => $this->role,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,

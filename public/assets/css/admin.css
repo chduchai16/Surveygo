@@ -534,7 +534,7 @@ body {
 
 /* ==================== BUTTONS ==================== */
 .btn {
-    padding: 0.6rem 1.5rem;
+    padding: 0.4rem 1.5rem;
     border-radius: 8px;
     font-weight: 600;
     transition: all 0.3s;

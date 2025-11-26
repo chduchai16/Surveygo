@@ -74,6 +74,14 @@ class AdminController extends Controller
         return \App\Core\Response::html($view->render('layouts/admin', array_merge($data, ['content' => $content])));
     }
 
+    public function contactMessages(Request $request)
+    {
+        $view = new \App\Core\View();
+        $data = $this->pageData($request);
+        $content = $view->render('pages/admin/contact-messages/contact-messages', $data);
+        return \App\Core\Response::html($view->render('layouts/admin', array_merge($data, ['content' => $content])));
+    }
+
     private function pageData(Request $request): array
     {
         $config = Container::get('config');

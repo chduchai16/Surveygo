@@ -13,14 +13,16 @@
         <div class="card-body">
             <div class="row g-3">
                 <div class="col-md-3">
+                    <label class="form-label fw-bold small text-uppercase text-muted">Tìm kiếm</label>
                     <div class="input-group">
                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
-                        <input type="text" id="search-input" class="form-control border-start-0 ps-0" placeholder="Tìm nội dung câu hỏi...">
+                        <input type="text" id="search-input" class="form-control border-start-0 ps-0" placeholder="Nhập tiêu đề...">
                     </div>
                 </div>
                 <div class="col-md-3">
+                    <label class="form-label fw-bold small text-uppercase text-muted">Trạng thái</label>
                     <select class="form-select" id="filter-type">
-                        <option value="">Tất cả loại câu hỏi</option>
+                        <option value="">Tất cả trạng thái</option>
                         <option value="single_choice">Một lựa chọn (Radio)</option>
                         <option value="multi_choice">Nhiều lựa chọn (Checkbox)</option>
                         <option value="text">Văn bản (Text)</option>
@@ -28,13 +30,14 @@
                     </select>
                 </div>
                 <div class="col-md-3">
+                    <label class="form-label fw-bold small text-uppercase text-muted">Danh mục</label>
                     <select class="form-select" id="filter-survey">
-                        <option value="">Tất cả khảo sát</option>
+                        <option value="">Tất cả danh mục</option>
                         <option value="KS001">Khảo sát thói quen đọc</option>
                         <option value="KS002">Đánh giá dịch vụ</option>
                     </select>
                 </div>
-                <div class="col-md-3">
+                <div class="col-md-3 d-flex align-items-end">
                     <button class="btn btn-light w-100 border" onclick="resetFilters()">
                         <i class="fas fa-redo"></i>
                         Đặt lại bộ lọc

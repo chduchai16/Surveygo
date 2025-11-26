@@ -42,6 +42,7 @@ $router->get('/admin/reports', [AdminController::class, 'reports']);
 $router->get('/admin/events', [AdminController::class, 'events']);
 $router->get('/admin/settings', [AdminController::class, 'settings']);
 $router->get('/admin/feedbacks', [AdminController::class, 'feedbacks']);
+$router->get('/admin/contact-messages', [AdminController::class, 'contactMessages']);
 
 // Health check route.
 $router->get('/api/health', fn() => Response::json([
@@ -76,6 +77,13 @@ $router->get('/api/feedbacks/show', [App\Controllers\FeedbackController::class, 
 $router->post('/api/feedbacks', [App\Controllers\FeedbackController::class, 'create']);
 $router->put('/api/feedbacks', [App\Controllers\FeedbackController::class, 'update']);
 $router->delete('/api/feedbacks', [App\Controllers\FeedbackController::class, 'delete']);
+
+// Contact messages API
+$router->get('/api/contact-messages', [App\Controllers\ContactController::class, 'index']);
+$router->get('/api/contact-messages/show', [App\Controllers\ContactController::class, 'show']);
+$router->post('/api/contact-messages', [App\Controllers\ContactController::class, 'create']);
+$router->put('/api/contact-messages', [App\Controllers\ContactController::class, 'update']);
+$router->delete('/api/contact-messages', [App\Controllers\ContactController::class, 'delete']);
 
 $router->post('/api/questions', [App\Controllers\QuestionController::class, 'create']); // Tạo câu hỏi mới
 $router->put('/api/questions', [App\Controllers\QuestionController::class, 'update']); // Cập nhật câu hỏi

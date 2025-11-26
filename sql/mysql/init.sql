@@ -112,7 +112,7 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   idNguoiDung INT UNSIGNED DEFAULT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  response TEXT DEFAULT NULL,
+  phanHoi TEXT DEFAULT NULL,
   FOREIGN KEY (idNguoiDung) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -264,7 +264,7 @@ INSERT IGNORE INTO answers (id, maCauHoi, noiDungCauTraLoi, laDung, creator_id, 
 
 
 -- dữ liệu cho bảng contact mesages
-INSERT IGNORE INTO contact_messages (id,ma, hoTen, email, soDienThoai, chuDe, tinNhan, idNguoiDung, created_at, updated_at, response) VALUES
+INSERT IGNORE INTO contact_messages (id,ma, hoTen, email, soDienThoai, chuDe, tinNhan, idNguoiDung, created_at, updated_at, phanHoi) VALUES
   (1, 'CM001' ,'Lê Văn D', 'levand@example.com', '0909123456', 'Hỗ trợ khảo sát', 'Tôi không thể gửi kết quả khảo sát, báo lỗi khi submit.', 1, NOW(), NOW(), NULL),
   (2, 'CM002','Ngô Thị E', 'ngothe@example.com', NULL, 'Yêu cầu hợp tác', 'Công ty chúng tôi muốn hợp tác tổ chức sự kiện cùng bạn.', NULL, NOW(), NOW(), 'Cám ơn, đã nhận yêu cầu. Chúng tôi sẽ liên hệ.'),
   (3, 'CM003','Hoàng Văn F', 'hoangvf@example.com', '0912345678', 'Báo lỗi', 'Gặp lỗi khi xem kết quả khảo sát KS003.', 2, NOW(), NOW(), NULL),

@@ -12,6 +12,7 @@ class User
     private int $id;
     private string $name;
     private string $email;
+    private string $phone;
     private string $password;
     private string $role;
     private string $createdAt;
@@ -22,6 +23,7 @@ class User
         $this->id = (int) ($attributes['id'] ?? 0);
         $this->name = $attributes['name'];
         $this->email = $attributes['email'];
+        $this->phone = $attributes['phone'];
         $this->password = $attributes['password'];
         $this->role = $attributes['role'];
         $this->createdAt = $attributes['created_at'];
@@ -108,6 +110,7 @@ class User
             'id' => $this->id,
             'name' => $this->name,
             'email' => $this->email,
+            'phone' => $this->phone,
             'role' => $this->role,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,

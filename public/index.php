@@ -6,6 +6,7 @@ require_once dirname(__DIR__) . '/bootstrap.php';
 
 use App\Controllers\HomeController;
 use App\Controllers\AdminController;
+use App\Controllers\DailyRewardController;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Router;
@@ -53,31 +54,35 @@ $router->get('/api/health', fn() => Response::json([
 ]));
 
 // Survey API routes
-$router->get('/api/surveys', [App\Controllers\SurveyController::class, 'index']); // Lấy ra danh sách khảo sát
-$router->get('/api/surveys/show', [App\Controllers\SurveyController::class, 'show']); // Lấy chi tiết một khảo sát
+$router->get('/api/surveys', [App\Controllers\SurveyController::class, 'index']); // L���y ra danh sA�ch kh���o sA�t
+$router->get('/api/surveys/show', [App\Controllers\SurveyController::class, 'show']); // L���y chi ti���t m��Tt kh���o sA�t
 $router->post('/api/surveys', [App\Controllers\SurveyController::class, 'create']);
 $router->put('/api/surveys', [App\Controllers\SurveyController::class, 'update']);
 $router->delete('/api/surveys', [App\Controllers\SurveyController::class, 'delete']);
 $router->post('/api/surveys/publish', [App\Controllers\SurveyController::class, 'publish']);
 $router->post('/api/surveys/approve', [App\Controllers\SurveyController::class, 'approve']);
-$router->post('/api/surveys/{id}/submit', [App\Controllers\SurveyController::class, 'submit']); // Submit khảo sát
-$router->get('/api/surveys/{id}/check-submission', [App\Controllers\SurveyController::class, 'checkSubmission']); // Kiểm tra đã submit chưa
+$router->post('/api/surveys/{id}/submit', [App\Controllers\SurveyController::class, 'submit']); // Submit kh���o sA�t
+$router->get('/api/surveys/{id}/check-submission', [App\Controllers\SurveyController::class, 'checkSubmission']); // Ki���m tra �`A� submit ch��a
 
 // Question API routes
-$router->get('/api/questions/{id}/answers', [App\Controllers\QuestionController::class, 'getAnswersForQuestion']); // Lấy danh sách đáp án của câu hỏi
-$router->get('/api/questions', [App\Controllers\QuestionController::class, 'index']); // Lấy danh sách tất cả câu hỏi 
-$router->get('/api/questions/by-survey', [App\Controllers\QuestionController::class, 'getBySurvey']); // Lấy câu hỏi theo khảo sát
-$router->get('/api/questions/show', [App\Controllers\QuestionController::class, 'show']); // Lấy chi tiết một câu hỏi
+$router->get('/api/questions/{id}/answers', [App\Controllers\QuestionController::class, 'getAnswersForQuestion']); // L���y danh sA�ch �`A�p A�n c��a cA�u h��?i
+$router->get('/api/questions', [App\Controllers\QuestionController::class, 'index']); // L���y danh sA�ch t���t c��� cA�u h��?i 
+$router->get('/api/questions/by-survey', [App\Controllers\QuestionController::class, 'getBySurvey']); // L���y cA�u h��?i theo kh���o sA�t
+$router->get('/api/questions/show', [App\Controllers\QuestionController::class, 'show']); // L���y chi ti���t m��Tt cA�u h��?i
 
 // Events API
-$router->get('/api/events', [App\Controllers\EventController::class, 'index']); // Lấy danh sách sự kiện (phân trang + tìm kiếm)
+$router->get('/api/events', [App\Controllers\EventController::class, 'index']); // L���y danh sA�ch s��� ki���n (phA�n trang + tA�m ki���m)
 
-$router->post('/api/questions', [App\Controllers\QuestionController::class, 'create']); // Tạo câu hỏi mới
-$router->put('/api/questions', [App\Controllers\QuestionController::class, 'update']); // Cập nhật câu hỏi
-$router->delete('/api/questions', [App\Controllers\QuestionController::class, 'delete']); // Xóa câu hỏi
+$router->post('/api/questions', [App\Controllers\QuestionController::class, 'create']); // T���o cA�u h��?i m��>i
+$router->put('/api/questions', [App\Controllers\QuestionController::class, 'update']); // C��-p nh��-t cA�u h��?i
+$router->delete('/api/questions', [App\Controllers\QuestionController::class, 'delete']); // XA3a cA�u h��?i
+
+// Daily rewards API
+$router->get('/api/daily-rewards/status', [DailyRewardController::class, 'status']);
+$router->post('/api/daily-rewards/claim', [DailyRewardController::class, 'claim']);
 
 // Users API
-$router->get('/api/users', [App\Controllers\UserController::class, 'index']); // Lấy danh sách users (phân trang + tìm kiếm)
+$router->get('/api/users', [App\Controllers\UserController::class, 'index']); // L���y danh sA�ch users (phA�n trang + tA�m ki���m)
 
 
 $request = Request::capture();
@@ -93,3 +98,4 @@ try {
 }
 
 $response->send();
+

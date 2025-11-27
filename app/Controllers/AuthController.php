@@ -58,7 +58,15 @@ class AuthController extends Controller
 
         $hashed = password_hash($password, PASSWORD_BCRYPT);
 
-        $user = User::create($name, $email, $hashed, $role);
+        $user = User::create([
+            'name' => $name,
+            'email' => $email,
+            'password' => $hashed,
+            'role' => $role,
+            'avatar' => '',
+            'phone' => null,
+            'gender' => 'other',
+        ]);
 
         return $this->json([
             'error' => false,

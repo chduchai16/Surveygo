@@ -12,10 +12,11 @@ class User
     private int $id;
     private string $code;
     private string $name;
+    private ?string $avatar;
     private string $email;
     private ?string $phone;
     private string $password;
-    private string $gender;
+    private ?string $gender;
     private string $role;
     private string $createdAt;
     private string $updatedAt;
@@ -25,6 +26,7 @@ class User
         $this->id = (int) ($attributes['id'] ?? 0);
         $this->code = (string) ($attributes['code'] ?? '');
         $this->name = $attributes['name'];
+        $this->avatar = $attributes['avatar'];
         $this->email = $attributes['email'];
         $this->phone = $attributes['phone'] ?? null;
         $this->password = $attributes['password'];
@@ -34,27 +36,33 @@ class User
         $this->updatedAt = $attributes['updated_at'];
     }
 
-    public static function create(string $name, string $email, string $hashedPassword, string $role = 'user'): self
+    public static function create(array $attributes): self
     {
         /** @var PDO $db */
         $db = Container::get('db');
 
         $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
 
-        $statement = $db->prepare('INSERT INTO users (code, name, email, phone , password, gender , role, created_at, updated_at) VALUES (:code, :name, :email, :phone , :password, :gender, :role, :created_at, :updated_at)');
+        $statement = $db->prepare('INSERT INTO users (name, avatar, email, phone, password, gender, role, created_at, updated_at) VALUES (:name, :avatar, :email, :phone, :password, :gender, :role, :created_at, :updated_at)');
         $statement->execute([
-            ':code' => 'US' . str_pad((string) ($db->lastInsertId() + 1), 3, '0', STR_PAD_LEFT),
-            ':name' => $name,
-            ':email' => $email,
-            ':phone' => null,
-            ':password' => $hashedPassword,
-            ':gender' => 'other',
-            ':role' => $role,
+            ':name' => $attributes['name'],
+            ':avatar' => $attributes['avatar'] ?? '',
+            ':email' => $attributes['email'],
+            ':phone' => $attributes['phone'] ?? null,
+            ':password' => $attributes['password'],
+            ':gender' => $attributes['gender'] ?? 'other',
+            ':role' => $attributes['role'] ?? 'user',
             ':created_at' => $now,
             ':updated_at' => $now,
         ]);
 
         $id = (int) $db->lastInsertId();
+
+        if ($id > 0) {
+            $code = 'US' . str_pad((string) $id, 3, '0', STR_PAD_LEFT);
+            $upd = $db->prepare('UPDATE users SET code = :code WHERE id = :id');
+            $upd->execute([':code' => $code, ':id' => $id]);
+        }
 
         return self::findById($id);
     }
@@ -116,12 +124,83 @@ class User
         return $this->gender;
     }
 
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+
+    public function setCode(string $code): void
+    {
+        $this->code = $code;
+    }
+
+    public function setName(string $name): void
+    {
+        $this->name = $name;
+    }
+
+    public function getAvatar(): ?string
+    {
+        return $this->avatar;
+    }
+
+    public function setAvatar(?string $avatar): void
+    {
+        $this->avatar = $avatar;
+    }
+
+    public function setEmail(string $email): void
+    {
+        $this->email = $email;
+    }
+
+    public function getPhone(): ?string
+    {
+        return $this->phone;
+    }
+
+    public function setPhone(?string $phone): void
+    {
+        $this->phone = $phone;
+    }
+
+    public function getRole(): string
+    {
+        return $this->role;
+    }
+
+    public function setRole(string $role): void
+    {
+        $this->role = $role;
+    }
+
+    public function getCreatedAt(): string
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(string $createdAt): void
+    {
+        $this->createdAt = $createdAt;
+    }
+
+    public function getUpdatedAt(): string
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(string $updatedAt): void
+    {
+        $this->updatedAt = $updatedAt;
+    }
+
     public function toArray(): array
     {
         return [
             'id' => $this->id,
             'code' => $this->code,
             'name' => $this->name,
+            'avatar' => $this->avatar,
             'email' => $this->email,
             'phone' => $this->phone,
             'gender' => $this->gender,

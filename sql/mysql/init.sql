@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS users (
   code VARCHAR(20) NOT NULL UNIQUE,
   phone VARCHAR(20) DEFAULT NULL,
   name VARCHAR(255) NOT NULL,
+  avatar VARCHAR(255) DEFAULT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
   password VARCHAR(255) NOT NULL,
   gender ENUM('male','female','other') NOT NULL DEFAULT 'other',
@@ -144,22 +145,22 @@ CREATE TABLE IF NOT EXISTS feedbacks (
   FOREIGN KEY (idNguoiDung) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT IGNORE INTO users (id, code, name, email, phone, password, gender, role, created_at, updated_at) VALUES
-  (1, 'US001','Nguyễn Văn A', 'user1@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
-  (2, 'US002' ,'Trần Thị B', 'user2@example.com', NULL, '$2y$10$92IXUNpkjO0rOO5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
-  (3, 'US003', 'Phạm Văn C', 'admin1@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'admin', NOW(), NOW()),
-  (4, 'US004', 'Phạm Minh H', 'user4@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
-  (5, 'US005', 'Nguyễn Văn J', 'user5@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
-  (6, 'US006', 'Đặng Thị K', 'user6@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
-  (7, 'US007', 'Bùi Văn L', 'user7@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
-  (8, 'US008', 'Vũ Thị M', 'user8@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
-  (9, 'US009', 'Hồ Thị P', 'user9@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
-  (10, 'US010', 'Lý Văn Q', 'user10@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
-  (11, 'US011', 'Mai Thị R', 'user11@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
-  (12, 'US012', 'Đỗ Văn S', 'user12@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
-  (13, 'US013', 'Trịnh Thị T', 'user13@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
-  (14, 'US014', 'Cao Văn U', 'user14@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
-  (15, 'US015', 'Phan Thị V', 'user15@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW());
+INSERT IGNORE INTO users (id, code, name, avatar, email, phone, password, gender, role, created_at, updated_at) VALUES
+  (1, 'US001','Nguyễn Văn A', NULL, 'user1@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (2, 'US002' ,'Trần Thị B', NULL, 'user2@example.com', NULL, '$2y$10$92IXUNpkjO0rOO5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (3, 'US003', 'Phạm Văn C', NULL, 'admin1@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'admin', NOW(), NOW()),
+  (4, 'US004', 'Phạm Minh H', NULL, 'user4@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (5, 'US005', 'Nguyễn Văn J', NULL, 'user5@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (6, 'US006', 'Đặng Thị K', NULL,'user6@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (7, 'US007', 'Bùi Văn L', NULL,'user7@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (8, 'US008', 'Vũ Thị M', NULL,'user8@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (9, 'US009', 'Hồ Thị P', NULL,'user9@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (10, 'US010', 'Lý Văn Q', NULL,'user10@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (11, 'US011', 'Mai Thị R', NULL,'user11@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (12, 'US012', 'Đỗ Văn S', NULL,'user12@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (13, 'US013', 'Trịnh Thị T', NULL,'user13@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (14, 'US014', 'Cao Văn U', NULL,'user14@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (15, 'US015', 'Phan Thị V', NULL,'user15@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW());
 
   
 INSERT IGNORE INTO events (id, maSuKien, tenSuKien, thoiGianBatDau, thoiGianKetThuc, trangThai, soNguoiThamGia, soKhaoSat, diaDiem, maNguoiTao, created_at, updated_at) VALUES

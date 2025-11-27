@@ -12,9 +12,6 @@ $__mk = static function (string $base, string $path): string {
     $p = '/' . ltrim($path, '/');
     return $base === '' ? $p : ($base . $p);
 };
-$urls['home'] = $urls['home'] ?? $__mk($__base, '/');
-$urls['login'] = $urls['login'] ?? $__mk($__base, '/login');
-$urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -30,7 +27,6 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
     <link rel="stylesheet" href="<?= $__mk($__base, 'public/assets/css/components/navbar.css') ?>">
     <link rel="stylesheet" href="<?= $__mk($__base, 'public/assets/css/client/survey-questions.css') ?>">
     <link rel="stylesheet" href="<?= $__mk($__base, 'public/assets/css/components/footer.css') ?>">
-
 </head>
 
 <body>
@@ -56,8 +52,6 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                 </div>
             </form>
 
-            <div id="guide-alert-container" style="display: none;"></div>
-
             <div class="survey-progress">
                 <div class="progress-bar-container">
                     <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
@@ -70,16 +64,90 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
     </main>
 
     <?php include BASE_PATH . '/app/Views/components/client/_footer.php'; ?>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
     <script>
+        // --- TÍCH HỢP TOAST HELPER ---
+        (function (global) {
+            function ensureContainer() {
+                let container = document.getElementById('global-toast-container');
+                if (container) return container;
+                container = document.createElement('div');
+                container.id = 'global-toast-container';
+                container.setAttribute('aria-live', 'polite');
+                container.setAttribute('aria-atomic', 'true');
+                container.className = 'position-fixed top-0 end-0 p-3';
+                container.style.zIndex = 1080;
+                document.body.appendChild(container);
+                return container;
+            }
+
+            function iconFor(status) {
+                switch ((status || '').toLowerCase()) {
+                    case 'success': return '<i class="fas fa-check-circle me-2"></i>';
+                    case 'warning': return '<i class="fas fa-exclamation-triangle me-2"></i>';
+                    case 'error':
+                    case 'danger': return '<i class="fas fa-times-circle me-2"></i>';
+                    case 'info': return '<i class="fas fa-info-circle me-2"></i>';
+                    default: return '<i class="fas fa-bell me-2"></i>';
+                }
+            }
+
+            function bgClassFor(status) {
+                switch ((status || '').toLowerCase()) {
+                    case 'success': return 'bg-success text-white';
+                    case 'warning': return 'bg-warning text-dark';
+                    case 'error':
+                    case 'danger': return 'bg-danger text-white';
+                    case 'info': return 'bg-info text-dark';
+                    default: return 'bg-secondary text-white';
+                }
+            }
+
+            function showToast(status, text, opts = {}) {
+                try {
+                    const container = ensureContainer();
+                    const toastId = 'toast-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+                    const wrapper = document.createElement('div');
+                    wrapper.innerHTML = `
+                        <div id="${toastId}" class="toast align-items-center ${bgClassFor(status)} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                          <div class="d-flex">
+                            <div class="toast-body d-flex align-items-center">${iconFor(status)}<div class="toast-text">${escapeHtml(text)}</div></div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                          </div>
+                        </div>
+                    `;
+                    const toastEl = wrapper.firstElementChild;
+                    container.appendChild(toastEl);
+                    const delay = typeof opts.delay === 'number' ? opts.delay : 3000;
+                    const bsToast = new bootstrap.Toast(toastEl, { delay });
+                    toastEl.addEventListener('hidden.bs.toast', function () {
+                        try { toastEl.remove(); } catch (e) { /* ignore */ }
+                    });
+                    bsToast.show();
+                    return bsToast;
+                } catch (e) {
+                    console.error('Toast error', e);
+                }
+            }
+
+            function escapeHtml(unsafe) {
+                if (unsafe === null || unsafe === undefined) return '';
+                return String(unsafe).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+            }
+            global.ToastHelper = { show: showToast };
+        })(window);
+
+
+        // --- LOGIC TRẢ LỜI CÂU HỎI ---
+        
         let surveyData = null;
         let currentQuestion = 0;
         let answers = {};
 
         document.addEventListener('DOMContentLoaded', async function () {
-            // Extract survey ID from URL path: /surveys/{id}/questions
             const pathParts = window.location.pathname.split('/');
-            const surveyId = pathParts[2]; // /surveys/2/questions -> [0]='', [1]='surveys', [2]='2', [3]='questions'
+            const surveyId = pathParts[2];
 
             if (!surveyId || !surveyId.match(/^\d+$/)) {
                 window.location.href = '/surveys';
@@ -112,22 +180,12 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                 showError('Khảo sát không có câu hỏi');
                 return;
             }
-
-            // Initialize answers object
             surveyData.questions.forEach(q => {
                 answers[q.id] = null;
             });
-
-            // Update progress
             document.getElementById('progress-total').textContent = surveyData.questions.length;
-
-            // Render header
             renderHeader();
-
-            // Render first question
             renderQuestion(0);
-
-            // Setup event listeners
             setupEventListeners();
         }
 
@@ -144,7 +202,6 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
         async function renderQuestion(index) {
             currentQuestion = index;
             const question = surveyData.questions[index];
-
             if (!question) return;
 
             const container = document.getElementById('questions-container');
@@ -154,18 +211,14 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                 <div class="question-card">
                     <div class="question-number">Câu hỏi ${index + 1}</div>
                     <div class="question-text">${escapeHtml(question.noiDungCauHoi)}</div>
-                    
                     <div id="options-container" class="options-container mt-4">
                         ${optionsHTML}
                     </div>
                 </div>
             `;
 
-            // Update progress
             document.getElementById('progress-current').textContent = index + 1;
             document.getElementById('progress-bar').style.width = ((index + 1) / surveyData.questions.length * 100) + '%';
-
-            // Update button states
             updateButtonStates();
         }
 
@@ -173,7 +226,6 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
             const loaiCauHoi = question.loaiCauHoi;
             const questionId = question.id;
 
-            // Nếu là text, render textarea
             if (loaiCauHoi === 'text') {
                 const value = answers[questionId] || '';
                 return `
@@ -187,15 +239,11 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                 `;
             }
 
-            // Nếu là choice, render radio/checkbox
             const inputType = loaiCauHoi === 'single_choice' ? 'radio' : 'checkbox';
-
-            // Lấy answers từ API
             let questionAnswers = [];
             if (question.answers && question.answers.length > 0) {
                 questionAnswers = question.answers;
             } else {
-                // Gọi API để lấy answers
                 try {
                     const answersResponse = await fetch(`/api/questions/${question.id}/answers`);
                     const answersResult = await answersResponse.json();
@@ -233,16 +281,13 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                     `;
                 });
             }
-
             return html;
-        } function setupEventListeners() {
+        }
+
+        function setupEventListeners() {
             document.getElementById('btn-next').addEventListener('click', function (e) {
                 e.preventDefault();
-
-                // Save current answer
                 saveCurrentAnswer();
-
-                // Move to next
                 if (currentQuestion < surveyData.questions.length - 1) {
                     renderQuestion(currentQuestion + 1);
                 }
@@ -250,11 +295,7 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
 
             document.getElementById('btn-prev').addEventListener('click', function (e) {
                 e.preventDefault();
-
-                // Save current answer
                 saveCurrentAnswer();
-
-                // Move to previous
                 if (currentQuestion > 0) {
                     renderQuestion(currentQuestion - 1);
                 }
@@ -272,15 +313,12 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
             const inputName = `question_${question.id}`;
 
             if (loaiCauHoi === 'text') {
-                // Lưu text từ textarea
                 const textarea = document.querySelector(`textarea[name="${inputName}"]`);
                 answers[question.id] = textarea ? textarea.value : null;
             } else if (loaiCauHoi === 'single_choice') {
-                // Lưu ID của answer được chọn
                 const checked = document.querySelector(`input[name="${inputName}"]:checked`);
                 answers[question.id] = checked ? checked.value : null;
             } else if (loaiCauHoi === 'multiple_choice') {
-                // Lưu mảng ID của các answers được chọn
                 const checked = document.querySelectorAll(`input[name="${inputName}"]:checked`);
                 answers[question.id] = Array.from(checked).map(c => c.value);
             }
@@ -289,67 +327,28 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
         function updateButtonStates() {
             const isFirst = currentQuestion === 0;
             const isLast = currentQuestion === surveyData.questions.length - 1;
-
             document.getElementById('btn-prev').disabled = isFirst;
             document.getElementById('btn-next').classList.toggle('d-none', isLast);
             document.getElementById('btn-submit').classList.toggle('d-none', !isLast);
         }
 
-        function showAlert(message, type = 'info', title = '') {
-            const container = document.getElementById('guide-alert-container');
-
-            const iconMap = {
-                'success': 'fas fa-check-circle',
-                'danger': 'fas fa-exclamation-circle',
-                'warning': 'fas fa-exclamation-triangle',
-                'info': 'fas fa-info-circle'
-            };
-
-            const titleMap = {
-                'success': 'Thành công',
-                'danger': 'Lỗi',
-                'warning': 'Cảnh báo',
-                'info': 'Thông báo'
-            };
-
-            const alertHTML = `
-                <div class="guide-alert alert-${type}">
-                    <i class="${iconMap[type]}"></i>
-                    <div class="guide-alert-message">
-                        ${title ? `<div class="guide-alert-title">${title}</div>` : ''}
-                        <p class="guide-alert-text">${escapeHtml(message)}</p>
-                    </div>
-                </div>
-            `;
-
-            container.innerHTML = alertHTML;
-            container.style.display = 'block';
-            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
         async function submitSurvey() {
             try {
-                // Save last answer
                 saveCurrentAnswer();
-
-                // Extract survey ID from URL path
                 const pathParts = window.location.pathname.split('/');
                 const surveyId = pathParts[2];
-
-                // Get user ID from localStorage
                 const userRaw = localStorage.getItem('app.user');
                 const user = userRaw ? JSON.parse(userRaw) : null;
 
                 if (!user || !user.id) {
-                    showError('Vui lòng đăng nhập để nộp bài');
-                    window.location.href = '/login';
+                    // SỬ DỤNG TOAST HELPER
+                    ToastHelper.show('warning', 'Vui lòng đăng nhập để nộp bài');
+                    setTimeout(() => { window.location.href = '/login'; }, 1500);
                     return;
                 }
 
-                // Format answers: convert để lưu vào noiDungTraLoi
                 const formattedAnswers = {};
                 for (const [questionId, value] of Object.entries(answers)) {
-                    // Lưu array hoặc string thành JSON string
                     formattedAnswers[questionId] = typeof value === 'string'
                         ? value
                         : JSON.stringify(value);
@@ -357,9 +356,7 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
 
                 const response = await fetch(`/api/surveys/${surveyId}/submit`, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         userId: user.id,
                         answers: formattedAnswers
@@ -373,13 +370,15 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                     return;
                 }
 
-                showAlert('Đang nộp bài ...', 'success', 'Thành công');
+                // SỬ DỤNG TOAST HELPER
+                ToastHelper.show('success', 'Nộp bài thành công!');
                 setTimeout(() => {
                     window.location.href = '/surveys';
-                }, 2000);
+                }, 1000);
             } catch (error) {
                 console.error('Lỗi:', error);
-                showError('Có lỗi xảy ra khi nộp bài');
+                // SỬ DỤNG TOAST HELPER
+                ToastHelper.show('danger', 'Có lỗi xảy ra khi nộp bài');
             }
         }
 
@@ -396,16 +395,9 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
 
         function escapeHtml(text) {
             if (!text) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
             return String(text).replace(/[&<>"']/g, m => map[m]);
         }
     </script>
 </body>
-
 </html>

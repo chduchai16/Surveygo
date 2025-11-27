@@ -12,9 +12,6 @@ $__mk = static function (string $base, string $path): string {
     $p = '/' . ltrim($path, '/');
     return $base === '' ? $p : ($base . $p);
 };
-$urls['home'] = $urls['home'] ?? $__mk($__base, '/');
-$urls['login'] = $urls['login'] ?? $__mk($__base, '/login');
-$urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
 ?>
 <!DOCTYPE html>
 <html lang="vi">
@@ -30,7 +27,6 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
     <link rel="stylesheet" href="<?= $__mk($__base, 'public/assets/css/components/navbar.css') ?>">
     <link rel="stylesheet" href="<?= $__mk($__base, 'public/assets/css/client/survey-guide.css') ?>">
     <link rel="stylesheet" href="<?= $__mk($__base, 'public/assets/css/components/footer.css') ?>">
-
 </head>
 
 <body>
@@ -45,12 +41,86 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                 <p>Đang tải thông tin khảo sát...</p>
             </div>
         </div>
-        <div id="guide-alert-container" style="display: none;"></div>
-    </main>
+        </main>
 
     <?php include BASE_PATH . '/app/Views/components/client/_footer.php'; ?>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
     <script>
+        // --- TÍCH HỢP TOAST HELPER ---
+        (function (global) {
+            function ensureContainer() {
+                let container = document.getElementById('global-toast-container');
+                if (container) return container;
+                container = document.createElement('div');
+                container.id = 'global-toast-container';
+                container.setAttribute('aria-live', 'polite');
+                container.setAttribute('aria-atomic', 'true');
+                container.className = 'position-fixed top-0 end-0 p-3';
+                container.style.zIndex = 1080;
+                document.body.appendChild(container);
+                return container;
+            }
+
+            function iconFor(status) {
+                switch ((status || '').toLowerCase()) {
+                    case 'success': return '<i class="fas fa-check-circle me-2"></i>';
+                    case 'warning': return '<i class="fas fa-exclamation-triangle me-2"></i>';
+                    case 'error':
+                    case 'danger': return '<i class="fas fa-times-circle me-2"></i>';
+                    case 'info': return '<i class="fas fa-info-circle me-2"></i>';
+                    default: return '<i class="fas fa-bell me-2"></i>';
+                }
+            }
+
+            function bgClassFor(status) {
+                switch ((status || '').toLowerCase()) {
+                    case 'success': return 'bg-success text-white';
+                    case 'warning': return 'bg-warning text-dark';
+                    case 'error':
+                    case 'danger': return 'bg-danger text-white';
+                    case 'info': return 'bg-info text-dark';
+                    default: return 'bg-secondary text-white';
+                }
+            }
+
+            function showToast(status, text, opts = {}) {
+                try {
+                    const container = ensureContainer();
+                    const toastId = 'toast-' + Date.now() + '-' + Math.floor(Math.random() * 1000);
+                    const wrapper = document.createElement('div');
+                    wrapper.innerHTML = `
+                        <div id="${toastId}" class="toast align-items-center ${bgClassFor(status)} border-0 mb-2" role="alert" aria-live="assertive" aria-atomic="true">
+                          <div class="d-flex">
+                            <div class="toast-body d-flex align-items-center">${iconFor(status)}<div class="toast-text">${escapeHtml(text)}</div></div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                          </div>
+                        </div>
+                    `;
+                    const toastEl = wrapper.firstElementChild;
+                    container.appendChild(toastEl);
+                    const delay = typeof opts.delay === 'number' ? opts.delay : 3000;
+                    const bsToast = new bootstrap.Toast(toastEl, { delay });
+                    toastEl.addEventListener('hidden.bs.toast', function () {
+                        try { toastEl.remove(); } catch (e) { /* ignore */ }
+                    });
+                    bsToast.show();
+                    return bsToast;
+                } catch (e) {
+                    console.error('Toast error', e);
+                }
+            }
+
+            function escapeHtml(unsafe) {
+                if (unsafe === null || unsafe === undefined) return '';
+                return String(unsafe).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+            }
+            global.ToastHelper = { show: showToast };
+        })(window);
+
+        // --- LOGIC TRANG HƯỚNG DẪN ---
+
         document.addEventListener('DOMContentLoaded', async function () {
             const params = new URLSearchParams(window.location.search);
             const surveyId = params.get('id');
@@ -78,7 +148,8 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                 }
 
                 const survey = result.data;
-                // Use thoiLuongDuTinh from API, fallback to 5 if not available
+                const estimatedTime = survey.thoiLuongDuTinh || 5;
+
                 const guideHTML = `
                     <div class="guide-header">
                         <div class="guide-icon">
@@ -93,12 +164,12 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                     <div class="guide-info">
                         <div class="info-item">
                             <div class="info-label">Độ dài</div>
-                            <div class="info-value">${survey.thoiLuongDuTinh || 5}</div>
+                            <div class="info-value">${estimatedTime}</div>
                             <div class="text-muted">phút</div>
                         </div>
                         <div class="info-item">
                             <div class="info-label">Số câu hỏi</div>
-                            <div class="info-value">${survey.questionCount || 0}</div>
+                            <div class="info-value">${survey.soLuongCauHoi || 0}</div>
                             <div class="text-muted">câu</div>
                         </div>
                         <div class="info-item">
@@ -111,14 +182,10 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                     <div class="guide-notes">
                         <h5><i class="fas fa-info-circle"></i> Hướng dẫn</h5>
                         <p><strong>Điểm sẽ thường được cộng ngay sau khi bạn hoàn thành khảo sát.</strong></p>
-                        
-                        <p>Chúng tôi mong bạn thông cảm rằng, việc tham gia các cuộc khảo sát này có thể xuất hiện những khó khăn do các lỗi như gián đoạn trong quá trình tham gia, tùy thuộc vào môi trường mạng và thiết bị.</p>
-                        
-                        <p><strong>Lưu ý quan trọng:</strong></p>
+                        <p>Chúng tôi mong bạn thông cảm rằng, việc tham gia các cuộc khảo sát này có thể xuất hiện những khó khăn...</p>
                         <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
                             <li>Nếu bạn đóng trang khảo sát giữa chừng, bạn có thể sẽ không thể tiếp tục trả lời khảo sát.</li>
-                            <li>Nếu bạn không đọc kỹ câu hỏi hoặc trả lời không nhất quán, cuộc khảo sát có thể bị dừng lại hoặc phần thưởng điểm có thể bị hủy do các vấn đề về chất lượng câu trả lời.</li>
-                            <li>Nếu bạn gặp bất kỳ vấn đề nào khi tham gia khảo sát, vui lòng chụp ảnh màn hình và liên hệ với bộ phận Hỗ trợ.</li>
+                            <li>Nếu bạn không đọc kỹ câu hỏi hoặc trả lời không nhất quán, cuộc khảo sát có thể bị dừng lại.</li>
                         </ul>
                     </div>
 
@@ -146,46 +213,8 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
 
         function escapeHtml(text) {
             if (!text) return '';
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
             return String(text).replace(/[&<>"']/g, m => map[m]);
-        }
-
-        function showAlert(message, type = 'info', title = '') {
-            const container = document.getElementById('guide-alert-container');
-
-            const iconMap = {
-                'success': 'fas fa-check-circle',
-                'danger': 'fas fa-exclamation-circle',
-                'warning': 'fas fa-exclamation-triangle',
-                'info': 'fas fa-info-circle'
-            };
-
-            const titleMap = {
-                'success': 'Thành công',
-                'danger': 'Lỗi',
-                'warning': 'Cảnh báo',
-                'info': 'Thông báo'
-            };
-
-            const alertHTML = `
-                <div class="guide-alert alert-${type}">
-                    <i class="${iconMap[type]}"></i>
-                    <div class="guide-alert-message">
-                        ${title ? `<div class="guide-alert-title">${title}</div>` : ''}
-                        <p class="guide-alert-text">${escapeHtml(message)}</p>
-                    </div>
-                </div>
-            `;
-
-            container.innerHTML = alertHTML;
-            container.style.display = 'block';
-            container.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         async function startSurvey(surveyId) {
@@ -194,7 +223,8 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
             const user = userRaw ? JSON.parse(userRaw) : null;
 
             if (!user || !user.id) {
-                showAlert('Vui lòng đăng nhập để bắt đầu khảo sát', 'warning');
+                // SỬ DỤNG TOAST HELPER
+                ToastHelper.show('warning', 'Vui lòng đăng nhập để bắt đầu khảo sát');
                 setTimeout(() => {
                     window.location.href = '/login';
                 }, 1500);
@@ -207,7 +237,8 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                 const result = await response.json();
 
                 if (result.data && result.data.hasSubmitted) {
-                    showAlert('Bạn đã thực hiện khảo sát này rồi. Mỗi người chỉ được thực hiện một khảo sát một lần.', 'warning', 'Không thể tiếp tục');
+                    // SỬ DỤNG TOAST HELPER
+                    ToastHelper.show('warning', 'Bạn đã thực hiện khảo sát này rồi. Mỗi người chỉ được thực hiện một lần.');
                     return;
                 }
 
@@ -216,11 +247,10 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
 
             } catch (error) {
                 console.error('Lỗi:', error);
-                showAlert('Có lỗi xảy ra. Vui lòng thử lại.', 'danger', 'Lỗi');
+                // SỬ DỤNG TOAST HELPER
+                ToastHelper.show('danger', 'Có lỗi xảy ra. Vui lòng thử lại.');
             }
         }
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
-
 </html>

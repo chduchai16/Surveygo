@@ -43,9 +43,8 @@ class User
 
         $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
 
-        $statement = $db->prepare('INSERT INTO users (code, name, avatar, email, phone , password, gender , role, created_at, updated_at) VALUES (:code, :name, :avatar, :email, :phone , :password, :gender, :role, :created_at, :updated_at)');
+        $statement = $db->prepare('INSERT INTO users (name, avatar, email, phone, password, gender, role, created_at, updated_at) VALUES (:name, :avatar, :email, :phone, :password, :gender, :role, :created_at, :updated_at)');
         $statement->execute([
-            ':code' => 'US' . str_pad((string) ($db->lastInsertId() + 1), 3, '0', STR_PAD_LEFT),
             ':name' => $attributes['name'],
             ':avatar' => $attributes['avatar'] ?? '',
             ':email' => $attributes['email'],
@@ -58,6 +57,12 @@ class User
         ]);
 
         $id = (int) $db->lastInsertId();
+
+        if ($id > 0) {
+            $code = 'US' . str_pad((string) $id, 3, '0', STR_PAD_LEFT);
+            $upd = $db->prepare('UPDATE users SET code = :code WHERE id = :id');
+            $upd->execute([':code' => $code, ':id' => $id]);
+        }
 
         return self::findById($id);
     }

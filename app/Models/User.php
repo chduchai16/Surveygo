@@ -10,7 +10,7 @@ use PDO;
 class User
 {
     private int $id;
-    private string $code ;
+    private string $code;
     private string $name;
     private string $email;
     private ?string $phone;
@@ -18,12 +18,12 @@ class User
     private string $gender;
     private string $role;
     private string $createdAt;
-    private string $updatedAt;      
+    private string $updatedAt;
 
     public function __construct(array $attributes)
     {
         $this->id = (int) ($attributes['id'] ?? 0);
-        $this->code = (string) ($attributes['code'] ??'');
+        $this->code = (string) ($attributes['code'] ?? '');
         $this->name = $attributes['name'];
         $this->email = $attributes['email'];
         $this->phone = $attributes['phone'] ?? null;
@@ -43,7 +43,7 @@ class User
 
         $statement = $db->prepare('INSERT INTO users (code, name, email, phone , password, gender , role, created_at, updated_at) VALUES (:code, :name, :email, :phone , :password, :gender, :role, :created_at, :updated_at)');
         $statement->execute([
-            ':code' => 'US' . str_pad((string)($db->lastInsertId() + 1), 3, '0', STR_PAD_LEFT),
+            ':code' => 'US' . str_pad((string) ($db->lastInsertId() + 1), 3, '0', STR_PAD_LEFT),
             ':name' => $name,
             ':email' => $email,
             ':phone' => null,
@@ -111,11 +111,16 @@ class User
         return $this->name;
     }
 
+    public function getGender(): ?string
+    {
+        return $this->gender;
+    }
+
     public function toArray(): array
     {
         return [
             'id' => $this->id,
-            'code' => $this->code ,
+            'code' => $this->code,
             'name' => $this->name,
             'email' => $this->email,
             'phone' => $this->phone,
@@ -177,6 +182,15 @@ class User
             'limit' => $limit,
             'totalPages' => $totalPages,
         ];
+    }
+
+    public function updatePassword(string $newHashedPassword): void
+    {
+        /** @var \PDO $db */
+        $db = Container::get('db');
+        $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
+        $stmt = $db->prepare('UPDATE users SET password = :password, updated_at = :updated_at WHERE id = :id');
+        $stmt->execute([':password' => $newHashedPassword, ':updated_at' => $now, ':id' => $this->id]);
     }
 }
 

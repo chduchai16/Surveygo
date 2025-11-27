@@ -30,6 +30,10 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
 ?>
 <nav class="navbar navbar-expand-lg navbar-light fixed-top">
     <div class="container d-flex justify-content-between align-items-center">
+        <div class="me-2 d-flex align-items-center navbar-logo">
+            <img src="<?= htmlspecialchars(rtrim($baseUrl, '/') . '/Asset/favIconSurveyGo_196x196.png', ENT_QUOTES, 'UTF-8') ?>"
+                alt="Surveygo" width="36" height="36">
+        </div>
         <a class="navbar-brand" href="#" id="navbar-brand">Surveygo</a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav"
             aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -100,7 +104,7 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
             try {
                 var raw = localStorage.getItem('app.user');
                 user = raw ? JSON.parse(raw) : null;
-            } catch (e) { }
+            } catch (e) {}
 
             var userDropdown = document.getElementById('nav-user');
             var registerBtn = document.getElementById('register-btn');
@@ -136,7 +140,9 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
                             if (existingAdmin) existingAdmin.remove();
                         }
                     }
-                } catch (e) { /* ignore DOM errors */ }
+                } catch (e) {
+                    /* ignore DOM errors */
+                }
             } else {
                 // User not logged in
                 if (userDropdown) userDropdown.style.display = 'none';
@@ -146,12 +152,14 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
             }
 
             if (logoutBtn) {
-                logoutBtn.addEventListener('click', function () {
-                    try { localStorage.removeItem('app.user'); } catch (e) { }
+                logoutBtn.addEventListener('click', function() {
+                    try {
+                        localStorage.removeItem('app.user');
+                    } catch (e) {}
                     window.location.href = window.location.origin + '/login';
                 });
             }
-        } catch (e) { }
+        } catch (e) {}
     }
 
     // Chạy ngay khi script load (không chờ DOM)
@@ -166,7 +174,7 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
     window.addEventListener('focus', updateNavbarAuth);
 
     // Lắng nghe thay đổi localStorage
-    window.addEventListener('storage', function (e) {
+    window.addEventListener('storage', function(e) {
         if (e.key === 'app.user' || e.key === null) {
             updateNavbarAuth();
         }

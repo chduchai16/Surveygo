@@ -18,8 +18,8 @@ class ContactMessage
     private string $tinNhan;
     private ?int $idNguoiDung;
     private ?string $phanHoi;
-    private DateTime|string $createdAt;
-    private DateTime|string $updatedAt;
+    private string $createdAt;
+    private string $updatedAt;
 
     public function __construct(array $row)
     {

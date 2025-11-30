@@ -188,7 +188,17 @@ INSERT IGNORE INTO surveys (
   (13,'QP013','Ý tưởng Year End Party','Thu thập ý kiến nhanh cho tiệc cuối năm.','QuickPoll',1,'pending',5,3,NULL,'approved',1,TRUE,NOW(),NOW()),
   (14,'QP014','Phản hồi tính năng Dark Mode','Đánh giá nhanh giao diện tối mới cập nhật.','QuickPoll',2,'pending',5,2,NULL,'approved',1,TRUE,NOW(),NOW()),
   (15,'QP015','Bữa trưa nay ăn gì?','Bình chọn món ăn cho team building trưa nay.','QuickPoll',1,'pending',0,3,NULL,'approved',1,TRUE,NOW(),NOW()),
-  (16,'QP016','Góp ý ẩn danh','Hòm thư góp ý nhanh ẩn danh hàng tuần.','QuickPoll',2,'pending',0,3,NULL,'approved',1,TRUE,NOW(),NOW());
+  (16,'QP016','Góp ý ẩn danh','Hòm thư góp ý nhanh ẩn danh hàng tuần.','QuickPoll',2,'pending',0,3,NULL,'approved',1,TRUE,NOW(),NOW()),
+  (17, 'KS017', 'Khảo sát mức độ hài lòng công việc', 'Thu thập đánh giá về môi trường và mức độ hài lòng trong công việc.', 'Nhân sự', 1, 'pending', 20, 2, NULL, 'approved', 10, FALSE, NOW(), NOW()),
+  (18, 'KS018', 'Khảo sát thói quen sử dụng Internet', 'Tìm hiểu thời gian và mục tiêu sử dụng Internet mỗi ngày.', 'Công nghệ', 2, 'pending', 15, 1, NULL, 'approved', 12, FALSE, NOW(), NOW()),
+  (19, 'KS019', 'Khảo sát hành vi mua sắm', 'Phân tích hành vi mua sắm online và offline.', 'Thương mại', 1, 'draft', 25, 3, NULL, 'pending', 18, FALSE, NOW(), NOW()),
+  (20, 'KS020', 'Khảo sát môi trường làm việc', 'Đánh giá chất lượng môi trường làm việc của nhân viên.', 'Nhân sự', 2, 'pending', 18, 2, NULL, 'approved', 15, FALSE, NOW(), NOW()),
+  (21, 'KS021', 'Khảo sát mức độ hài lòng sản phẩm', 'Đánh giá trải nghiệm sử dụng sản phẩm gần đây.', 'Dịch vụ', 1, 'pending', 10, 1, NULL, 'approved', 14, FALSE, NOW(), NOW()),
+  (22, 'KS022', 'Khảo sát về nhu cầu học kỹ năng mềm', 'Khảo sát nhu cầu tham gia khóa học kỹ năng mềm.', 'Giáo dục', 2, 'draft', 12, 2, NULL, 'pending', 20, FALSE, NOW(), NOW()),
+  (23, 'KS023', 'Khảo sát bảo vệ môi trường', 'Tìm hiểu nhận thức cộng đồng về bảo vệ môi trường.', 'Môi trường', 1, 'pending', 20, 3, NULL, 'approved', 12, FALSE, NOW(), NOW()),
+  (24, 'KS024', 'Khảo sát văn hóa doanh nghiệp', 'Đánh giá mức độ hiểu biết và hòa nhập văn hóa doanh nghiệp.', 'Nhân sự', 2, 'pending', 15, 2, NULL, 'approved', 10, FALSE, NOW(), NOW()),
+  (25, 'KS025', 'Khảo sát thói quen đọc báo', 'Tìm hiểu thói quen đọc báo mạng và báo giấy.', 'Thói quen', 1, 'pending', 10, 1, NULL, 'approved', 15, FALSE, NOW(), NOW()),
+  (26, 'KS026', 'Khảo sát xu hướng công nghệ 2025', 'Thu thập ý kiến về các xu hướng công nghệ trong tương lai.', 'Công nghệ', 2, 'pending', 22, 1, NULL, 'approved', 16, FALSE, NOW(), NOW());
   
 INSERT IGNORE INTO questions (id, maCauHoi, maKhaoSat, loaiCauHoi, noiDungCauHoi, batBuocTraLoi, thuTu, quick_poll, created_at, updated_at) VALUES
   (1, 'CH001', 1, 'multiple_choice', 'Bạn thường đọc sách vào thời gian nào trong ngày?', TRUE, 1, FALSE, NOW(), NOW()),

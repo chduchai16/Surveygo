@@ -13,10 +13,6 @@
                     <form id="register-form"
                         action="<?= htmlspecialchars(rtrim((string) ($baseUrl ?? ''), '/') . '/api/register', ENT_QUOTES, 'UTF-8') ?>"
                         method="post">
-                        <?php if (function_exists('csrf_field')) {
-                            echo csrf_field();
-                        } ?>
-
                         <!-- Họ và tên -->
                         <div class="form-group mb-3">
                             <label for="name" class="form-label">

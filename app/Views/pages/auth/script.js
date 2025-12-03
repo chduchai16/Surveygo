@@ -24,8 +24,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
       try {
         submitBtn && (submitBtn.disabled = true);
-        window.ToastHelper?.show('info', 'Đang đăng nhập...');
-
         const formData = new FormData(loginForm);
         const payload = new URLSearchParams();
         formData.forEach((v, k) => payload.append(k, v));

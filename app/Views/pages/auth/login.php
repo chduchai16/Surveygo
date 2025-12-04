@@ -76,7 +76,6 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r121/three.min.js"></script>
 <script src="https://unpkg.com/vanta@latest/dist/vanta.net.min.js"></script>
 <script src="/public/assets/js/toast-helper.js"></script>
-
 <script>
     // Khởi tạo Vanta Net
     window.addEventListener('load', function () {

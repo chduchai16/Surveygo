@@ -15,7 +15,7 @@ class HomeController extends Controller
         $view = new \App\Core\View();
         $data = $this->pageData($request);
         $base = rtrim((string) ($data['baseUrl'] ?? ''), '/');
-        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/landing-page.css">';
+        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/pages/landing-page.css">';
         $content = $view->render("pages/client/home/landing", $data);
         return \App\Core\Response::html($view->render('layouts/main', array_merge($data, ['content' => $content])));
     }
@@ -25,7 +25,7 @@ class HomeController extends Controller
         $view = new \App\Core\View();
         $data = $this->pageData($request);
         $base = rtrim((string) ($data['baseUrl'] ?? ''), '/');
-        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/home.css">';
+        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/pages/home.css">';
         $content = $view->render("pages/client/home/home", $data);
         return \App\Core\Response::html($view->render('layouts/main', array_merge($data, ['content' => $content])));
     }
@@ -61,7 +61,7 @@ class HomeController extends Controller
         $view = new \App\Core\View();
         $data = $this->pageData($request);
         $base = rtrim((string) ($data['baseUrl'] ?? ''), '/');
-        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/profile.css">';
+        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/pages/profile.css">';
         $content = $view->render("pages/client/profile/profile", $data);
         return \App\Core\Response::html($view->render('layouts/main', array_merge($data, ['content' => $content])));
     }
@@ -71,7 +71,7 @@ class HomeController extends Controller
         $view = new \App\Core\View();
         $data = $this->pageData($request);
         $base = rtrim((string) ($data['baseUrl'] ?? ''), '/');
-        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/daily-rewards.css">';
+        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/pages/daily-rewards.css">';
         $content = $view->render("pages/client/daily-rewards/daily-rewards", $data);
         return \App\Core\Response::html($view->render('layouts/main', array_merge($data, ['content' => $content])));
     }
@@ -81,7 +81,7 @@ class HomeController extends Controller
         $view = new \App\Core\View();
         $data = $this->pageData($request);
         $base = rtrim((string) ($data['baseUrl'] ?? ''), '/');
-        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/events.css">';
+        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/pages/events.css">';
         $content = $view->render('pages/client/events/events', $data);
         return \App\Core\Response::html($view->render('layouts/main', array_merge($data, ['content' => $content])));
     }
@@ -91,7 +91,7 @@ class HomeController extends Controller
         $view = new \App\Core\View();
         $data = $this->pageData($request);
         $base = rtrim((string) ($data['baseUrl'] ?? ''), '/');
-        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/rewards.css">';
+        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/pages/rewards.css">';
         $content = $view->render('pages/client/rewards/rewards', $data);
         return \App\Core\Response::html($view->render('layouts/main', array_merge($data, ['content' => $content])));
     }
@@ -101,7 +101,7 @@ class HomeController extends Controller
         $view = new \App\Core\View();
         $data = $this->pageData($request);
         $base = rtrim((string) ($data['baseUrl'] ?? ''), '/');
-        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/term-of-use.css">';
+        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/pages/term-of-use.css">';
         $content = $view->render('pages/client/terms/terms-of-use', $data);
         return \App\Core\Response::html($view->render('layouts/main', array_merge($data, ['content' => $content])));
     }
@@ -111,7 +111,7 @@ class HomeController extends Controller
         $view = new \App\Core\View();
         $data = $this->pageData($request);
         $base = rtrim((string) ($data['baseUrl'] ?? ''), '/');
-        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/contact.css">';
+        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/pages/contact.css">';
         $content = $view->render('pages/client/contact/contact', $data);
         return \App\Core\Response::html($view->render('layouts/main', array_merge($data, ['content' => $content])));
     }
@@ -121,7 +121,7 @@ class HomeController extends Controller
         $view = new \App\Core\View();
         $data = $this->pageData($request);
         $base = rtrim((string) ($data['baseUrl'] ?? ''), '/');
-        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/home.css">';
+        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/pages/home.css">';
         $content = $view->render('pages/client/surveys/surveys', $data);
         return \App\Core\Response::html($view->render('layouts/main', array_merge($data, ['content' => $content])));
     }
@@ -131,7 +131,7 @@ class HomeController extends Controller
         $view = new \App\Core\View();
         $data = $this->pageData($request);
         $base = rtrim((string) ($data['baseUrl'] ?? ''), '/');
-        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/home.css">';
+        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/pages/home.css">';
         $content = $view->render('pages/client/surveys/quick-poll', $data);
         return \App\Core\Response::html($view->render('layouts/main', array_merge($data, ['content' => $content])));
     }
@@ -141,7 +141,7 @@ class HomeController extends Controller
         $view = new \App\Core\View();
         $data = $this->pageData($request);
         $base = rtrim((string) ($data['baseUrl'] ?? ''), '/');
-        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/survey-guide.css">';
+        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/pages/survey-guide.css">';
         $content = $view->render('pages/client/surveys/guide', $data);
         return \App\Core\Response::html($view->render('layouts/main', array_merge($data, ['content' => $content])));
     }
@@ -151,7 +151,7 @@ class HomeController extends Controller
         $view = new \App\Core\View();
         $data = $this->pageData($request);
         $base = rtrim((string) ($data['baseUrl'] ?? ''), '/');
-        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/survey-questions.css">';
+        $data['headExtra'] = '<link rel="stylesheet" href="' . $base . '/public/assets/css/client/pages/survey-questions.css">';
         $content = $view->render('pages/client/surveys/questions', $data);
         return \App\Core\Response::html($view->render('layouts/main', array_merge($data, ['content' => $content])));
     }

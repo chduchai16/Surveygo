@@ -29,7 +29,7 @@ class SurveyQuestionMap
     /**
      * Gắn câu hỏi vào khảo sát (thêm hoặc cập nhật thuTu)
      */
-    public static function attach(int $surveyId, int $questionId, int $thuTu = 0): bool
+    public static function attach(int $surveyId, int $questionId): bool
     {
         /** @var PDO $db */
         $db = Container::get('db');

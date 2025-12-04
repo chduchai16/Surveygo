@@ -35,20 +35,6 @@ class Question
         $this->createdAt = $attributes['created_at'] ?? '';
         $this->updatedAt = $attributes['updated_at'] ?? '';
     }
-    /** 
-     * Lấy tất cả câu hỏi
-     */
-    public static function all(): array
-    {
-        /** @var PDO $db */
-        $db = Container::get('db');
-
-        // questions table does not store thuTu globally; order by id as default
-        $statement = $db->query('SELECT * FROM questions ORDER BY id ASC');
-        $rows = $statement->fetchAll();
-
-        return array_map(fn($row) => new self($row), $rows);
-    }
 
     public static function paginate(int $page = 1, int $perPage = 10, array $filters = []): array
     {
@@ -130,32 +116,6 @@ class Question
     }
 
     /**
-     * Lấy tất cả câu hỏi của một khảo sát (sắp xếp theo thuTu)
-     */
-    public static function findBySurvey(int $surveyId): array
-    {
-        /** @var PDO $db */
-        $db = Container::get('db');
-
-        // Lấy theo bảng map (survey_question_map dùng idKhaoSat/idCauHoi)
-        try {
-            $mapStmt = $db->prepare('SELECT q.* FROM survey_question_map sqm JOIN questions q ON q.id = sqm.idCauHoi WHERE sqm.idKhaoSat = :surveyId ORDER BY q.id ASC');
-            $mapStmt->execute([':surveyId' => $surveyId]);
-            $mapRows = $mapStmt->fetchAll();
-            if ($mapRows && count($mapRows) > 0) {
-                return array_map(function ($row) {
-                    // mapping table has no thuTu column in current schema — use question's id as order
-                    return new self($row);
-                }, $mapRows);
-            }
-        } catch (\Throwable $e) {
-            // fallback: nếu không có mapping thì trả mảng rỗng
-        }
-
-        return [];
-    }
-
-    /**
      * Lấy câu hỏi theo ID
      */
     public static function find(int $id): ?self
@@ -169,22 +129,6 @@ class Question
 
         return $row ? new self($row) : null;
     } 
-
-    /**
-     * Lấy câu hỏi theo maCauHoi
-     */
-    public static function findByMa(string $maCauHoi): ?self
-    {
-        /** @var PDO $db */
-        $db = Container::get('db');
-
-        $statement = $db->prepare('SELECT * FROM questions WHERE maCauHoi = :ma LIMIT 1');
-        $statement->execute([':ma' => $maCauHoi]);
-        $row = $statement->fetch();
-
-        return $row ? new self($row) : null;
-    }
-
     /**
      * Tạo câu hỏi mới
      * - Auto-gen maCauHoi nếu không cung cấp
@@ -304,22 +248,6 @@ class Question
             'created_at' => $row['created_at'],
             'updated_at' => $row['updated_at'],
         ], $rows);
-    }
-    public static function countBySurvey(int $surveyId): int
-    {
-        /** @var PDO $db */
-        $db = Container::get('db');
-
-        // Use the mapping table (schema uses idKhaoSat)
-        try {
-            $statement = $db->prepare('SELECT COUNT(*) as count FROM survey_question_map WHERE idKhaoSat = :surveyId');
-            $statement->execute([':surveyId' => $surveyId]);
-            $row = $statement->fetch();
-            $count = (int)($row['count'] ?? 0);
-            return $count;
-        } catch (\Throwable $e) {
-            return 0;
-        }
     }
 
     /**

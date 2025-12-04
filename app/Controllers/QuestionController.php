@@ -8,6 +8,7 @@ use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Container;
 use App\Models\Question;
+use App\Models\SurveyQuestionMap;
 use PDO;
 
 class QuestionController extends Controller
@@ -50,7 +51,7 @@ class QuestionController extends Controller
             ], 422);
         }
 
-        $questions = Question::findBySurvey((int)$surveyId);
+        $questions = SurveyQuestionMap::findQuestionsBySurvey($surveyId);
 
         return $this->json([
             'error' => false,

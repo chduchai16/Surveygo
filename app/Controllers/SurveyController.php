@@ -12,6 +12,7 @@ use App\Models\SurveyQuestionMap;
 use App\Models\User;
 use App\Models\SurveySubmission;
 use App\Models\UserResponse;
+
 use PDO;
 
 class SurveyController extends Controller
@@ -361,7 +362,7 @@ class SurveyController extends Controller
             ], 404);
         }
 
-        if (!$this->attachQuestionToSurvey((int)$surveyId, (int)$questionId)) {
+        if(!SurveyQuestionMap::attach((int)$surveyId, (int)$questionId)) {
             return $this->json([
                 'error' => true,
                 'message' => 'Không thể gắn câu hỏi vào khảo sát (có thể đã tồn tại).',
@@ -389,25 +390,16 @@ class SurveyController extends Controller
             ], 422);
         }
 
-        try {
-            /** @var PDO $db */
-            $db = \App\Core\Container::get('db');
-            $stmt = $db->prepare('DELETE FROM survey_question_map WHERE idKhaoSat = :survey AND idCauHoi = :question');
-            $stmt->execute([
-                ':survey' => (int)$surveyId,
-                ':question' => (int)$questionId,
-            ]);
-
-            return $this->json([
-                'error' => false,
-                'message' => 'Đã gỡ câu hỏi khỏi khảo sát.',
-            ]);
-        } catch (\Throwable $e) {
+        if(!SurveyQuestionMap::detach((int)$surveyId, (int)$questionId)) {
             return $this->json([
                 'error' => true,
-                'message' => 'Không thể gỡ câu hỏi khỏi khảo sát.',
-            ], 500);
+                'message' => 'Không thể gỡ câu hỏi khỏi khảo sát (có thể không tồn tại).',
+            ], 422);
         }
+        return $this->json([
+            'error' => false,
+            'message' => 'Đã gỡ câu hỏi khỏi khảo sát.',
+        ], 200);
     }
 
     private function attachQuestionToSurvey(int $surveyId, int $questionId): bool
@@ -649,7 +641,7 @@ class SurveyController extends Controller
             }
 
             // Get all questions for this survey to validate
-            $questions = Question::findBySurvey($surveyId);
+            $questions = SurveyQuestionMap::findQuestionsBySurvey($surveyId);
             $questionIds = array_map(fn($q) => $q->getId(), $questions);
 
             // Create user response for each answered question

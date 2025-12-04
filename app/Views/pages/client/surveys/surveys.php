@@ -96,6 +96,7 @@ $urls['register'] = $urls['register'] ?? $__mk($__base, '/register');
                     page: page,
                     limit: pageSize,
                     isQuickPoll : false ,
+                    trangThai : 'published',
                     ...filters,
                 });
 

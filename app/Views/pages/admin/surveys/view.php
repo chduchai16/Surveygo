@@ -138,7 +138,6 @@ $__mk = static function (string $base, string $path): string {
                         <input class="form-check-input" type="checkbox" role="switch" id="question-quickpoll">
                         <label class="form-check-label" for="question-quickpoll">Quick Poll</label>
                     </div>
-                    <p class="text-muted small mb-0">Popup theo mẫu trang quản lý câu hỏi. Dữ liệu lưu khi bấm "Lưu".</p>
                 </form>
             </div>
             <div class="modal-footer">
@@ -272,25 +271,9 @@ $__mk = static function (string $base, string $path): string {
             showToast('info', 'Chế độ chỉnh sửa đã bật. Bây giờ bạn có thể thêm/sửa/xóa câu hỏi.');
         });
         document.getElementById('btn-cancel-page')?.addEventListener('click', (ev) => {
-            // Exit edit mode then redirect to list reliably
-            try {
-                ev?.preventDefault?.();
-                ev?.stopPropagation?.();
-            } catch (e) {
-                // ignore
-            }
-            try {
-                setEditMode(false);
-            } catch (e) {
-                // ignore
-            }
-            // small delay to allow UI updates; try multiple navigation methods for reliability
-            const url = apiUrl('/admin/surveys');
-            setTimeout(() => {
-                try { window.location.href = url; } catch (e) {}
-                try { window.location.assign(url); } catch (e) {}
-                try { top.location.href = url; } catch (e) {}
-            }, 50);
+            try { ev?.preventDefault?.(); ev?.stopPropagation?.(); } catch (e) { /* ignore */ }
+            try { setEditMode(false); } catch (e) { /* ignore */ }
+            try { showToast('info', 'Chế độ chỉnh sửa đã tắt.'); } catch (e) { /* ignore */ }
         });
         document.getElementById('btn-save-page')?.addEventListener('click', () => {
             // Save changes (UI-driven). After save, redirect to list.

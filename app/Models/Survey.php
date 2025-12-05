@@ -396,4 +396,9 @@ class Survey
     {
         return $this->trangThai;
     }
+
+    public function getDiemThuong(): int
+    {
+        return $this->diemThuong;
+    }
 }

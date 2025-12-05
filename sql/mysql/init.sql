@@ -129,6 +129,33 @@ CREATE TABLE IF NOT EXISTS daily_rewards (
   UNIQUE KEY uniq_user_daily_reward (user_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+CREATE TABLE IF NOT EXISTS user_points ( -- Quản lí tổng số điểm của người dùng
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  balance INT UNSIGNED NOT NULL DEFAULT 0, -- Số điểm còn trong ví
+  total_earned INT UNSIGNED NOT NULL DEFAULT 0, -- Tổng số điểm đã kiếm được
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  UNIQUE KEY uniq_user_points (user_id),
+  CONSTRAINT fk_user_points_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS point_transactions ( -- Log lịch sử cộng và rút điểm của người dùng
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  source ENUM('daily_reward','survey','manual_adjustment') NOT NULL,
+  ref_id INT UNSIGNED DEFAULT NULL,
+  amount INT UNSIGNED NOT NULL,
+  balance_after INT UNSIGNED NOT NULL,
+  note VARCHAR(255) DEFAULT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_point_transactions_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE KEY uniq_user_source_ref (user_id, source, ref_id),
+  INDEX idx_pt_user (user_id),
+  INDEX idx_pt_source (source)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
 CREATE TABLE IF NOT EXISTS contact_messages (
   id int UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   ma varchar(20) NOT NULL UNIQUE,

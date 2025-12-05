@@ -12,6 +12,7 @@ use App\Models\SurveyQuestionMap;
 use App\Models\User;
 use App\Models\SurveySubmission;
 use App\Models\UserResponse;
+use App\Models\PointTransaction;
 
 use PDO;
 
@@ -710,6 +711,21 @@ class SurveyController extends Controller
                     'maKhaoSat' => $surveyId,
                     'noiDungTraLoi' => $answer, // Already formatted as JSON string from frontend
                 ]);
+            }
+
+            try {
+                $points = (int) $survey->getDiemThuong();
+                if ($points > 0) {
+                    PointTransaction::addPoints(
+                        $userId,
+                        $points,
+                        'survey',
+                        $submission->getId(),
+                        'Hoàn thành khảo sát ' . $survey->getMaKhaoSat()
+                    );
+                }
+            } catch (\Throwable $e) {
+                error_log('[SurveyController::submit] Failed to add points: ' . $e->getMessage());
             }
 
             return $this->json([

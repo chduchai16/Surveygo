@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS users (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-  code VARCHAR(20) NOT NULL UNIQUE,
+  code VARCHAR(20) NOT NULL DEFAULT '' UNIQUE,
   phone VARCHAR(20) DEFAULT NULL,
   name VARCHAR(255) NOT NULL,
   avatar VARCHAR(255) DEFAULT NULL,
@@ -186,7 +186,7 @@ CREATE TABLE IF NOT EXISTS feedbacks (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 INSERT IGNORE INTO users (id, code, name, avatar, email, phone, password, gender, role, created_at, updated_at) VALUES
-  (1, 'US001','Nguyễn Văn A', NULL, 'user1@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
+  (1, 'US001','Nguyễn Văn AB', NULL, 'user1@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
   (2, 'US002' ,'Trần Thị B', NULL, 'user2@example.com', NULL, '$2y$10$92IXUNpkjO0rOO5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),
   (3, 'US003', 'Phạm Văn C', NULL, 'admin1@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'admin', NOW(), NOW()),
   (4, 'US004', 'Phạm Minh H', NULL, 'user4@example.com', NULL, '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'other', 'user', NOW(), NOW()),

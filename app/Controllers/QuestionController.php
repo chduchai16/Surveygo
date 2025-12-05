@@ -13,7 +13,6 @@ use PDO;
 
 class QuestionController extends Controller
 {
-
     // api lấy all
     public function index(Request $request)
     {

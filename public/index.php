@@ -57,6 +57,7 @@ $router->get('/api/health', fn() => Response::json([
 ]));
 
 // Survey API routes
+$router->post('/api/surveys/quick-poll', [App\Controllers\SurveyController::class, 'createQuickPoll']); // Tạo quick poll
 $router->get('/api/surveys', [App\Controllers\SurveyController::class, 'index']); // Lấy ra danh sách khảo sát
 $router->get('/api/surveys/show', [App\Controllers\SurveyController::class, 'show']); // Lấy chi tiết một khảo sát
 $router->post('/api/surveys', [App\Controllers\SurveyController::class, 'create']);
@@ -94,7 +95,8 @@ $router->delete('/api/contact-messages', [App\Controllers\ContactController::cla
 
 $router->post('/api/questions', [App\Controllers\QuestionController::class, 'create']); // Tạo câu hỏi mới
 $router->put('/api/questions', [App\Controllers\QuestionController::class, 'update']); // Cập nhật câu hỏi
-$router->delete('/api/questions', [App\Controllers\QuestionController::class, 'delete']); // Xóa câu hỏi
+$router->delete('/api/questions/{id}', [App\Controllers\QuestionController::class, 'delete']); // Xóa câu hỏi
+$router->delete('/api/questions', [App\Controllers\QuestionController::class, 'delete']); // Xóa câu hỏi (legacy/fallback)
 
 // Daily rewards API
 $router->get('/api/daily-rewards/status', [DailyRewardController::class, 'status']);

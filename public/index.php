@@ -7,6 +7,9 @@ require_once dirname(__DIR__) . '/bootstrap.php';
 use App\Controllers\HomeController;
 use App\Controllers\AdminController;
 use App\Controllers\DailyRewardController;
+use App\Controllers\RewardController;
+use App\Controllers\RewardRedemptionController;
+use App\Controllers\UserPointController;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Router;
@@ -103,6 +106,41 @@ $router->post('/api/daily-rewards/claim', [DailyRewardController::class, 'claim'
 // Users API
 $router->get('/api/users', [App\Controllers\UserController::class, 'index']); // Lấy danh sách users (phân trang + tìm kiếm)
 
+// Rewards API
+$router->get('/api/rewards', [RewardController::class, 'apiList']); // Lấy danh sách quà (JSON)
+$router->get('/api/rewards/giftcard/details', [RewardController::class, 'getGiftCardDetails']); // Chi tiết gift card
+$router->get('/api/rewards/filter', [RewardController::class, 'filter']); // Lọc quà
+$router->get('/api/rewards/search', [RewardController::class, 'search']); // Tìm kiếm quà
+$router->get('/api/rewards/{id}', [RewardController::class, 'detail']); // Chi tiết quà
+$router->post('/api/rewards/redeem', [RewardController::class, 'redeem']); // Đổi quà
+
+// Admin Rewards API
+$router->get('/admin/rewards', [RewardController::class, 'adminIndex']); // Danh sách quà (admin)
+$router->get('/admin/rewards/create', [RewardController::class, 'adminCreate']); // Form tạo
+$router->post('/admin/rewards/create', [RewardController::class, 'adminCreate']); // Lưu quà
+$router->get('/admin/rewards/{id}/edit', [RewardController::class, 'adminEdit']); // Form sửa
+$router->post('/admin/rewards/{id}/edit', [RewardController::class, 'adminEdit']); // Lưu sửa
+$router->post('/api/admin/rewards/{id}/delete', [RewardController::class, 'adminDelete']); // Xóa quà
+$router->post('/api/admin/rewards/{id}/toggle', [RewardController::class, 'adminToggle']); // Kích hoạt/vô hiệu
+$router->post('/api/admin/rewards/{id}/stock', [RewardController::class, 'adminUpdateStock']); // Cập nhật stock
+$router->get('/admin/rewards/redemptions', [RewardController::class, 'adminRedemptions']); // Danh sách redemption
+$router->post('/api/admin/rewards/redemptions/{id}/status', [RewardController::class, 'adminUpdateRedemptionStatus']); // Cập nhật trạng thái
+$router->get('/admin/rewards/stats', [RewardController::class, 'adminStats']); // Thống kê
+
+// User Points API
+$router->get('/api/user-points/balance', [UserPointController::class, 'getBalance']); // Lấy số điểm hiện tại
+$router->get('/api/user-points/check', [UserPointController::class, 'hasEnoughPoints']); // Kiểm tra đủ điểm
+
+// Reward Redemptions API (Client)
+$router->get('/api/redemptions/my', [RewardRedemptionController::class, 'myRedemptions']); // Danh sách redemption của user
+$router->get('/api/redemptions/detail', [RewardRedemptionController::class, 'detail']); // Chi tiết redemption
+$router->post('/api/redemptions/create', [RewardRedemptionController::class, 'create']); // Tạo redemption
+
+// Reward Redemptions API (Admin)
+$router->get('/api/admin/redemptions', [RewardRedemptionController::class, 'apiList']); // Danh sách redemption
+$router->post('/api/admin/redemptions/update-status', [RewardRedemptionController::class, 'updateStatus']); // Cập nhật trạng thái
+$router->post('/api/admin/redemptions/delete', [RewardRedemptionController::class, 'delete']); // Xóa redemption
+$router->get('/api/admin/redemptions/stats', [RewardRedemptionController::class, 'stats']); // Thống kê
 
 $request = Request::capture();
 

@@ -254,9 +254,15 @@
             </tr>
         `;
 
+        // Lấy giá trị filter
+        const search = document.getElementById('filter-search').value;
+        const type = document.getElementById('filter-type').value;
+
         const params = new URLSearchParams({
             page: page,
-            limit: 20
+            limit: 10,
+            search: search,
+            type: type
         });
 
         fetch(`${API_BASE}/admin/rewards?${params.toString()}`, {
@@ -478,9 +484,9 @@
         }
         if(type === 'cash' ) {
             value = pointCost ;
-        }else if(type == 'giftcard') {
+        }else if(type === 'giftcard') {
             value = pointCost;
-        } else if (type = 'physical') {
+        } else if (type === 'physical') {
             value = name;
         }
 

@@ -200,8 +200,13 @@
         const type = document.getElementById('filter-type').value;
         const search = document.getElementById('filter-search').value;
 
-        let url = `${API_BASE}/admin/redemptions?page=${page}&limit=10`;
-        if (status) url += `&status=${status}`;
+        const params = new URLSearchParams({
+            page: page,
+            limit: 10,
+            status: status,
+            type: type,
+            search: search
+        });
 
         tbody.innerHTML = `
             <tr>
@@ -213,7 +218,7 @@
             </tr>
         `;
 
-        fetch(url, {
+        fetch(`${API_BASE}/admin/redemptions?${params.toString()}`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
             }
@@ -226,22 +231,7 @@
             if (data.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5 text-muted">Không tìm thấy yêu cầu nào.</td></tr>`;
             } else {
-                // Filter by type and search locally
-                let filtered = data.filter(r => {
-                    if (type && r.type !== type) return false;
-                    if (search) {
-                        const searchLower = search.toLowerCase();
-                        return (r.user_email && r.user_email.toLowerCase().includes(searchLower)) ||
-                               (r.user_name && r.user_name.toLowerCase().includes(searchLower));
-                    }
-                    return true;
-                });
-
-                if (filtered.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="9" class="text-center py-5 text-muted">Không tìm thấy yêu cầu phù hợp.</td></tr>`;
-                } else {
-                    tbody.innerHTML = filtered.map(r => renderRedemptionRow(r)).join('');
-                }
+                tbody.innerHTML = data.map(r => renderRedemptionRow(r)).join('');
             }
 
             renderPagination(pagination);

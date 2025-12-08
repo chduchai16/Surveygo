@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Request;
 use App\Core\Response;
+use App\Core\Container;
 use App\Models\Reward;
 use App\Models\UserPoint;
 use App\Models\User;
@@ -77,12 +78,43 @@ class RewardController extends Controller
     public function listRewards()
     {
         $page = (int)($_GET['page'] ?? 1);
-        $limit = (int)($_GET['limit'] ?? 10);
+        $limit = 10;
         $offset = ($page - 1) * $limit;
+        $search = $_GET['search'] ?? '';
+        $type = $_GET['type'] ?? '';
 
         try {
-            $rewards = $this->reward->getAllActive($limit, $offset);
-            $total = $this->reward->countActive();
+            $db = Container::get('db');
+            $where = [];
+            $params = [];
+
+            // Filter by search (name hoặc code)
+            if (!empty($search)) {
+                $where[] = "(name LIKE ? OR code LIKE ?)";
+                $params[] = "%{$search}%";
+                $params[] = "%{$search}%";
+            }
+
+            // Filter by type
+            if (!empty($type)) {
+                $where[] = "type = ?";
+                $params[] = $type;
+            }
+
+            $whereClause = !empty($where) ? "WHERE " . implode(" AND ", $where) : "";
+
+            // Get total
+            $countQuery = "SELECT COUNT(*) as total FROM rewards {$whereClause}";
+            $countStmt = $db->prepare($countQuery);
+            $countStmt->execute($params);
+            $countResult = $countStmt->fetch(\PDO::FETCH_ASSOC);
+            $total = (int)$countResult['total'];
+
+            // Get data - LIMIT and OFFSET không thể dùng placeholder, phải concatenate
+            $dataQuery = "SELECT * FROM rewards {$whereClause} ORDER BY created_at DESC LIMIT {$limit} OFFSET {$offset}";
+            $dataStmt = $db->prepare($dataQuery);
+            $dataStmt->execute($params);
+            $rewards = $dataStmt->fetchAll(\PDO::FETCH_ASSOC);
 
             return Response::json([
                 'data' => $rewards,

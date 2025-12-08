@@ -90,8 +90,16 @@ class RewardRedemption
                   LEFT JOIN rewards r ON rr.reward_id = r.id
                   WHERE 1=1";
 
+        if (isset($filters['search'])) {
+            $query .= " AND (u.name LIKE ? OR u.email LIKE ?)";
+        }
+
         if (isset($filters['status'])) {
             $query .= " AND rr.status = ?";
+        }
+
+        if (isset($filters['type'])) {
+            $query .= " AND r.type = ?";
         }
 
         if (isset($filters['user_id'])) {
@@ -109,7 +117,12 @@ class RewardRedemption
         }
 
         $params = [];
+        if (isset($filters['search'])) {
+            $params[] = "%{$filters['search']}%";
+            $params[] = "%{$filters['search']}%";
+        }
         if (isset($filters['status'])) $params[] = $filters['status'];
+        if (isset($filters['type'])) $params[] = $filters['type'];
         if (isset($filters['user_id'])) $params[] = $filters['user_id'];
         if (isset($filters['reward_id'])) $params[] = $filters['reward_id'];
 
@@ -173,22 +186,38 @@ class RewardRedemption
      */
     public function count($filters = [])
     {
-        $query = "SELECT COUNT(*) as total FROM {$this->table} WHERE 1=1";
+        $query = "SELECT COUNT(*) as total FROM {$this->table} rr
+                  LEFT JOIN users u ON rr.user_id = u.id
+                  LEFT JOIN rewards r ON rr.reward_id = r.id
+                  WHERE 1=1";
+
+        if (isset($filters['search'])) {
+            $query .= " AND (u.name LIKE ? OR u.email LIKE ?)";
+        }
 
         if (isset($filters['status'])) {
-            $query .= " AND status = ?";
+            $query .= " AND rr.status = ?";
+        }
+
+        if (isset($filters['type'])) {
+            $query .= " AND r.type = ?";
         }
 
         if (isset($filters['user_id'])) {
-            $query .= " AND user_id = ?";
+            $query .= " AND rr.user_id = ?";
         }
 
         if (isset($filters['reward_id'])) {
-            $query .= " AND reward_id = ?";
+            $query .= " AND rr.reward_id = ?";
         }
 
         $params = [];
+        if (isset($filters['search'])) {
+            $params[] = "%{$filters['search']}%";
+            $params[] = "%{$filters['search']}%";
+        }
         if (isset($filters['status'])) $params[] = $filters['status'];
+        if (isset($filters['type'])) $params[] = $filters['type'];
         if (isset($filters['user_id'])) $params[] = $filters['user_id'];
         if (isset($filters['reward_id'])) $params[] = $filters['reward_id'];
 

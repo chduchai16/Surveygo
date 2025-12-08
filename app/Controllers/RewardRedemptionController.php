@@ -283,12 +283,16 @@ class RewardRedemptionController extends Controller
     {
         $page = (int)($request->query('page') ?? 1);
         $status = $request->query('status');
+        $type = $request->query('type');
+        $search = $request->query('search');
         $userId = $request->query('user_id');
         $limit = 10;
         $offset = ($page - 1) * $limit;
 
         $filters = [];
         if ($status) $filters['status'] = $status;
+        if ($type) $filters['type'] = $type;
+        if ($search) $filters['search'] = $search;
         if ($userId) $filters['user_id'] = $userId;
 
         $redemptions = $this->redemptionModel->getAll($limit, $offset, $filters);

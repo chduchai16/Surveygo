@@ -201,6 +201,5 @@
     global.ToastHelper = { show: showToast };
     
     // Debug log
-    console.log('✓ Toast Helper loaded successfully');
 })(window);
 

@@ -77,7 +77,6 @@
     </div>
 </div>
 
-<!-- Modal Reward Form -->
 <div class="modal fade" id="rewardFormModal" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content">
@@ -101,7 +100,6 @@
                             <select class="form-select" id="reward-type" required onchange="onRewardTypeChange()">
                                 <option value="">Chọn loại</option>
                                 <option value="cash">Rút Tiền</option>
-                                <option value="e_wallet">Ví Điện Tử</option>
                                 <option value="giftcard">Gift Card</option>
                                 <option value="physical">Quà Tặng</option>
                             </select>
@@ -277,7 +275,6 @@
                 tbody.innerHTML = data.map(r => renderRewardRow(r)).join('');
             }
 
-            // Render pagination
             renderPagination(pagination);
             document.getElementById('total-rewards').textContent = pagination.total || 0;
         })
@@ -399,7 +396,6 @@
     }
 
     function editReward(rewardId) {
-        // Fetch reward data
         fetch(`${API_BASE}/admin/rewards?page=1&limit=10`, {
             headers: {
                 'X-Requested-With': 'XMLHttpRequest'
@@ -433,7 +429,6 @@
             setFieldValue('reward-stock', reward.stock);
             setFieldValue('reward-description', reward.description);
 
-            // Show/hide stock field based on type
             onRewardTypeChange();
 
             const modal = new bootstrap.Modal(document.getElementById('rewardFormModal'));
@@ -446,7 +441,6 @@
     }
 
     function saveReward() {
-        // Helper function to safely get value
         const getFieldValue = (id) => {
             const el = document.getElementById(id);
             return el ? el.value : '';
@@ -457,7 +451,7 @@
         const type = getFieldValue('reward-type');
         const provider = getFieldValue('reward-provider').trim();
         const pointCost = getFieldValue('reward-point-cost');
-        const value = getFieldValue('reward-value');
+        let value = getFieldValue('reward-value');
         const stock = getFieldValue('reward-stock');
         const description = getFieldValue('reward-description').trim();
 
@@ -478,6 +472,17 @@
             showToast('warning', 'Vui lòng nhập số điểm hợp lệ');
             return;
         }
+        if(type === 'physical' && stock && stock < 0) {
+            showToast('warning', 'Số lượng kho không được âm');
+            return;
+        }
+        if(type === 'cash' ) {
+            value = pointCost ;
+        }else if(type == 'giftcard') {
+            value = pointCost;
+        } else if (type = 'physical') {
+            value = name;
+        }
 
         const rewardData = {
             name: name,
@@ -485,7 +490,7 @@
             type: type,
             provider: provider || null,
             point_cost: parseInt(pointCost),
-            value: value ? parseInt(value) : null,
+            value: value ? parseInt(value) : 0,
             stock: stock ? parseInt(stock) : null,
             description: description || null
         };

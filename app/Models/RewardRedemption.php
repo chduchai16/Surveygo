@@ -81,7 +81,10 @@ class RewardRedemption
                     r.name as reward_name,
                     r.type,
                     r.point_cost,
-                    r.value
+                    CASE 
+                        WHEN r.type = 'cash' AND (r.value = 0 OR r.value IS NULL) THEN r.point_cost
+                        ELSE r.value
+                    END as value
                   FROM {$this->table} rr
                   LEFT JOIN users u ON rr.user_id = u.id
                   LEFT JOIN rewards r ON rr.reward_id = r.id

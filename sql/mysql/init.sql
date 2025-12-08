@@ -203,7 +203,7 @@ CREATE TABLE IF NOT EXISTS rewards (
 
   point_cost INT UNSIGNED NOT NULL, -- số điểm cần để đổi
 
-  value INT UNSIGNED DEFAULT NULL,
+  value VARCHAR(255) DEFAULT NULL,
   -- ví dụ thẻ 100K → 100000
   -- quà vật lý có thể null
 

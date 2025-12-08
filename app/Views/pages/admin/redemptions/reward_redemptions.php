@@ -10,14 +10,14 @@
     <div class="card mb-4 fade-in">
         <div class="card-body">
             <div class="row g-3">
-                <div class="col-lg-2">
+                <div class="col-lg-3">
                     <label class="form-label fw-bold small text-uppercase text-muted">Tìm kiếm</label>
                     <div class="input-group input-group-sm">
                         <span class="input-group-text bg-light border-end-0"><i class="fas fa-search text-muted"></i></span>
                         <input type="text" id="filter-search" class="form-control border-start-0 ps-0" placeholder="Tên hoặc email...">
                     </div>
                 </div>
-                <div class="col-lg-2">
+                <div class="col-lg-3">
                     <label class="form-label fw-bold small text-uppercase text-muted">Trạng thái</label>
                     <select class="form-select form-select-sm" id="filter-status">
                         <option value="">Tất cả</option>
@@ -27,7 +27,7 @@
                         <option value="rejected">Từ chối</option>
                     </select>
                 </div>
-                <div class="col-lg-2">
+                <div class="col-lg-3">
                     <label class="form-label fw-bold small text-uppercase text-muted">Loại</label>
                     <select class="form-select form-select-sm" id="filter-type">
                         <option value="">Tất cả</option>
@@ -37,7 +37,7 @@
                         <option value="physical">Quà Tặng</option>
                     </select>
                 </div>
-                <div class="col-lg-6 d-flex align-items-end gap-2">
+                <div class="col-lg-3 d-flex align-items-end gap-2">
                     <button class="btn btn-sm btn-light border flex-grow-1" id="reset-filters" onclick="resetFilters()">
                         <i class="fas fa-redo me-1"></i>Đặt lại
                     </button>

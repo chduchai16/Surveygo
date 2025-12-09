@@ -13,6 +13,7 @@ use App\Models\User;
 use App\Models\SurveySubmission;
 use App\Models\UserResponse;
 use App\Models\PointTransaction;
+use App\Helpers\ActivityLogHelper;
 
 use PDO;
 
@@ -170,6 +171,17 @@ class SurveyController extends Controller
                 'error' => true,
                 'message' => 'Không thể tạo khảo sát. Kiểm tra dữ liệu hoặc user có tồn tại.',
             ], 422);
+        }
+
+        // Log activity
+        try {
+            ActivityLogHelper::logSurveyCreated(
+                (int)$data['maNguoiTao'],
+                $survey->getId(),
+                $survey->getTieuDe()
+            );
+        } catch (\Throwable $e) {
+            error_log('[SurveyController::create] Failed to log activity: ' . $e->getMessage());
         }
 
         return $this->json([
@@ -734,6 +746,13 @@ class SurveyController extends Controller
                 }
             } catch (\Throwable $e) {
                 error_log('[SurveyController::submit] Failed to add points: ' . $e->getMessage());
+            }
+
+            // Log activity
+            try {
+                ActivityLogHelper::logSurveySubmitted($userId, $surveyId);
+            } catch (\Throwable $e) {
+                error_log('[SurveyController::submit] Failed to log activity: ' . $e->getMessage());
             }
 
             return $this->json([

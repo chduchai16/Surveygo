@@ -102,6 +102,10 @@ $router->put('/api/contact-messages', [App\Controllers\ContactController::class,
 $router->delete('/api/contact-messages', [App\Controllers\ContactController::class, 'delete'], [new RoleMiddleware(['admin'])]);
 // Events API
 $router->get('/api/events', [App\Controllers\EventController::class, 'index']);
+$router->get('/api/events/show', [App\Controllers\EventController::class, 'show']);
+$router->post('/api/events', [App\Controllers\EventController::class, 'create']);
+$router->put('/api/events', [App\Controllers\EventController::class, 'update']);
+$router->delete('/api/events', [App\Controllers\EventController::class, 'delete']);
 
 // Feedbacks API
 $router->get('/api/feedbacks', [App\Controllers\FeedbackController::class, 'index'], [new AuthMiddleware()]);

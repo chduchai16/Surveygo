@@ -252,22 +252,57 @@
         }
 
         // --- 6. Render Activity List ---
+        async function loadActivityLogs() {
+            const activityList = document.getElementById('activity-list');
+            if (!activityList) return;
+            
+            try {
+                const response = await fetch('/api/admin/activity-logs?limit=5');
+                const result = await response.json();
+                
+                if (result.success && result.data && result.data.length > 0) {
+                    const actionIcons = {
+                        'survey_submitted': { icon: 'fas fa-check-circle', color: 'success' },
+                        'survey_created': { icon: 'fas fa-plus-circle', color: 'primary' },
+                        'event_created': { icon: 'fas fa-calendar-plus', color: 'primary' },
+                        'question_created': { icon: 'fas fa-lightbulb', color: 'warning' },
+                        'participated_event': { icon: 'fas fa-calendar-check', color: 'success' },
+                        'reward_redeemed': { icon: 'fas fa-gift', color: 'danger' },
+                        'profile_updated': { icon: 'fas fa-user-edit', color: 'info' }
+                    };
+                    
+                    activityList.innerHTML = result.data.map(activity => {
+                        const iconConfig = actionIcons[activity.action] || { icon: 'fas fa-history', color: 'secondary' };
+                        const createdDate = new Date(activity.created_at);
+                        const timeText = createdDate.toLocaleString('vi-VN');
+                        
+                        return `
+                            <li class="list-group-item border-0 py-3">
+                                <div class="d-flex align-items-start gap-3">
+                                    <div class="stat-icon bg-${iconConfig.color} bg-opacity-10 text-${iconConfig.color} rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                        <i class="${iconConfig.icon}"></i>
+                                    </div>
+                                    <div class="flex-grow-1">
+                                        <div class="small"><strong>${activity.user_name || 'Unknown'}</strong> ${activity.action}</div>
+                                        <div class="text-muted" style="font-size: 0.75rem;">${timeText}</div>
+                                    </div>
+                                </div>
+                            </li>
+                        `;
+                    }).join('');
+                } else {
+                    activityList.innerHTML = '<li class="list-group-item text-center text-muted py-4">Không có hoạt động nào</li>';
+                }
+            } catch (error) {
+                console.error('Lỗi khi tải activity logs:', error);
+                activityList.innerHTML = '<li class="list-group-item text-center text-danger py-4">Lỗi khi tải hoạt động</li>';
+            }
+        }
+        
+        loadActivityLogs();
+        
         const activityList = document.getElementById('activity-list');
         if (activityList && AdminMockData.activities.length > 0) {
-            activityList.innerHTML = AdminMockData.activities.map(activity => `
-                <li class="list-group-item border-0 py-3">
-                    <div class="d-flex align-items-start gap-3">
-                        <div class="stat-icon bg-${activity.color} bg-opacity-10 text-${activity.color} rounded-circle d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                            <i class="fas ${activity.icon}"></i>
-                        </div>
-                        <div class="flex-grow-1">
-                            <div class="small"><strong>${activity.user}</strong> ${activity.action} <strong>${activity.target}</strong></div>
-                            <div class="text-muted" style="font-size: 0.75rem;">${activity.time}</div>
-                        </div>
-                    </div>
-                </li>
-            `).join('');
-        } else if (activityList) {
              activityList.innerHTML = '<li class="list-group-item text-center text-muted">Không có hoạt động nào</li>';
         }
 

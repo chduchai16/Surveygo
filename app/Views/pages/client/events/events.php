@@ -162,9 +162,25 @@ $userData = [
                             // Fetch số lượt quay còn lại từ backend
                             function fetchRemainingSpins() {
                                 if (user && user.id && remainingSpinsDisplay) {
-                                    // TODO: Tạo API endpoint để lấy số lượt còn lại
-                                    // Tạm thời hardcode là 3 lượt
-                                    remainingSpinsDisplay.textContent = '3';
+                                    fetch(`/api/users/points?userId=${user.id}`)
+                                        .then(res => res.json())
+                                        .then(data => {
+                                            if (!data.error && data.data.lucky_wheel_spins !== undefined) {
+                                                const spins = data.data.lucky_wheel_spins;
+                                                remainingSpinsDisplay.textContent = spins;
+                                                
+                                                // Disable button if no spins
+                                                const spinBtn = document.getElementById('quay-ngay-btn');
+                                                if (spins <= 0 && spinBtn) {
+                                                    spinBtn.disabled = true;
+                                                    spinBtn.textContent = 'Hết lượt quay';
+                                                } else if (spinBtn) {
+                                                    spinBtn.disabled = false;
+                                                    spinBtn.textContent = 'Quay Ngay';
+                                                }
+                                            }
+                                        })
+                                        .catch(err => console.error(err));
                                 }
                             }
 
@@ -230,10 +246,21 @@ $userData = [
                                                     fetchPoints(); // Fallback
                                                 }
 
+
                                                 // Cập nhật số lượt còn lại
-                                                if (remainingSpinsDisplay) {
-                                                    const current = parseInt(remainingSpinsDisplay.textContent) || 0;
-                                                    remainingSpinsDisplay.textContent = Math.max(0, current - 1);
+                                                if (data.data && data.data.spins_remaining !== undefined) {
+                                                    remainingSpinsDisplay.textContent = data.data.spins_remaining;
+                                                    
+                                                    // Disable if no more spins
+                                                    if (data.data.spins_remaining <= 0) {
+                                                        const spinBtn = document.getElementById('quay-ngay-btn');
+                                                        if (spinBtn) {
+                                                            spinBtn.disabled = true;
+                                                            spinBtn.textContent = 'Hết lượt quay';
+                                                        }
+                                                    }
+                                                } else {
+                                                    fetchRemainingSpins();  // Fallback: gọi lại API
                                                 }
                                             }
 
@@ -273,58 +300,7 @@ $userData = [
         </div>
     </div>
 
-    <!-- Custom Modal Styles -->
-    <style>
-        .custom-modal .modal-dialog {
-            display: flex;
-            align-items: center;
-            min-height: calc(100vh - 1rem);
-        }
-        .custom-modal .modal-content {
-            background: var(--hub-card-bg, white);
-            border: 1px solid var(--hub-card-border, #e2e8f0);
-            border-radius: 16px;
-            box-shadow: var(--hub-card-shadow, 0 4px 20px rgba(0, 0, 0, 0.08));
-            color: var(--hub-text-primary, #1e293b);
-        }
-        .custom-modal .modal-header {
-            border-bottom: 1px solid var(--hub-card-border, #e2e8f0);
-            padding: 1.5rem;
-        }
-        .custom-modal .modal-body {
-            padding: 1.5rem;
-        }
-        .custom-modal .modal-body ul {
-            list-style: none;
-            padding: 0;
-        }
-        .custom-modal .modal-body li {
-            padding: 0.5rem 0;
-            border-bottom: 1px solid var(--hub-card-border, #e2e8f0);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .custom-modal .modal-body li:last-child {
-            border-bottom: none;
-        }
-        .custom-modal .modal-footer {
-            border-top: 1px solid var(--hub-card-border, #e2e8f0);
-            padding: 1.5rem;
-        }
-        .custom-modal .btn {
-            border-radius: 8px;
-            font-weight: 600;
-        }
-        .custom-modal .prize-badge {
-            background: var(--primary-color);
-            color: white;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-    </style>
+  
 
     <!-- Modal hiển thị xác suất nhận thưởng -->
     <div class="modal fade custom-modal" id="probabilitiesModal" tabindex="-1" aria-labelledby="probabilitiesModalLabel" aria-hidden="true">
@@ -402,4 +378,57 @@ $userData = [
             </div>
         </div>
     </div>
+
+      <!-- Custom Modal Styles -->
+    <style>
+        .custom-modal .modal-dialog {
+            display: flex;
+            align-items: center;
+            min-height: calc(100vh - 1rem);
+        }
+        .custom-modal .modal-content {
+            background: var(--hub-card-bg, white);
+            border: 1px solid var(--hub-card-border, #e2e8f0);
+            border-radius: 16px;
+            box-shadow: var(--hub-card-shadow, 0 4px 20px rgba(0, 0, 0, 0.08));
+            color: var(--hub-text-primary, #1e293b);
+        }
+        .custom-modal .modal-header {
+            border-bottom: 1px solid var(--hub-card-border, #e2e8f0);
+            padding: 1.5rem;
+        }
+        .custom-modal .modal-body {
+            padding: 1.5rem;
+        }
+        .custom-modal .modal-body ul {
+            list-style: none;
+            padding: 0;
+        }
+        .custom-modal .modal-body li {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--hub-card-border, #e2e8f0);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .custom-modal .modal-body li:last-child {
+            border-bottom: none;
+        }
+        .custom-modal .modal-footer {
+            border-top: 1px solid var(--hub-card-border, #e2e8f0);
+            padding: 1.5rem;
+        }
+        .custom-modal .btn {
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        .custom-modal .prize-badge {
+            background: var(--primary-color);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+    </style>
 </main>

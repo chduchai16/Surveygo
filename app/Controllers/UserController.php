@@ -82,12 +82,14 @@ class UserController extends Controller
 
         $userPoints = \App\Models\UserPoint::findByUserId($userId);
         $balance = $userPoints ? $userPoints->getBalance() : 0;
+        $luckyWheelSpins = $userPoints ? $userPoints->getLuckyWheelSpins() : 0;
 
         return $this->json([
             'error' => false,
             'data' => [
                 'userId' => $userId,
-                'balance' => $balance
+                'balance' => $balance,
+                'lucky_wheel_spins' => $luckyWheelSpins,
             ]
         ]);
     }

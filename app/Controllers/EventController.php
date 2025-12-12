@@ -63,6 +63,7 @@ class EventController extends Controller
             ],
         ]);
     }
+
     public function spinLuckyWheel(Request $request)
     {
         $userId = (int) ($request->input('userId') ?? 0);
@@ -82,8 +83,21 @@ class EventController extends Controller
             ], 404);
         }
 
-        // Logic quay thưởng ngẫu nhiên
-        // Tỷ lệ: 10 điểm (40%), 20 điểm (30%), 50 điểm (20%), 100 điểm (5%), 200 điểm (3%), 500 điểm (2%)
+        // KT lượt quay còn
+        $userPoint = \App\Models\UserPoint::getOrCreate($userId);
+        $availableSpins = $userPoint->getLuckyWheelSpins();
+
+        if ($availableSpins <= 0) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Bạn không còn lượt quay! Điểm danh hàng ngày để nhận thêm lượt quay.',
+                'data' => [
+                    'available_spins' => 0,
+                ]
+            ], 400);
+        }
+
+        //Hard code tỷ lệ
         $prizes = [
             10 => 40,
             20 => 30,
@@ -114,12 +128,19 @@ class EventController extends Controller
                 'Quay thưởng Lucky Wheel (' . date('Y-m-d H:i:s') . ')'
             );
 
+
+            $spinUsed = $userPoint->useLuckyWheelSpin();
+            if (!$spinUsed) {
+                error_log('[EventController::spinLuckyWheel] Failed to deduct spin for user ' . $userId);
+            }
+
             return $this->json([
                 'error' => false,
                 'message' => "Chúc mừng! Bạn nhận được {$points} điểm.",
                 'data' => [
                     'points_added' => $points,
                     'new_balance' => $tx->getBalanceAfter(),
+                    'spins_remaining' => max(0, $availableSpins - 1),
                 ]
             ]);
 
@@ -130,4 +151,25 @@ class EventController extends Controller
             ], 500);
         }
     }
+
+    private function getSpinsToday(int $userId): int
+{
+    $db = \App\Core\Container::get('db');
+    $today = date('Y-m-d');
+    
+    $stmt = $db->prepare(
+        'SELECT COUNT(*) FROM point_transactions 
+         WHERE user_id = :user_id 
+           AND source = :source 
+           AND DATE(created_at) = :today'
+    );
+    
+    $stmt->execute([
+        ':user_id' => $userId,
+        ':source' => 'lucky_wheel',
+        ':today' => $today,
+    ]);
+    
+    return (int) $stmt->fetchColumn();
+}
 }

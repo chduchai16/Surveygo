@@ -8,6 +8,7 @@ use App\Core\Controller;
 use App\Core\Request;
 use App\Models\Event;
 use App\Models\User;
+use App\Helpers\ActivityLogHelper;
 
 class EventController extends Controller
 {
@@ -64,6 +65,10 @@ class EventController extends Controller
         ]);
     }
 
+    /**
+     * POST /api/events/lucky-wheel/spin
+     * Quay thưởng Lucky Wheel
+     */
     public function spinLuckyWheel(Request $request)
     {
         $userId = (int) ($request->input('userId') ?? 0);
@@ -97,7 +102,7 @@ class EventController extends Controller
             ], 400);
         }
 
-        //Hard code tỷ lệ
+        // Hard code tỷ lệ
         $prizes = [
             10 => 40,
             20 => 30,
@@ -151,24 +156,91 @@ class EventController extends Controller
         }
     }
 
-    private function getSpinsToday(int $userId): int
-{
-    $db = \App\Core\Container::get('db');
-    $today = date('Y-m-d');
-    
-    $stmt = $db->prepare(
-        'SELECT COUNT(*) FROM point_transactions 
-         WHERE user_id = :user_id 
-           AND source = :source 
-           AND DATE(created_at) = :today'
-    );
-    
-    $stmt->execute([
-        ':user_id' => $userId,
-        ':source' => 'lucky_wheel',
-        ':today' => $today,
-    ]);
-    
-    return (int) $stmt->fetchColumn();
-}
+    /**
+     * POST /api/events/{id}/join
+     * User tham gia sự kiện
+     */
+    public function join(Request $request)
+    {
+        $eventId = (int) $request->getAttribute('id');
+        $userId = $_SESSION['user_id'] ?? null;
+
+        if (!$eventId) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Event ID không hợp lệ.',
+            ], 422);
+        }
+
+        if (!$userId) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Vui lòng đăng nhập để tham gia sự kiện.',
+            ], 401);
+        }
+
+        $event = Event::find($eventId);
+        if (!$event) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Sự kiện không tồn tại.',
+            ], 404);
+        }
+
+        // Log activity
+        try {
+            ActivityLogHelper::logParticipatedEvent($userId, $eventId);
+        } catch (\Throwable $e) {
+            error_log('[EventController::join] Failed to log activity: ' . $e->getMessage());
+        }
+
+        return $this->json([
+            'error' => false,
+            'message' => 'Tham gia sự kiện thành công.',
+            'data' => [
+                'eventId' => $eventId,
+                'eventName' => $event->getTenSuKien(),
+            ],
+        ], 201);
+    }
+
+    /**
+     * POST /api/events
+     * Admin tạo sự kiện mới
+     */
+    public function create(Request $request)
+    {
+        $data = $request->input();
+
+        if (empty($data['tenSuKien'])) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Tên sự kiện là bắt buộc.',
+            ], 422);
+        }
+
+        $event = Event::create($data);
+        if (!$event) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Không thể tạo sự kiện.',
+            ], 500);
+        }
+
+        // Log activity
+        try {
+            $userId = $_SESSION['user_id'] ?? ($data['maNguoiTao'] ?? 0);
+            if ($userId) {
+                ActivityLogHelper::logEventCreated($userId, $event->getId(), $event->getTenSuKien());
+            }
+        } catch (\Throwable $e) {
+            error_log('[EventController::create] Failed to log activity: ' . $e->getMessage());
+        }
+
+        return $this->json([
+            'error' => false,
+            'message' => 'Sự kiện được tạo thành công.',
+            'data' => $event->toArray(),
+        ], 201);
+    }
 }

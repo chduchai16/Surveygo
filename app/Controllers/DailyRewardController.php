@@ -141,6 +141,7 @@ class DailyRewardController extends Controller
                 'todayClaimed' => true,
                 'pointsEarned' => $pointsEarned,
                 'totalPoints' => $record->getTotalPoints(),
+                'luckyWheelSpinsAwarded' => 1, // Mỗi ngày được +1 lượt quay
             ],
         ]);
     }

@@ -73,7 +73,7 @@
         <div class="row g-4">
             <div class="col-lg-7">
                 <div class="chart-card">
-                    <h3 class="chart-title">Điểm kiếm được (6 tháng qua)</h3>
+                    <h3 class="chart-title">Điểm kiếm được (1 ngày qua)</h3>
                     <div style="position: relative; height: 300px;">
                         <canvas id="pointsEarnedChart"></canvas>
                     </div>
@@ -81,7 +81,7 @@
             </div>
             <div class="col-lg-5">
                 <div class="chart-card">
-                    <h3 class="chart-title">Khảo sát hoàn thành (7 ngày qua)</h3>
+                    <h3 class="chart-title">Khảo sát hoàn thành (1 ngày qua)</h3>
                     <div style="position: relative; height: 300px;">
                         <canvas id="surveysCompletedChart"></canvas>
                     </div>
@@ -399,54 +399,152 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         try {
-            // --- Biểu đồ 1: Điểm kiếm được (Biểu đồ cột) ---
+            // --- Biểu đồ 1: Điểm kiếm được (Biểu đồ cột) - 1 ngày qua (mỗi cột 3 tiếng) ---
             const ctxPoints = document.getElementById('pointsEarnedChart');
             if (ctxPoints) {
-                new Chart(ctxPoints, {
-                    type: 'bar',
-                    data: {
-                        labels: ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6'],
-                        datasets: [{
-                            label: 'Điểm kiếm được',
-                            data: [120, 190, 300, 500, 220, 350],
-                            backgroundColor: 'rgba(99, 102, 241, 0.8)',
-                            borderColor: 'rgba(99, 102, 241, 1)',
-                            borderWidth: 1,
-                            borderRadius: 5
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: { y: { beginAtZero: true } },
-                        plugins: { legend: { display: false } }
+                // Tạo labels cho 8 khoảng thời gian 3 tiếng trong 1 ngày
+                const timeLabels = [
+                    '0h-3h',
+                    '3h-6h',
+                    '6h-9h',
+                    '9h-12h',
+                    '12h-15h',
+                    '15h-18h',
+                    '18h-21h',
+                    '21h-24h'
+                ];
+                
+                // Lấy dữ liệu từ API
+                async function loadPointsChart() {
+                    try {
+                        const userJson = localStorage.getItem('app.user');
+                        if (!userJson) {
+                            console.warn('Không tìm thấy thông tin user');
+                            createChart([0, 0, 0, 0, 0, 0, 0, 0]);
+                            return;
+                        }
+                        
+                        const user = JSON.parse(userJson);
+                        const response = await fetch(`/api/user-points/hourly-stats?user_id=${user.id}`, {
+                            method: 'GET',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success && result.data) {
+                            createChart(result.data);
+                        } else {
+                            console.warn('Không có dữ liệu điểm');
+                            createChart([0, 0, 0, 0, 0, 0, 0, 0]);
+                        }
+                    } catch (error) {
+                        console.error('Lỗi khi tải dữ liệu điểm:', error);
+                        createChart([0, 0, 0, 0, 0, 0, 0, 0]);
                     }
-                });
+                }
+                
+                function createChart(data) {
+                    new Chart(ctxPoints, {
+                        type: 'bar',
+                        data: {
+                            labels: timeLabels,
+                            datasets: [{
+                                label: 'Điểm kiếm được',
+                                data: data,
+                                backgroundColor: 'rgba(99, 102, 241, 0.8)',
+                                borderColor: 'rgba(99, 102, 241, 1)',
+                                borderWidth: 1,
+                                borderRadius: 5
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: { y: { beginAtZero: true } },
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                }
+                
+                // Gọi hàm load dữ liệu
+                loadPointsChart();
             }
 
-            // --- Biểu đồ 2: Khảo sát hoàn thành (Biểu đồ đường) ---
+            // --- Biểu đồ 2: Khảo sát hoàn thành (Biểu đồ đường) - 1 ngày qua (mỗi cột 3 tiếng) ---
             const ctxSurveys = document.getElementById('surveysCompletedChart');
             if (ctxSurveys) {
-                new Chart(ctxSurveys, {
-                    type: 'line',
-                    data: {
-                        labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-                        datasets: [{
-                            label: 'Khảo sát',
-                            data: [3, 5, 2, 4, 6, 1, 3],
-                            fill: true,
-                            backgroundColor: 'rgba(236, 72, 153, 0.1)',
-                            borderColor: 'rgba(236, 72, 153, 1)',
-                            tension: 0.3
-                        }]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        scales: { y: { beginAtZero: true } },
-                        plugins: { legend: { display: false } }
+                // Tạo labels cho 8 khoảng thời gian 3 tiếng trong 1 ngày
+                const timeLabels = [
+                    '0h-3h',
+                    '3h-6h',
+                    '6h-9h',
+                    '9h-12h',
+                    '12h-15h',
+                    '15h-18h',
+                    '18h-21h',
+                    '21h-24h'
+                ];
+                
+                // Lấy dữ liệu từ API
+                async function loadSurveysChart() {
+                    try {
+                        const userJson = localStorage.getItem('app.user');
+                        if (!userJson) {
+                            console.warn('Không tìm thấy thông tin user');
+                            createSurveysChart([0, 0, 0, 0, 0, 0, 0, 0]);
+                            return;
+                        }
+                        
+                        const user = JSON.parse(userJson);
+                        const response = await fetch(`/api/surveys/hourly-stats?user_id=${user.id}`, {
+                            method: 'GET',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        
+                        const result = await response.json();
+                        
+                        if (result.success && result.data) {
+                            createSurveysChart(result.data);
+                        } else {
+                            console.warn('Không có dữ liệu khảo sát');
+                            createSurveysChart([0, 0, 0, 0, 0, 0, 0, 0]);
+                        }
+                    } catch (error) {
+                        console.error('Lỗi khi tải dữ liệu khảo sát:', error);
+                        createSurveysChart([0, 0, 0, 0, 0, 0, 0, 0]);
                     }
-                });
+                }
+                
+                function createSurveysChart(data) {
+                    new Chart(ctxSurveys, {
+                        type: 'line',
+                        data: {
+                            labels: timeLabels,
+                            datasets: [{
+                                label: 'Khảo sát',
+                                data: data,
+                                fill: true,
+                                backgroundColor: 'rgba(236, 72, 153, 0.1)',
+                                borderColor: 'rgba(236, 72, 153, 1)',
+                                tension: 0.3
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: { y: { beginAtZero: true } },
+                            plugins: { legend: { display: false } }
+                        }
+                    });
+                }
+                
+                // Gọi hàm load dữ liệu
+                loadSurveysChart();
             }
         } catch (e) {
             console.error("Lỗi khi khởi tạo biểu đồ:", e);

@@ -922,4 +922,59 @@ class SurveyController extends Controller
             ],
         ]);
     }
+
+    /**
+     * GET /api/surveys/hourly-stats
+     * Lấy thống kê số lượng khảo sát hoàn thành theo khoảng thời gian 3 tiếng trong 24 giờ qua
+     */
+    public function getHourlyStats(Request $request)
+    {
+        $userId = (int) $request->query('user_id');
+        
+        if (!$userId) {
+            return $this->json([
+                'error' => true,
+                'message' => 'User ID is required'
+            ], 401);
+        }
+
+        try {
+            // Lấy tất cả survey submissions trong 24 giờ qua
+            $db = \App\Core\Container::get('db');
+            
+            $statement = $db->prepare(
+                'SELECT created_at 
+                 FROM survey_submissions 
+                 WHERE maNguoiDung = :user_id 
+                   AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
+                 ORDER BY created_at ASC'
+            );
+            
+            $statement->execute([':user_id' => $userId]);
+            $submissions = $statement->fetchAll();
+            
+            // Khởi tạo mảng 8 khoảng thời gian (mỗi khoảng 3 tiếng)
+            $hourlyData = array_fill(0, 8, 0);
+            
+            // Đếm số lượng submissions theo khoảng thời gian
+            foreach ($submissions as $submission) {
+                $timestamp = strtotime($submission['created_at']);
+                $hour = (int) date('H', $timestamp);
+                
+                // Xác định khoảng thời gian (0-3h = index 0, 3-6h = index 1, ...)
+                $intervalIndex = (int) floor($hour / 3);
+                $hourlyData[$intervalIndex]++;
+            }
+            
+            return $this->json([
+                'success' => true,
+                'data' => $hourlyData
+            ]);
+        } catch (\Exception $e) {
+            return $this->json([
+                'error' => true,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
 }

@@ -412,6 +412,20 @@
             if (user.points) {
                 const userPointsEl = document.getElementById('user-points');
                 if (userPointsEl) userPointsEl.textContent = user.points.toLocaleString('vi-VN');
+            const userPointsEl = document.getElementById('user-points');
+            if (userPointsEl && user.id) {
+                // Fetch điểm thực tế từ API
+                fetch(`/api/users/points?userId=${user.id}`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (!data.error) {
+                            userPointsEl.textContent = data.data.balance.toLocaleString('vi-VN');
+                        }
+                    })
+                    .catch(e => console.error("Lỗi tải điểm:", e));
+            } else if (userPointsEl && user.points) {
+                // Fallback nếu không có ID hoặc lỗi
+                userPointsEl.textContent = user.points.toLocaleString('vi-VN');
             }
         } catch (error) {
             console.error('Lỗi khi tải điểm từ localStorage:', error);

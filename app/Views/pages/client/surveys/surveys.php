@@ -46,6 +46,72 @@
     let currentPage = 1;
     const pageSize = 6;
     let currentFilters = {};
+    const baseUrl = <?= json_encode(rtrim($baseUrl ?? '', '/')) ?>;
+    const apiUrl = (path) => {
+        const base = (baseUrl || '').replace(/\/+$/, '');
+        const p = '/' + String(path || '').replace(/^\/+/, '');
+        return base ? (base + p) : p;
+    };
+
+    function ensureEventFilterElement() {
+        let select = document.getElementById('event-filter');
+        if (select) {
+            return select;
+        }
+
+        const statusFilter = document.getElementById('status-filter');
+        if (!statusFilter) {
+            return null;
+        }
+
+        const statusCol = statusFilter.closest('.col-md-3') || statusFilter.parentElement;
+        if (!statusCol || !statusCol.parentElement) {
+            return null;
+        }
+
+        const eventCol = document.createElement('div');
+        eventCol.className = 'col-md-3';
+        eventCol.innerHTML = '\
+                <select class="form-select" id="event-filter">\
+                    <option value=\"\">T\u1ea5t c\u1ea3 s\u1ef1 ki\u1ec7n</option>\
+                </select>\
+            ';
+        statusCol.insertAdjacentElement('afterend', eventCol);
+
+        return document.getElementById('event-filter');
+    }
+
+    async function loadEventOptions(initialEventId) {
+        const select = ensureEventFilterElement();
+        if (!select) {
+            return;
+        }
+
+        select.innerHTML = '<option value=\"\">T\u1ea5t c\u1ea3 s\u1ef1 ki\u1ec7n</option>';
+
+        try {
+            const params = new URLSearchParams({ page: 1, limit: 50 });
+            const response = await fetch(apiUrl(`/api/events?${params.toString()}`), {
+                headers: { 'Accept': 'application/json' }
+            });
+            const json = await response.json().catch(() => ({}));
+            const events = Array.isArray(json.data) ? json.data : (Array.isArray(json) ? json : []);
+
+            events.forEach(ev => {
+                const opt = document.createElement('option');
+                opt.value = ev.id;
+                const code = ev.code ? ('#' + ev.code + ' - ') : '';
+                opt.textContent = code + (ev.title || 'S\u1ef1 ki\u1ec7n');
+                select.appendChild(opt);
+            });
+
+            if (initialEventId) {
+                select.value = String(initialEventId);
+            }
+        } catch (error) {
+            console.error('L\u1ed7i khi t\u1ea3i danh s\u00e1ch s\u1ef1 ki\u1ec7n:', error);
+        }
+    }
 
     // Load surveys
     async function loadSurveys(page = 1, filters = {}) {
@@ -58,7 +124,7 @@
                 ...filters,
             });
 
-            const response = await fetch(`/api/surveys?${queryParams}`);
+            const response = await fetch(apiUrl(`/api/surveys?${queryParams}`));
             const result = await response.json();
 
             if (!result.error && result.data && result.meta) {
@@ -153,10 +219,43 @@
     document.getElementById('btn-reset-filters').addEventListener('click', function () {
         document.getElementById('search-input').value = '';
         document.getElementById('status-filter').value = '';
+        const eventFilterEl = document.getElementById('event-filter');
+        if (eventFilterEl) {
+            eventFilterEl.value = '';
+        }
+        currentFilters = {};
         loadSurveys(1, {});
     });
 
     document.addEventListener('DOMContentLoaded', function () {
-        loadSurveys(1, {});
+        const params = new URLSearchParams(window.location.search);
+        const eventId = params.get('maSuKien');
+        const initialFilters = {};
+        if (eventId) {
+            initialFilters.maSuKien = eventId;
+        }
+        currentFilters = initialFilters;
+
+        const eventFilterEl = ensureEventFilterElement();
+        loadEventOptions(eventId);
+
+        if (eventFilterEl) {
+            if (eventId) {
+                eventFilterEl.value = eventId;
+            }
+
+            eventFilterEl.addEventListener('change', function (e) {
+                const filters = { ...currentFilters };
+                if (e.target.value) {
+                    filters.maSuKien = e.target.value;
+                } else {
+                    delete filters.maSuKien;
+                }
+                currentFilters = filters;
+                loadSurveys(1, filters);
+            });
+        }
+
+        loadSurveys(1, initialFilters);
     });
 </script>

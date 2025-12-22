@@ -8,6 +8,7 @@ use App\Core\Controller;
 use App\Core\Request;
 use App\Models\Event;
 use App\Models\User;
+use App\Models\ActivityLog;
 use App\Helpers\ActivityLogHelper;
 
 class EventController extends Controller
@@ -27,7 +28,21 @@ class EventController extends Controller
 
         $result = Event::paginate($page, $limit, $filters);
 
-        $events = array_map(fn(Event $e) => $this->transformEvent($e), $result['events']);
+        $userId = $_SESSION['user_id'] ?? null;
+        $joinedEventIds = null;
+        if ($userId) {
+            $joinedEventIds = ActivityLog::getJoinedEventIdsForUser((int) $userId);
+        }
+
+        $events = array_map(function (Event $e) use ($joinedEventIds) {
+            $data = $this->transformEvent($e);
+            if (is_array($joinedEventIds)) {
+                $data['hasJoined'] = in_array($e->getId(), $joinedEventIds, true);
+            } else {
+                $data['hasJoined'] = false;
+            }
+            return $data;
+        }, $result['events']);
 
         return $this->json([
             'error' => false,
@@ -60,9 +75,19 @@ class EventController extends Controller
             ], 404);
         }
 
+        $data = $this->transformEvent($event);
+
+        $userId = $_SESSION['user_id'] ?? null;
+        if ($userId) {
+            $joinedEventIds = ActivityLog::getJoinedEventIdsForUser((int) $userId);
+            $data['hasJoined'] = in_array($event->getId(), $joinedEventIds, true);
+        } else {
+            $data['hasJoined'] = false;
+        }
+
         return $this->json([
             'error' => false,
-            'data' => $this->transformEvent($event),
+            'data' => $data,
         ]);
     }
 
@@ -186,6 +211,20 @@ class EventController extends Controller
                 'error' => true,
                 'message' => 'Sự kiện không tồn tại.',
             ], 404);
+        }
+
+        if ($event->getTrangThai() === 'upcoming') {
+            return $this->json([
+                'error' => true,
+                'message' => 'Sự kiện chưa mở để tham gia. Vui lòng quay lại khi sự kiện diễn ra.',
+            ], 422);
+        }
+
+        if ($event->getTrangThai() === 'completed') {
+            return $this->json([
+                'error' => true,
+                'message' => 'Sự kiện đã kết thúc.',
+            ], 422);
         }
 
         $awardedSpins = 0;

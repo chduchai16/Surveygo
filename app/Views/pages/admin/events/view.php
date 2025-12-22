@@ -22,7 +22,8 @@ $__mk = static function (string $base, string $path): string {
             <div>
                 <p class="text-uppercase small text-muted mb-1">Chi tiết sự kiện</p>
                 <h4 class="mb-0" id="event-title">Đang tải...</h4>
-                <div class="text-muted small" id="event-meta">#<?= htmlspecialchars((string) $eventId, ENT_QUOTES, 'UTF-8') ?></div>
+                <div class="text-muted small" id="event-meta">
+                    #<?= htmlspecialchars((string) $eventId, ENT_QUOTES, 'UTF-8') ?></div>
             </div>
         </div>
         <div class="d-flex gap-2 align-items-center">
@@ -37,7 +38,8 @@ $__mk = static function (string $base, string $path): string {
                     <div class="d-flex justify-content-between align-items-start mb-3">
                         <div>
                             <p class="text-muted small mb-1">Mã sự kiện</p>
-                            <div class="fw-semibold" id="event-code">#<?= htmlspecialchars((string) $eventId, ENT_QUOTES, 'UTF-8') ?></div>
+                            <div class="fw-semibold" id="event-code">
+                                #<?= htmlspecialchars((string) $eventId, ENT_QUOTES, 'UTF-8') ?></div>
                         </div>
                         <div class="text-end">
                             <div class="text-muted small">Cập nhật</div>
@@ -53,9 +55,12 @@ $__mk = static function (string $base, string $path): string {
                         <span id="event-datetime">-</span>
                     </p>
                     <div class="d-flex flex-wrap gap-3 small mt-3">
-                        <span><i class="fas fa-users me-2 text-primary"></i><span id="event-participants">0</span> tham gia</span>
-                        <span><i class="fas fa-list-check me-2 text-secondary"></i><span id="event-survey-count">0</span> khảo sát</span>
-                        <span><i class="fas fa-ticket me-2 text-warning"></i><span id="event-spins">0</span> lượt rút / lần</span>
+                        <span><i class="fas fa-users me-2 text-primary"></i><span id="event-participants">0</span> tham
+                            gia</span>
+                        <span><i class="fas fa-list-check me-2 text-secondary"></i><span
+                                id="event-survey-count">0</span> khảo sát</span>
+                        <span><i class="fas fa-ticket me-2 text-warning"></i><span id="event-spins">0</span> lượt rút /
+                            lần</span>
                     </div>
                 </div>
             </div>
@@ -111,7 +116,8 @@ $__mk = static function (string $base, string $path): string {
             <div class="modal-body">
                 <div class="row g-2 mb-3">
                     <div class="col-md-8">
-                        <input type="text" class="form-control" id="survey-library-search" placeholder="Tìm kiếm khảo sát...">
+                        <input type="text" class="form-control" id="survey-library-search"
+                            placeholder="Tìm kiếm khảo sát...">
                     </div>
                     <div class="col-md-4 text-end">
                         <button class="btn btn-outline-secondary" id="btn-survey-library-reload">
@@ -138,7 +144,7 @@ $__mk = static function (string $base, string $path): string {
                         </tbody>
                     </table>
                 </div>
-                <p class="text-muted small mt-2 mb-0">Chỉ hiển thị các khảo sát trạng thái đã duyệt / published.</p>
+                <p class="text-muted small mt-2 mb-0">Chỉ hiển thị các khảo sát đã được xuất bản (published).</p>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Đóng</button>
@@ -234,6 +240,16 @@ $__mk = static function (string $base, string $path): string {
             else eventEditFieldsContainer.classList.add('d-none');
         }
         updateEventEditButtonsUI();
+
+        // Show "Add survey" button only in edit mode AND when event is upcoming
+        const addBtn = document.getElementById('btn-open-survey-library');
+        if (addBtn) {
+            if (eventEditMode && isEventUpcoming) {
+                addBtn.classList.remove('d-none');
+            } else {
+                addBtn.classList.add('d-none');
+            }
+        }
 
         if (eventEditMode && eventStatusSelect && eventSpinsInput) {
             eventStatusSelect.value = eventCurrentStatus || 'upcoming';
@@ -399,11 +415,7 @@ $__mk = static function (string $base, string $path): string {
                 spinsTextEl.textContent = String(originalSpinsValue);
             }
 
-            const addBtn = document.getElementById('btn-open-survey-library');
-            if (addBtn) {
-                if (isEventUpcoming) addBtn.classList.remove('d-none');
-                else addBtn.classList.add('d-none');
-            }
+
 
             if (eventStatusSelect) eventStatusSelect.value = eventCurrentStatus;
             if (eventSpinsInput) {
@@ -537,6 +549,10 @@ $__mk = static function (string $base, string $path): string {
                 throw new Error(json.message || res.statusText);
             }
             window.showToast('success', 'Đã gắn khảo sát #' + surveyId + ' vào sự kiện.');
+            // Close modal after successful attach
+            if (surveyLibraryModal) {
+                surveyLibraryModal.hide();
+            }
             loadEventSurveys();
         } catch (err) {
             console.error(err);
@@ -544,7 +560,7 @@ $__mk = static function (string $base, string $path): string {
         }
     }
 
-    window.detachSurvey = async function(surveyId) {
+    window.detachSurvey = async function (surveyId) {
         if (!isEventUpcoming) {
             window.showToast('warning', 'Không thể chỉnh sửa khảo sát khi sự kiện không còn ở trạng thái Sắp diễn ra.');
             return;
@@ -604,7 +620,7 @@ $__mk = static function (string $base, string $path): string {
             const params = new URLSearchParams({
                 page: 1,
                 limit: 20,
-                trangThai: 'approved',
+                trangThai: 'published',
             });
             if (term) params.set('search', term);
 
@@ -742,11 +758,7 @@ $__mk = static function (string $base, string $path): string {
                 setEventStatusBadge(ev.status || 'upcoming');
                 isEventUpcoming = (ev.status === 'upcoming');
 
-                const addBtn = document.getElementById('btn-open-survey-library');
-                if (addBtn) {
-                    if (isEventUpcoming) addBtn.classList.remove('d-none');
-                    else addBtn.classList.add('d-none');
-                }
+
 
                 if (eventStatusSelect) {
                     eventStatusSelect.value = eventCurrentStatus;

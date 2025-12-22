@@ -241,8 +241,9 @@ class Survey
         $isQuickPoll = isset($data['isQuickPoll']) ? (bool) $data['isQuickPoll'] : $this->isQuickPoll;
         $trangThai = $data['trangThai'] ?? $this->trangThai;
         $diemThuong = $data['diemThuong'] ?? $this->diemThuong;
-        $danhMuc = isset($data['danhMuc']) ? (int)$data['danhMuc'] : $this->danhMuc;
-        $maSuKien = $data['maSuKien'] ?? $this->maSuKien;
+        $danhMuc = isset($data['danhMuc']) ? (int) $data['danhMuc'] : $this->danhMuc;
+        // Allow setting maSuKien to null explicitly (for detaching from event)
+        $maSuKien = array_key_exists('maSuKien', $data) ? $data['maSuKien'] : $this->maSuKien;
 
         $statement = $db->prepare(
             'UPDATE surveys SET tieuDe = :tieu, moTa = :mo, loaiKhaoSat = :loai, thoiLuongDuTinh = :thoiluong, isQuickPoll = :isquickpoll,
@@ -371,32 +372,32 @@ class Survey
     {
         return $this->id;
     }
-    
+
     public function getMaKhaoSat(): string
     {
         return $this->maKhaoSat;
     }
-    
+
     public function getTieuDe(): string
     {
         return $this->tieuDe;
     }
-    
+
     public function getMoTa(): ?string
     {
         return $this->moTa;
     }
-    
+
     public function getIsQuickPoll(): bool
     {
         return $this->isQuickPoll;
     }
-    
+
     public function getMaNguoiTao(): int
     {
         return $this->maNguoiTao;
     }
-    
+
     public function getTrangThai(): string
     {
         return $this->trangThai;

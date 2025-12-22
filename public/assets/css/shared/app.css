@@ -172,6 +172,16 @@ code {
     color: white;
 }
 
+.btn-primary-gradient:disabled,
+.btn-primary-gradient.disabled {
+    background: var(--primary-gradient);
+    color: white;
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
 .btn-outline-primary {
     background: transparent;
     color: var(--primary-color);

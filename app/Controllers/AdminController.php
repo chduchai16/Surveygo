@@ -36,8 +36,8 @@ class AdminController extends Controller
 
         return \App\Core\Response::html($view->render('layouts/admin', array_merge($data, [
             'content' => $content,
-            'title' => 'Chi tiet khao sat',
-            'headerTitle' => 'Chi tiet khao sat',
+            'title' => 'Chi tiết khảo sát',
+            'headerTitle' => 'Chi tiết khảo sát',
             'headerIcon' => 'fas fa-eye',
         ])));
     }

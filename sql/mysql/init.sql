@@ -8,8 +8,10 @@ CREATE TABLE IF NOT EXISTS users (
   password VARCHAR(255) NOT NULL,
   gender ENUM('male','female','other') NOT NULL DEFAULT 'other',
   role ENUM('admin','moderator','user') NOT NULL DEFAULT 'user',
+  invited_by INT UNSIGNED DEFAULT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS events (
@@ -144,7 +146,7 @@ CREATE TABLE IF NOT EXISTS user_points ( -- Quản lí tổng số điểm của
 CREATE TABLE IF NOT EXISTS point_transactions ( -- Log lịch sử cộng và rút điểm của người dùng
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id INT UNSIGNED NOT NULL,
-  source ENUM('daily_reward','survey','lucky_wheel','manual_adjustment') NOT NULL,
+  source ENUM('daily_reward','survey','lucky_wheel','manual_adjustment','referral_bonus') NOT NULL,
   ref_id INT UNSIGNED DEFAULT NULL,
   amount INT UNSIGNED NOT NULL,
   balance_after INT UNSIGNED NOT NULL,
@@ -155,6 +157,22 @@ CREATE TABLE IF NOT EXISTS point_transactions ( -- Log lịch sử cộng và r�
   UNIQUE KEY uniq_user_source_ref (user_id, source, ref_id),
   INDEX idx_pt_user (user_id),
   INDEX idx_pt_source (source)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_invites (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  invite_code VARCHAR(6) NOT NULL UNIQUE,
+  invite_token VARCHAR(32) UNIQUE DEFAULT NULL,
+  invite_link VARCHAR(255) NOT NULL,
+  invited_count INT UNSIGNED NOT NULL DEFAULT 0,
+  total_rewards INT UNSIGNED NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_user_invites_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE KEY uniq_user_invite (user_id),
+  INDEX idx_invite_code (invite_code),
+  INDEX idx_invite_token (invite_token)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS contact_messages (

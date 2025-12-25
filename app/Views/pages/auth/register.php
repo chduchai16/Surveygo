@@ -63,6 +63,27 @@
                             <small class="text-danger" id="passwordMatchError"></small>
                         </div>
 
+                        <!-- Mã mời (optional) - Chỉ hiển thị khi có link mời -->
+                        <div class="form-group mb-3 d-none" id="invite-code-group">
+                            <label for="invite-code" class="form-label">
+                                <i class="fas fa-gift me-2"></i>Mã mời <span class="text-danger">*</span>
+                            </label>
+                            <input type="text" 
+                                   class="form-control" 
+                                   id="invite-code" 
+                                   name="invite_code" 
+                                   placeholder="Nhập mã mời (6 ký tự)" 
+                                   maxlength="6"
+                                   pattern="[A-Z0-9]{6}"
+                                   style="text-transform: uppercase;">
+                            <small class="form-text text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Nhập mã mời để bạn và người giới thiệu đều nhận <strong>500 điểm</strong>
+                            </small>
+                            <small class="text-success" id="inviteCodeSuccess"></small>
+                            <small class="text-danger" id="inviteCodeError"></small>
+                        </div>
+
                         <!-- Điều khoản & Điều kiện -->
                         <div class="form-check mb-3">
                             <input class="form-check-input" type="checkbox" id="terms" required>
@@ -135,6 +156,106 @@
             toggleIcon.classList.remove('fa-eye-slash');
             toggleIcon.classList.add('fa-eye');
         }
+    }
+
+    // Show invite code field when accessing via invite link (token or code)
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const inviteToken = urlParams.get('token'); // token-based invite url
+        const inviteParam = urlParams.get('invite'); // code-based invite 
+        
+        if (inviteToken || inviteParam) {
+            // Show the invite code field group
+            const inviteCodeGroup = document.getElementById('invite-code-group');
+            const inviteInput = document.getElementById('invite-code');
+            const registerForm = document.getElementById('register-form');
+            
+            if (inviteCodeGroup) {
+                inviteCodeGroup.classList.remove('d-none');
+            }
+            
+            // Make invite code required when accessed via invite link
+            if (inviteInput) {
+                inviteInput.setAttribute('required', 'required');
+            }
+            
+            // If token is present, add it as hidden field
+            if (inviteToken && registerForm) {
+                const tokenInput = document.createElement('input');
+                tokenInput.type = 'hidden';
+                tokenInput.name = 'invite_token';
+                tokenInput.value = inviteToken;
+                registerForm.appendChild(tokenInput);
+            }
+            
+            // Add a helpful message - always ask for manual code entry
+            const inviteHelpText = inviteCodeGroup?.querySelector('.form-text');
+            if (inviteHelpText) {
+                inviteHelpText.innerHTML = '\u003ci class="fas fa-info-circle me-1"\u003e\u003c/i\u003e Bạn đã được mời! Hãy nhập mã mời để cả hai nhận \u003cstrong\u003e500 điểm\u003c/strong\u003e.';
+            }
+        }
+    });
+
+    // Validate invite code
+    function validateInviteCode(code) {
+        if (!code || code.length !== 6) return;
+        
+        const successDiv = document.getElementById('inviteCodeSuccess');
+        const errorDiv = document.getElementById('inviteCodeError');
+        const inviteInput = document.getElementById('invite-code');
+        
+        // Clear previous messages
+        successDiv.textContent = '';
+        errorDiv.textContent = '';
+        
+        // Validate code via API
+        fetch('/api/invites/validate?code=' + code.toUpperCase())
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) {
+                    errorDiv.textContent = data.message || 'Không thể kiểm tra mã mời';
+                    inviteInput.classList.add('is-invalid');
+                    inviteInput.classList.remove('is-valid');
+                } else if (data.valid) {
+                    successDiv.textContent = '✓ ' + data.message;
+                    inviteInput.classList.add('is-valid');
+                    inviteInput.classList.remove('is-invalid');
+                } else {
+                    errorDiv.textContent = data.message || 'Mã mời không hợp lệ';
+                    inviteInput.classList.add('is-invalid');
+                    inviteInput.classList.remove('is-valid');
+                }
+            })
+            .catch(err => {
+                console.error('Validation error:', err);
+                errorDiv.textContent = 'Không thể kiểm tra mã mời';
+            });
+    }
+
+    // Validate invite code on blur
+    const inviteCodeInput = document.getElementById('invite-code');
+    if (inviteCodeInput) {
+        inviteCodeInput.addEventListener('blur', function() {
+            const code = this.value.trim();
+            if (code.length === 6) {
+                validateInviteCode(code);
+            } else if (code.length > 0) {
+                document.getElementById('inviteCodeError').textContent = 'Mã mời phải có 6 ký tự';
+                document.getElementById('inviteCodeSuccess').textContent = '';
+                this.classList.add('is-invalid');
+                this.classList.remove('is-valid');
+            } else {
+                // Empty is okay (optional field)
+                document.getElementById('inviteCodeError').textContent = '';
+                document.getElementById('inviteCodeSuccess').textContent = '';
+                this.classList.remove('is-invalid', 'is-valid');
+            }
+        });
+
+        // Auto-uppercase as user types
+        inviteCodeInput.addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
     }
 
     // Kiểm tra khớp mật khẩu

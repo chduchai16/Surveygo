@@ -365,6 +365,8 @@
                 'event_created': { icon: 'fas fa-calendar-plus', class: 'icon-primary' },
                 'question_created': { icon: 'fas fa-lightbulb', class: 'icon-accent' },
                 'profile_updated': { icon: 'fas fa-user-edit', class: 'icon-secondary-accent' },
+                'referral_invite_success': { icon: 'fas fa-user-plus', class: 'icon-success' },
+                'referral_registered': { icon: 'fas fa-user-check', class: 'icon-primary' },
             };
 
             let html = result.data.map(activity => {

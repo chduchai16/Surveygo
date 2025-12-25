@@ -156,6 +156,118 @@ class UserController extends Controller
         ]);
     }
 
+    public function show(Request $request)
+    {
+        $userId = (int) ($request->query('id') ?? 0);
+        
+        if ($userId <= 0) {
+            return $this->json([
+                'error' => true,
+                'message' => 'ID người dùng không hợp lệ'
+            ], 400);
+        }
+        
+        $user = User::findById($userId);
+        
+        if (!$user) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Không tìm thấy người dùng'
+            ], 404);
+        }
+        
+        return $this->json([
+            'error' => false,
+            'data' => $user->toArray()
+        ]);
+    }
+
+    public function update(Request $request)
+    {
+        $userId = (int) ($request->input('id') ?? 0);
+        
+        if ($userId <= 0) {
+            return $this->json([
+                'error' => true,
+                'message' => 'ID người dùng không hợp lệ'
+            ], 400);
+        }
+        
+        $user = User::findById($userId);
+        if (!$user) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Không tìm thấy người dùng'
+            ], 404);
+        }
+        
+        // Validation input
+        $name = trim($request->input('name') ?? '');
+        $email = trim($request->input('email') ?? '');
+        $phone = trim($request->input('phone') ?? '');
+        $gender = $request->input('gender') ?? 'other';
+        $role = $request->input('role') ?? 'user';
+        
+        if (empty($name)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Tên không được để trống'
+            ], 400);
+        }
+        
+        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Email không hợp lệ'
+            ], 400);
+        }
+        
+        if ($email !== $user->getEmail()) {
+            $existingUser = User::findByEmail($email);
+            if ($existingUser && $existingUser->getId() !== $userId) {
+                return $this->json([
+                    'error' => true,
+                    'message' => 'Email đã được sử dụng bởi người dùng khác'
+                ], 400);
+            }
+        }
+        
+        // Không cho phép admin tự thay đổi role của chính mình
+        $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+        if ($userId === $currentUserId && $role !== $user->getRole()) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Bạn không thể thay đổi vai trò của chính mình'
+            ], 403);
+        }
+        
+        // Cập nhật thông tin
+        $user->setName($name);
+        $user->setEmail($email);
+        $user->setPhone($phone);
+        $user->setRole($role);
+        
+        // Chỉ update gender nếu nó là giá trị hợp lệ
+        if (in_array($gender, ['male', 'female', 'other'])) {
+             $user->setGender($gender);
+        }
+        
+        $result = $user->update();
+        
+        if ($result) {
+            return $this->json([
+                'error' => false,
+                'message' => 'Cập nhật thông tin thành công',
+                'data' => $user->toArray()
+            ]);
+        } else {
+            return $this->json([
+                'error' => true,
+                'message' => 'Không thể cập nhật thông tin'
+            ], 500);
+        }
+    }
+
     public function delete(Request $request)
     {
         $userId = (int) ($request->input('id') ?? $request->query('id') ?? 0);

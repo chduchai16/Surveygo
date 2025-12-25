@@ -161,7 +161,7 @@
                         <div class="btn-group">
                             <button class="btn btn-sm btn-light text-primary" title="Xem" onclick="showToast('info', 'Xem User ${user.id}')"><i class="fas fa-eye"></i></button>
                             <button class="btn btn-sm btn-light text-success" title="Sửa" onclick="showToast('info', 'Sửa User ${user.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-light text-danger" title="Khóa" onclick="toggleStatus(${user.id})"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-sm btn-light text-danger" title="Xóa" onclick="deleteUser(${user.id}, '${user.name.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button
                         </div>
                     </td>
                 </tr>
@@ -262,9 +262,33 @@
             loadUsers();
         };
 
-        window.toggleStatus = function(id) {
-            if(confirm('Bạn có chắc muốn thay đổi trạng thái user này?')) {
-                console.log('Toggle status', id);
+        window.deleteUser = async function(id, name) {
+            if (!confirm(`Bạn có chắc chắn muốn XÓA người dùng "${name}"?\n\nHành động này KHÔNG THỂ HOÀN TÁC!`)) {
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/users', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+                
+                const data = await res.json();
+                
+                if (data.error) {
+                    showToast('error', data.message || 'Không thể xóa người dùng');
+                } else {
+                    showToast('success', data.message || 'Xóa người dùng thành công');
+                    // Reload lại trang hiện tại
+                    loadUsers();
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('error', 'Lỗi kết nối: ' + err.message);
             }
         };
 

@@ -155,4 +155,53 @@ class UserController extends Controller
             ]
         ]);
     }
+
+    public function delete(Request $request)
+    {
+        $userId = (int) ($request->input('id') ?? $request->query('id') ?? 0);
+        
+        if ($userId <= 0) {
+            return $this->json([
+                'error' => true,
+                'message' => 'ID người dùng không hợp lệ'
+            ], 400);
+        }
+        
+        $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
+        if ($userId === $currentUserId) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Bạn không thể xóa chính mình'
+            ], 403);
+        }
+        
+        $user = User::findById($userId);
+        if (!$user) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Không tìm thấy người dùng'
+            ], 404);
+        }
+        
+        if ($user->getRole() === 'admin') {
+            return $this->json([
+                'error' => true,
+                'message' => 'Không thể xóa tài khoản Admin. Chỉ có thể xóa User hoặc Moderator.'
+            ], 403);
+        }
+        
+        $result = User::deleteById($userId);
+        
+        if ($result) {
+            return $this->json([
+                'error' => false,
+                'message' => 'Xóa người dùng thành công'
+            ]);
+        } else {
+            return $this->json([
+                'error' => true,
+                'message' => 'Không thể xóa người dùng'
+            ], 500);
+        }
+    }
 }

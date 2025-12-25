@@ -132,7 +132,7 @@ $router->post('/api/daily-rewards/claim', [DailyRewardController::class, 'claim'
 // Users API - solo para admin
 $router->get('/api/users', [App\Controllers\UserController::class, 'index'], [new RoleMiddleware(['admin'])]);
 $router->get('/api/users/profile-stats', [App\Controllers\UserController::class, 'getUserProfileStats'], [new AuthMiddleware()]);
-
+$router->delete('/api/users', [App\Controllers\UserController::class, 'delete'], [new RoleMiddleware(['admin'])]);
 
 // Rewards API
 $router->get('/api/rewards', [RewardController::class, 'apiList']);

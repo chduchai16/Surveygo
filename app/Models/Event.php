@@ -196,7 +196,7 @@ class Event
 
         $ok = $stmt->execute();
         if ($ok) {
-            // refresh object
+            // làm mới đối tượng
             $fresh = self::find($this->id);
             if ($fresh) {
                 $this->tenSuKien = $fresh->tenSuKien;
@@ -221,7 +221,7 @@ class Event
         return $stmt->execute([':id' => $this->id]);
     }
 
-    // Getters
+    // Các phương thức lấy giá trị
     public function getId(): int
     {
         return $this->id;

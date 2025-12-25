@@ -89,6 +89,7 @@ $router->post('/api/surveys/attach-question', [App\Controllers\SurveyController:
 $router->post('/api/surveys/detach-question', [App\Controllers\SurveyController::class, 'detachQuestion'], [new RoleMiddleware(['admin', 'moderator'])]);
 $router->post('/api/surveys/{id}/submit', [App\Controllers\SurveyController::class, 'submit'], [new AuthMiddleware()]); // Submit khảo sát
 $router->get('/api/surveys/{id}/check-submission', [App\Controllers\SurveyController::class, 'checkSubmission'], [new AuthMiddleware()]); // Kiểm tra đã submit chưa
+$router->get('/api/surveys/hourly-stats', [App\Controllers\SurveyController::class, 'getHourlyStats'], [new AuthMiddleware()]); // Lấy thống kê theo giờ
 
 // Question API routes
 $router->get('/api/questions/{id}/answers', [App\Controllers\QuestionController::class, 'getAnswersForQuestion']);
@@ -133,6 +134,8 @@ $router->post('/api/daily-rewards/claim', [DailyRewardController::class, 'claim'
 
 // Users API - solo para admin
 $router->get('/api/users', [App\Controllers\UserController::class, 'index'], [new RoleMiddleware(['admin'])]);
+$router->get('/api/users/profile-stats', [App\Controllers\UserController::class, 'getUserProfileStats'], [new AuthMiddleware()]);
+
 
 // Rewards API
 $router->get('/api/rewards', [RewardController::class, 'apiList']);
@@ -163,6 +166,7 @@ $router->get('/admin/rewards/stats', [RewardController::class, 'adminStats'], [n
 // User Points API
 $router->get('/api/user-points/balance', [UserPointController::class, 'getBalance'], [new AuthMiddleware()]);
 $router->get('/api/user-points/check', [UserPointController::class, 'hasEnoughPoints'], [new AuthMiddleware()]);
+$router->get('/api/user-points/hourly-stats', [UserPointController::class, 'getHourlyStats'], [new AuthMiddleware()]);
 
 // Reward Redemptions API (Client)
 $router->get('/api/redemptions/my', [RewardRedemptionController::class, 'myRedemptions'], [new AuthMiddleware()]);

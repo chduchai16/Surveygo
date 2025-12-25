@@ -90,7 +90,7 @@
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header bg-primary text-white">
+            <div class="modal-header modal-header-admin">
                 <h5 class="modal-title" id="editUserModalLabel">
                     <i class="fas fa-user-edit me-2"></i>Chỉnh sửa thông tin User
                 </h5>
@@ -106,8 +106,9 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label for="edit-email" class="form-label">Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control" id="edit-email" required>
+                        <label for="edit-email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="edit-email" disabled>
+                        <small class="text-muted">Email không thể thay đổi</small>
                     </div>
                     
                     <div class="mb-3">
@@ -217,7 +218,7 @@
                     <td class="text-end pe-4">
                         <div class="btn-group">
                             <button class="btn btn-sm btn-light text-primary" title="Xem" onclick="showToast('info', 'Xem User ${user.id}')"><i class="fas fa-eye"></i></button>
-                            <button class="btn btn-sm btn-light text-success" title="Sửa" onclick="openEditModal(${user.id})">i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-light text-success" title="Sửa" onclick="openEditModal(${user.id})"><i class="fas fa-edit"></i></button>
                             <button class="btn btn-sm btn-light text-danger" title="Xóa" onclick="deleteUser(${user.id}, '${user.name.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button
                         </div>
                     </td>
@@ -388,7 +389,6 @@
         window.submitEditUser = async function() {
             const userId = parseInt(document.getElementById('edit-user-id').value);
             const name = document.getElementById('edit-name').value.trim();
-            const email = document.getElementById('edit-email').value.trim();
             const phone = document.getElementById('edit-phone').value.trim();
             const gender = document.getElementById('edit-gender').value;
             const role = document.getElementById('edit-role').value;
@@ -396,11 +396,6 @@
             // Validation
             if (!name) {
                 showToast('error', 'Tên không được để trống');
-                return;
-            }
-            
-            if (!email || !email.includes('@')) {
-                showToast('error', 'Email không hợp lệ');
                 return;
             }
             
@@ -414,7 +409,6 @@
                     body: JSON.stringify({
                         id: userId,
                         name: name,
-                        email: email,
                         phone: phone,
                         gender: gender,
                         role: role

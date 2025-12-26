@@ -34,6 +34,7 @@ $baseUrl = $baseUrl ?? '';
     <link rel="stylesheet" href="<?= htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8') ?>/public/assets/css/admin/shared/responsive.css">
     <link rel="stylesheet" href="<?= htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8') ?>/public/assets/css/admin/shared/animations.css">
     <link rel="stylesheet" href="<?= htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8') ?>/public/assets/css/admin/components/pagination.css">
+    <link rel="stylesheet" href="<?= htmlspecialchars($baseUrl, ENT_QUOTES, 'UTF-8') ?>/public/assets/css/admin/components/modals.css">
 </head>
 
 <body class="admin-layout">

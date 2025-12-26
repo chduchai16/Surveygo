@@ -87,6 +87,64 @@
     </div>
 </div>
 
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header modal-header-admin">
+                <h5 class="modal-title" id="editUserModalLabel">
+                    <i class="fas fa-user-edit me-2"></i>Chỉnh sửa thông tin User
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editUserForm">
+                    <input type="hidden" id="edit-user-id">
+                    
+                    <div class="mb-3">
+                        <label for="edit-name" class="form-label">Tên <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="edit-name" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="edit-email" disabled>
+                        <small class="text-muted">Email không thể thay đổi</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-phone" class="form-label">Số điện thoại</label>
+                        <input type="tel" class="form-control" id="edit-phone">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-gender" class="form-label">Giới tính</label>
+                        <select class="form-select" id="edit-gender">
+                            <option value="other">Khác</option>
+                            <option value="male">Nam</option>
+                            <option value="female">Nữ</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="edit-role" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                        <select class="form-select" id="edit-role" required>
+                            <option value="user">Người dùng (User)</option>
+                            <option value="moderator">Kiểm duyệt viên (Moderator)</option>
+                            <option value="admin">Quản trị viên (Admin)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                <button type="button" class="btn btn-primary" onclick="submitEditUser()">
+                    <i class="fas fa-save me-2"></i>Lưu thay đổi
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script src="/public/assets/js/admin-helpers.js"></script>
 
 <script>
@@ -160,8 +218,8 @@
                     <td class="text-end pe-4">
                         <div class="btn-group">
                             <button class="btn btn-sm btn-light text-primary" title="Xem" onclick="showToast('info', 'Xem User ${user.id}')"><i class="fas fa-eye"></i></button>
-                            <button class="btn btn-sm btn-light text-success" title="Sửa" onclick="showToast('info', 'Sửa User ${user.id}')"><i class="fas fa-edit"></i></button>
-                            <button class="btn btn-sm btn-light text-danger" title="Khóa" onclick="toggleStatus(${user.id})"><i class="fas fa-trash"></i></button>
+                            <button class="btn btn-sm btn-light text-success" title="Sửa" onclick="openEditModal(${user.id})"><i class="fas fa-edit"></i></button>
+                            <button class="btn btn-sm btn-light text-danger" title="Xóa" onclick="deleteUser(${user.id}, '${user.name.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button
                         </div>
                     </td>
                 </tr>
@@ -262,9 +320,118 @@
             loadUsers();
         };
 
-        window.toggleStatus = function(id) {
-            if(confirm('Bạn có chắc muốn thay đổi trạng thái user này?')) {
-                console.log('Toggle status', id);
+        //Xóa user
+        window.deleteUser = async function(id, name) {
+            if (!confirm(`Bạn có chắc chắn muốn XÓA người dùng "${name}"?\n\nHành động này KHÔNG THỂ HOÀN TÁC!`)) {
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/users', {
+                    method: 'DELETE',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({ id: id })
+                });
+                
+                const data = await res.json();
+                
+                if (data.error) {
+                    showToast('error', data.message || 'Không thể xóa người dùng');
+                } else {
+                    showToast('success', data.message || 'Xóa người dùng thành công');
+                    // Reload lại trang hiện tại
+                    loadUsers();
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('error', 'Lỗi kết nối: ' + err.message);
+            }
+        };
+
+        // Mở modal edit user
+        window.openEditModal = async function(userId) {
+            try {
+                const res = await fetch(`/api/users/show?id=${userId}`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                const data = await res.json();
+                
+                if (data.error) {
+                    showToast('error', data.message || 'Không thể tải thông tin user');
+                    return;
+                }
+                
+                const user = data.data;
+                
+                // Điền dữ liệu vào form
+                document.getElementById('edit-user-id').value = user.id;
+                document.getElementById('edit-name').value = user.name;
+                document.getElementById('edit-email').value = user.email;
+                document.getElementById('edit-phone').value = user.phone || '';
+                document.getElementById('edit-gender').value = user.gender || 'other';
+                document.getElementById('edit-role').value = user.role;
+                
+                // Mở modal
+                const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
+                modal.show();
+                
+            } catch (err) {
+                console.error(err);
+                showToast('error', 'Lỗi kết nối: ' + err.message);
+            }
+        };
+
+        // Submit form 
+        window.submitEditUser = async function() {
+            const userId = parseInt(document.getElementById('edit-user-id').value);
+            const name = document.getElementById('edit-name').value.trim();
+            const phone = document.getElementById('edit-phone').value.trim();
+            const gender = document.getElementById('edit-gender').value;
+            const role = document.getElementById('edit-role').value;
+            
+            // Validation
+            if (!name) {
+                showToast('error', 'Tên không được để trống');
+                return;
+            }
+            
+            try {
+                const res = await fetch('/api/users', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        id: userId,
+                        name: name,
+                        phone: phone,
+                        gender: gender,
+                        role: role
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (data.error) {
+                    showToast('error', data.message || 'Không thể cập nhật user');
+                } else {
+                    showToast('success', data.message || 'Cập nhật thành công');
+                    
+                    // Đóng modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editUserModal'));
+                    modal.hide();
+                    
+                    // Reload table
+                    loadUsers();
+                }
+            } catch (err) {
+                console.error(err);
+                showToast('error', 'Lỗi kết nối: ' + err.message);
             }
         };
 

@@ -19,6 +19,8 @@ class AuthController extends Controller
         $email = strtolower(trim((string) $request->input('email')));
         $password = (string) $request->input('password');
         $role = trim((string) $request->input('role'));
+        $inviteCode = trim((string) $request->input('invite_code')); // Manual input
+        $inviteToken = trim((string) $request->input('invite_token')); // From URL token
 
         if (!$name || !$email || !$password) {
             return $this->json([
@@ -57,26 +59,139 @@ class AuthController extends Controller
             ], 422);
         }
 
+        // Validate invite - prioritize token over code
+        $inviterInvite = null;
+        if ($inviteToken) {
+            // Try to find by token first
+            $inviterInvite = \App\Models\UserInvite::findByToken($inviteToken);
+            if (!$inviterInvite) {
+                return $this->json([
+                    'error' => true,
+                    'message' => 'Link mời không hợp lệ.',
+                ], 422);
+            }
+        } elseif ($inviteCode) {
+            // Fall back to code (manual input)
+            $inviterInvite = \App\Models\UserInvite::findByInviteCode($inviteCode);
+            if (!$inviterInvite) {
+                return $this->json([
+                    'error' => true,
+                    'message' => 'Mã mời không hợp lệ.',
+                ], 422);
+            }
+        }
+
         $hashed = password_hash($password, PASSWORD_BCRYPT);
 
-        $user = User::create([
-            'name' => $name,
-            'email' => $email,
-            'password' => $hashed,
-            'role' => $role,
-            'avatar' => '',
-            'phone' => null,
-            'gender' => 'other',
+        // Create user with invited_by reference
+        $db = Container::get('db');
+        $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
+        
+        $stmt = $db->prepare(
+            'INSERT INTO users (name, avatar, email, phone, password, gender, role, code, invited_by, created_at, updated_at) 
+             VALUES (:name, :avatar, :email, :phone, :password, :gender, :role, :code, :invited_by, :created_at, :updated_at)'
+        );
+        
+        $stmt->execute([
+            ':name' => $name,
+            ':avatar' => '',
+            ':email' => $email,
+            ':phone' => null,
+            ':password' => $hashed,
+            ':gender' => 'other',
+            ':role' => $role,
+            ':code' => '',
+            ':invited_by' => $inviterInvite ? $inviterInvite->getUserId() : null,
+            ':created_at' => $now,
+            ':updated_at' => $now,
         ]);
+
+        $newUserId = (int) $db->lastInsertId();
+        
+        // Update user code
+        if ($newUserId > 0) {
+            $code = 'US' . str_pad((string) $newUserId, 3, '0', STR_PAD_LEFT);
+            $upd = $db->prepare('UPDATE users SET code = :code WHERE id = :id');
+            $upd->execute([':code' => $code, ':id' => $newUserId]);
+        }
+
+        $user = User::findById($newUserId);
+
+        // Process referral rewards if invite code was used
+    if ($inviterInvite && $user) {
+        try {
+            $rewardAmount = 500; // 500 points for both parties
+            
+            // Create invite record for new user (generate their own invite code)
+            \App\Models\UserInvite::create($newUserId);
+            
+            // Award points to new user using PointTransaction
+            \App\Models\PointTransaction::addPoints(
+                $newUserId, 
+                $rewardAmount, 
+                'referral_bonus', 
+                null, 
+                'Thưởng đăng ký qua mã mời'
+            );
+            
+            // Award points to inviter using PointTransaction
+            \App\Models\PointTransaction::addPoints(
+                $inviterInvite->getUserId(), 
+                $rewardAmount, 
+                'referral_bonus', 
+                null, 
+                'Thưởng giới thiệu thành công'
+            );
+            
+            // Update inviter's referral stats
+            $inviterInvite->incrementInviteCount();
+            $inviterInvite->addRewards($rewardAmount);
+            
+            // Log activity for inviter only
+            $inviterUser = User::findById($inviterInvite->getUserId());
+            if ($inviterUser) {
+                // Log for inviter: "Bạn đã mời {new user name}, cộng 500 điểm"
+                ActivityLogHelper::logReferralInviter(
+                    $inviterInvite->getUserId(), 
+                    $newUserId, 
+                    $user->getName(), 
+                    $rewardAmount
+                );
+                
+                // Log for invitee (new user): "Bạn đã đăng ký thông qua mã mời của {inviter name}"
+                ActivityLogHelper::logReferralInvitee(
+                    $newUserId,
+                    $inviterInvite->getUserId(),
+                    $inviterUser->getName(),
+                    $rewardAmount
+                );
+            }
+            
+        } catch (\Exception $e) {
+            // Log error but don't fail registration
+            error_log('Referral reward error: ' . $e->getMessage());
+            error_log('Stack trace: ' . $e->getTraceAsString());
+            error_log('Error code: ' . $e->getCode());
+        }
+    } else {
+        // Create invite record for new user even if no invite code was used
+        try {
+            \App\Models\UserInvite::create($newUserId);
+        } catch (\Exception $e) {
+            error_log('Failed to create invite record: ' . $e->getMessage());
+        }
+    }
 
         return $this->json([
             'error' => false,
             'message' => 'Registration successful.',
             'data' => [
                 'user' => $user->toArray(),
+                'referral_bonus' => $inviterInvite ? $rewardAmount : 0,
             ],
         ], 201);
     }
+
 
     public function login(Request $request)
     {

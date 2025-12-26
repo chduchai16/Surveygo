@@ -423,15 +423,19 @@
                     'reward_created': 'Tạo phần thưởng',
                     'reward_updated': 'Cập nhật phần thưởng',
                     'reward_deleted': 'Xóa phần thưởng',
+                    'referral_registered': 'đăng ký qua mã mời',
                 };
                 return translations[action] || action.replace(/_/g, ' ');
             };
             
             try {
-                const response = await fetch('/api/admin/activity-logs?limit=5');
+                const response = await fetch('/api/admin/activity-logs?limit=10');
                 const result = await response.json();
                 
                 if (result.success && result.data && result.data.length > 0) {
+                    // Filter out referral_invite_success
+                    const filteredData = result.data.filter(activity => activity.action !== 'referral_invite_success');
+                    
                     const actionIcons = {
                         'survey_submitted': { icon: 'fas fa-check-circle', color: 'success' },
                         'survey_created': { icon: 'fas fa-plus-circle', color: 'primary' },
@@ -439,14 +443,26 @@
                         'question_created': { icon: 'fas fa-lightbulb', color: 'warning' },
                         'participated_event': { icon: 'fas fa-calendar-check', color: 'success' },
                         'reward_redeemed': { icon: 'fas fa-gift', color: 'danger' },
-                        'profile_updated': { icon: 'fas fa-user-edit', color: 'info' }
+                        'profile_updated': { icon: 'fas fa-user-edit', color: 'info' },
+                        'referral_registered': { icon: 'fas fa-user-check', color: 'primary' }
                     };
                     
-                    activityList.innerHTML = result.data.map(activity => {
+                    activityList.innerHTML = filteredData.slice(0, 5).map(activity => {
                         const iconConfig = actionIcons[activity.action] || { icon: 'fas fa-history', color: 'secondary' };
                         const createdDate = new Date(activity.created_at);
                         const timeText = createdDate.toLocaleString('vi-VN');
                         const translatedAction = translateAction(activity.action);
+                        
+                        // Custom formatting for referral_registered
+                        let displayText;
+                        if (activity.action === 'referral_registered' && activity.description) {
+                            // Extract inviter name from description: "Bạn đã đăng ký thông qua mã mời của X"
+                            const match = activity.description.match(/của\s+(.+)$/);
+                            const inviterName = match ? match[1] : 'Unknown';
+                            displayText = `<strong>${activity.user_name || 'Unknown'}</strong> đã đăng ký qua mã mời của <strong>${inviterName}</strong>`;
+                        } else {
+                            displayText = `<strong>${activity.user_name || 'Unknown'}</strong> ${translatedAction}`;
+                        }
                         
                         return `
                             <li class="list-group-item border-0 py-3">
@@ -455,7 +471,7 @@
                                         <i class="${iconConfig.icon}"></i>
                                     </div>
                                     <div class="flex-grow-1">
-                                        <div class="small"><strong>${activity.user_name || 'Unknown'}</strong> ${translatedAction}</div>
+                                        <div class="small">${displayText}</div>
                                         <div class="text-muted" style="font-size: 0.75rem;">${timeText}</div>
                                     </div>
                                 </div>

@@ -1,0 +1,14 @@
+/* Admin Modal Styles */
+.modal-header-admin {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: white;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-header-admin .btn-close {
+    filter: invert(1) grayscale(100%) brightness(200%);
+}
+
+.modal-header-admin .modal-title {
+    font-weight: 600;
+}

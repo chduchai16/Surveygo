@@ -76,6 +76,30 @@ class ActivityLogHelper
     }
 
     /**
+     * Log when user successfully invites someone (inviter side)
+     */
+    public static function logReferralInviter(int $inviterId, int $invitedUserId, string $invitedUserName, int $points): void
+    {
+        self::getInstance()->log($inviterId, 'referral_invite_success', [
+            'entity_type' => 'user',
+            'entity_id' => $invitedUserId,
+            'description' => sprintf('Bạn đã mời %s, cộng %d điểm', $invitedUserName, $points),
+        ]);
+    }
+
+    /**
+     * Log when user registers via invite (invitee side)
+     */
+    public static function logReferralInvitee(int $inviteeId, int $inviterId, string $inviterName, int $points): void
+    {
+        self::getInstance()->log($inviteeId, 'referral_registered', [
+            'entity_type' => 'user',
+            'entity_id' => $inviterId,
+            'description' => sprintf('Bạn đã đăng ký thông qua mã mời của %s', $inviterName),
+        ]);
+    }
+
+    /**
      * Dịch action thành tiếng Việt
      */
     public static function translateAction(string $action): string
@@ -99,6 +123,8 @@ class ActivityLogHelper
             'reward_created' => 'Tạo phần thưởng',
             'reward_updated' => 'Cập nhật phần thưởng',
             'reward_deleted' => 'Xóa phần thưởng',
+            'referral_invite_success' => 'Giới thiệu thành công',
+            'referral_registered' => 'Đăng ký qua mời',
         ];
 
         return $translations[$action] ?? ucfirst(str_replace('_', ' ', $action));

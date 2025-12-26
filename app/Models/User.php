@@ -100,6 +100,55 @@ class User
         return new self($row);
     }
 
+    public static function deleteById(int $id): bool
+    {
+        $db = Container::get('db');
+    
+        try {
+            $stmt = $db->prepare('DELETE FROM users WHERE id = :id');
+            return $stmt->execute([':id' => $id]);
+        } catch (\Exception $e) {
+            error_log('Failed to delete user: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public function update(): bool
+    {
+        /** @var PDO $db */
+        $db = Container::get('db');
+        
+        try {
+            $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
+            
+            $stmt = $db->prepare(
+                'UPDATE users SET 
+                    name = :name,
+                    email = :email,
+                    phone = :phone,
+                    gender = :gender,
+                    role = :role,
+                    avatar = :avatar,
+                    updated_at = :updated_at
+                WHERE id = :id'
+            );
+            
+            return $stmt->execute([
+                ':name' => $this->name,
+                ':email' => $this->email,
+                ':phone' => $this->phone,
+                ':gender' => $this->gender,
+                ':role' => $this->role,
+                ':avatar' => $this->avatar,
+                ':updated_at' => $now,
+                ':id' => $this->id
+            ]);
+        } catch (\Exception $e) {
+            error_log('Failed to update user: ' . $e->getMessage());
+            return false;
+        }
+    }
+
     public function verifyPassword(string $password): bool
     {
         return password_verify($password, $this->password);
@@ -123,6 +172,11 @@ class User
     public function getGender(): ?string
     {
         return $this->gender;
+    }
+
+    public function setGender(?string $gender): void
+    {
+        $this->gender = $gender;
     }
 
     public function getCode(): string
@@ -194,6 +248,7 @@ class User
     {
         $this->updatedAt = $updatedAt;
     }
+    
 
     public function toArray(): array
     {

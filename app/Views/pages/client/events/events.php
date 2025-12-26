@@ -88,11 +88,16 @@ $userData = [
                             <i class="fas fa-user-group"></i>
                         </div>
                         <h4 class="card-title">Mời Bạn Bè</h4>
-                        <p class="card-desc">
-                            Nhận <strong>500</strong> điểm cho mỗi người bạn mời đăng ký và tham gia.
-                        </p>
-                        <a href="#" class="btn btn-outline-accent w-100">Lấy link mời</a>
+                        <p class="card-desc">Nhận <strong>500</strong> điểm cho mỗi người bạn mời thành công.</p>
+                        <div class="referral-stats mb-2" style="font-size: 0.875rem; color: var(--hub-text-secondary, #64748b);">
+                            <div>Đã mời: <strong id="sidebar-invited-count">0</strong> người</div>
+                            <div>Thưởng: <strong id="sidebar-total-rewards">0đ</strong></div>
+                        </div>
+                        <button type="button" class="btn btn-secondary-accent w-100" id="btn-get-invite-link">
+                            <i class="fas fa-link me-1"></i>Lấy link mời
+                        </button>
                     </div>
+
                 </div>
             </div>
         </div>
@@ -690,4 +695,196 @@ $userData = [
             font-weight: 600;
         }
     </style>
+
+    <!-- Invite Modal -->
+    <div class="modal fade custom-modal" id="inviteModal" tabindex="-1" aria-labelledby="inviteModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="inviteModalLabel">
+                        <i class="fas fa-user-plus me-2"></i>Mời Bạn Bè
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <!-- Invite Code Section -->
+                    <div class="invite-section mb-4">
+                        <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Mã mời của bạn:</label>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <div style="flex: 1; background: var(--hub-card-bg, #f8fafc); padding: 1rem; border-radius: 8px; border: 2px dashed var(--primary-color); text-align: center;">
+                                <span id="invite-code-display" style="font-size: 1.75rem; font-weight: 700; letter-spacing: 0.2em; color: var(--primary-color);">------</span>
+                            </div>
+                            <button class="btn btn-primary" id="copy-code-btn" style="height: fit-content;">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Invite Link Section -->
+                    <div class="invite-section mb-4">
+                        <label style="font-weight: 600; margin-bottom: 0.5rem; display: block;">Link mời của bạn:</label>
+                        <div style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="text" 
+                                   readonly 
+                                   id="invite-link-display" 
+                                   class="form-control" 
+                                   value="---"
+                                   style="font-size: 0.875rem; cursor: pointer;"
+                                   onclick="this.select()">
+                            <button class="btn btn-primary" id="copy-link-btn" style="height: fit-content;">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Statistics Section -->
+                    <div class="invite-stats" style="background: var(--hub-card-bg, #f8fafc); padding: 1rem; border-radius: 8px;">
+                        <div style="display: flex; justify-content: space-around; text-align: center;">
+                            <div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--primary-color);" id="modal-invited-count">0</div>
+                                <div style="font-size: 0.875rem; color: var(--hub-text-secondary, #64748b);">Người đã mời</div>
+                            </div>
+                            <div style="border-left: 1px solid var(--hub-card-border, #e2e8f0);"></div>
+                            <div>
+                                <div style="font-size: 1.5rem; font-weight: 700; color: var(--secondary-accent);" id="modal-total-rewards">0đ</div>
+                                <div style="font-size: 0.875rem; color: var(--hub-text-secondary, #64748b);">Tổng thưởng</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="alert alert-info mt-3 mb-0" style="font-size: 0.875rem;">
+                        <i class="fas fa-info-circle me-1"></i>
+                        Chia sẻ mã mời hoặc link với bạn bè. Khi họ đăng ký thành công, cả hai sẽ nhận <strong>500 điểm</strong>!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Get user from localStorage
+            let user = null;
+            try {
+                const raw = localStorage.getItem('app.user');
+                user = raw ? JSON.parse(raw) : null;
+            } catch (e) {
+                console.error("Error reading user from localStorage", e);
+            }
+
+            // Fetch and update referral stats in sidebar
+            function fetchReferralStats() {
+                if (user && user.id) {
+                    fetch('/api/invites/stats?userId=' + user.id)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (!data.error && data.data) {
+                                document.getElementById('sidebar-invited-count').textContent = data.data.invited_count || 0;
+                                document.getElementById('sidebar-total-rewards').textContent = (data.data.total_rewards || 0) + 'đ';
+                            }
+                        })
+                        .catch(err => console.error('Error fetching referral stats:', err));
+                }
+            }
+
+            // Fetch stats on page load
+            fetchReferralStats();
+
+            // Handle "Lấy link mời" button click
+            const btnGetInvite = document.getElementById('btn-get-invite-link');
+            if (btnGetInvite) {
+                btnGetInvite.addEventListener('click', function() {
+                    if (!user || !user.id) {
+                        alert('Bạn cần đăng nhập để lấy link mời!');
+                        window.location.href = '/login';
+                        return;
+                    }
+
+                    // Fetch invite data
+                    fetch('/api/invites/my-invite?userId=' + user.id)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.error) {
+                                alert(data.message || 'Có lỗi xảy ra!');
+                                return;
+                            }
+
+                            // Populate modal with data
+                            document.getElementById('invite-code-display').textContent = data.data.invite_code || '------';
+                            document.getElementById('invite-link-display').value = data.data.invite_link || '---';
+                            document.getElementById('modal-invited-count').textContent = data.data.invited_count || 0;
+                            document.getElementById('modal-total-rewards').textContent = (data.data.total_rewards || 0) + 'đ';
+
+                            // Show modal
+                            var modal = new bootstrap.Modal(document.getElementById('inviteModal'));
+                            modal.show();
+                        })
+                        .catch(err => {
+                            console.error('Error fetching invite:', err);
+                            alert('Có lỗi xảy ra khi lấy thông tin mã mời!');
+                        });
+                });
+            }
+
+            // Copy invite code button
+            const copyCodeBtn = document.getElementById('copy-code-btn');
+            if (copyCodeBtn) {
+                copyCodeBtn.addEventListener('click', function() {
+                    const code = document.getElementById('invite-code-display').textContent;
+                    if (code && code !== '------') {
+                        navigator.clipboard.writeText(code)
+                            .then(() => {
+                                // Show success feedback
+                                const icon = this.querySelector('i');
+                                icon.classList.remove('fa-copy');
+                                icon.classList.add('fa-check');
+                                this.classList.add('btn-success');
+                                this.classList.remove('btn-primary');
+                                
+                                setTimeout(() => {
+                                    icon.classList.remove('fa-check');
+                                    icon.classList.add('fa-copy');
+                                    this.classList.remove('btn-success');
+                                    this.classList.add('btn-primary');
+                                }, 2000);
+                            })
+                            .catch(err => {
+                                console.error('Copy failed:', err);
+                                alert('Không thể sao chép. Vui lòng thử lại!');
+                            });
+                    }
+                });
+            }
+
+            // Copy invite link button
+            const copyLinkBtn = document.getElementById('copy-link-btn');
+            if (copyLinkBtn) {
+                copyLinkBtn.addEventListener('click', function() {
+                    const linkInput = document.getElementById('invite-link-display');
+                    linkInput.select();
+                    
+                    navigator.clipboard.writeText(linkInput.value)
+                        .then(() => {
+                            // Show success feedback
+                            const icon = this.querySelector('i');
+                            icon.classList.remove('fa-copy');
+                            icon.classList.add('fa-check');
+                            this.classList.add('btn-success');
+                            this.classList.remove('btn-primary');
+                            
+                            setTimeout(() => {
+                                icon.classList.remove('fa-check');
+                                icon.classList.add('fa-copy');
+                                this.classList.remove('btn-success');
+                                this.classList.add('btn-primary');
+                            }, 2000);
+                        })
+                        .catch(err => {
+                            console.error('Copy failed:', err);
+                            alert('Không thể sao chép. Vui lòng thử lại!');
+                        });
+                });
+            }
+        });
+    </script>
 </main>

@@ -176,9 +176,18 @@ class UserController extends Controller
             ], 404);
         }
         
+        $userPoint = \App\Models\UserPoint::findByUserId($userId);
+        
+        $userData = $user->toArray();
+        $userData['points'] = [
+            'balance' => $userPoint ? $userPoint->getBalance() : 0,
+            'total_earned' => $userPoint ? $userPoint->getTotalEarned() : 0,
+            'lucky_wheel_spins' => $userPoint ? $userPoint->getLuckyWheelSpins() : 0
+        ];
+
         return $this->json([
             'error' => false,
-            'data' => $user->toArray()
+            'data' => $userData
         ]);
     }
 
@@ -215,23 +224,6 @@ class UserController extends Controller
             ], 400);
         }
         
-        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return $this->json([
-                'error' => true,
-                'message' => 'Email không hợp lệ'
-            ], 400);
-        }
-        
-        if ($email !== $user->getEmail()) {
-            $existingUser = User::findByEmail($email);
-            if ($existingUser && $existingUser->getId() !== $userId) {
-                return $this->json([
-                    'error' => true,
-                    'message' => 'Email đã được sử dụng bởi người dùng khác'
-                ], 400);
-            }
-        }
-        
         // Không cho phép admin tự thay đổi role của chính mình
         $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
         if ($userId === $currentUserId && $role !== $user->getRole()) {
@@ -243,7 +235,7 @@ class UserController extends Controller
         
         // Cập nhật thông tin
         $user->setName($name);
-        $user->setEmail($email);
+        // Email không được phép thay đổi
         $user->setPhone($phone);
         $user->setRole($role);
         

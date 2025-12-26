@@ -100,22 +100,8 @@ class User
         return new self($row);
     }
 
-    public static function deleteById(int $id): bool
-    {
-        $db = Container::get('db');
-    
-        try {
-            $stmt = $db->prepare('DELETE FROM users WHERE id = :id');
-            return $stmt->execute([':id' => $id]);
-        } catch (\Exception $e) {
-            error_log('Failed to delete user: ' . $e->getMessage());
-            return false;
-        }
-    }
-
     public function update(): bool
     {
-        /** @var PDO $db */
         $db = Container::get('db');
         
         try {
@@ -145,6 +131,19 @@ class User
             ]);
         } catch (\Exception $e) {
             error_log('Failed to update user: ' . $e->getMessage());
+            return false;
+        }
+    }
+
+    public static function deleteById(int $id): bool
+    {
+        $db = Container::get('db');
+    
+        try {
+            $stmt = $db->prepare('DELETE FROM users WHERE id = :id');
+            return $stmt->execute([':id' => $id]);
+        } catch (\Exception $e) {
+            error_log('Failed to delete user: ' . $e->getMessage());
             return false;
         }
     }
@@ -248,7 +247,6 @@ class User
     {
         $this->updatedAt = $updatedAt;
     }
-    
 
     public function toArray(): array
     {

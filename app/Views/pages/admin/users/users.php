@@ -87,6 +87,7 @@
     </div>
 </div>
 
+
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -126,7 +127,7 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label for="edit-role" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                        <label for="edit-role" class="form-label">Vai trò</label>
                         <select class="form-select" id="edit-role" required>
                             <option value="user">Người dùng (User)</option>
                             <option value="moderator">Kiểm duyệt viên (Moderator)</option>
@@ -140,6 +141,73 @@
                 <button type="button" class="btn btn-primary" onclick="submitEditUser()">
                     <i class="fas fa-save me-2"></i>Lưu thay đổi
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="viewUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header modal-header-admin">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-circle me-2"></i>Chi tiết User
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <img id="view-avatar" src="" alt="Avatar" class="rounded-circle mb-2 shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+                    <h5 id="view-name" class="mb-0 fw-bold"></h5>
+                    <p id="view-code" class="text-muted small mb-0"></p>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Email</label>
+                        <div id="view-email" class="fw-medium text-break"></div>
+                    </div>
+                     <div class="col-6">
+                        <label class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Số điện thoại</label>
+                        <div id="view-phone" class="fw-medium"></div>
+                    </div>
+                    <div class="col-6">
+                        <label class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Giới tính</label>
+                        <div id="view-gender" class="fw-medium"></div>
+                    </div>
+                    <div class="col-6">
+                        <label class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Vai trò</label>
+                        <div id="view-role" class="fw-medium"></div>
+                    </div>
+                </div>
+                
+                <hr class="my-3 opacity-10">
+                
+                <!-- Phần Điểm số -->
+                <h6 class="fw-bold mb-3 small text-uppercase text-secondary"><i class="fas fa-coins me-2 text-warning"></i>Thông tin điểm & Thưởng</h6>
+                <div class="row g-3">
+                    <div class="col-4">
+                        <div class="p-2 border rounded bg-light text-center h-100">
+                            <div class="small text-muted mb-1">Điểm hiện tại</div>
+                            <div id="view-points-balance" class="fw-bold text-primary fs-5">0</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 border rounded bg-light text-center h-100">
+                            <div class="small text-muted mb-1">Tổng tích lũy</div>
+                            <div id="view-points-total" class="fw-bold text-success fs-5">0</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 border rounded bg-light text-center h-100">
+                            <div class="small text-muted mb-1">Lượt quay</div>
+                             <div id="view-spins" class="fw-bold text-info fs-5">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -217,7 +285,7 @@
                     <td><small class="text-muted">${user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('vi-VN') : '-'}</small></td>
                     <td class="text-end pe-4">
                         <div class="btn-group">
-                            <button class="btn btn-sm btn-light text-primary" title="Xem" onclick="showToast('info', 'Xem User ${user.id}')"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-light text-primary" title="Xem" onclick="openViewModal(${user.id})"><i class="fas fa-eye"></i></button>
                             <button class="btn btn-sm btn-light text-success" title="Sửa" onclick="openEditModal(${user.id})"><i class="fas fa-edit"></i></button>
                             <button class="btn btn-sm btn-light text-danger" title="Xóa" onclick="deleteUser(${user.id}, '${user.name.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button
                         </div>
@@ -382,6 +450,52 @@
             } catch (err) {
                 console.error(err);
                 showToast('error', 'Lỗi kết nối: ' + err.message);
+            }
+        };
+
+        window.openViewModal = async function(userId) {
+            try {
+                const res = await fetch(`/api/users/show?id=${userId}`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                const data = await res.json();
+                
+                if (data.error) {
+                    showToast('error', data.message || 'Không thể tải thông tin user');
+                    return;
+                }
+                
+                const user = data.data;
+                const points = user.points || { balance: 0, total_earned: 0, lucky_wheel_spins: 0 };
+                
+                // Fill Data
+                // Use a default avatar if none exists
+                const avatarUrl = user.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=random&color=fff&size=128';
+                document.getElementById('view-avatar').src = avatarUrl;
+                
+                document.getElementById('view-name').textContent = user.name;
+                document.getElementById('view-code').textContent = user.code || `ID: ${user.id}`;
+                document.getElementById('view-email').textContent = user.email;
+                document.getElementById('view-phone').textContent = user.phone || 'Chưa cập nhật';
+                document.getElementById('view-gender').textContent = GenderLabel[user.gender] || 'Khác';
+                
+                // Role badge
+                const roleMap = { 'admin': 'Admin', 'moderator': 'Moderator', 'user': 'User' };
+                const roleBadgeClass = user.role === 'admin' ? 'bg-danger' : (user.role === 'moderator' ? 'bg-warning text-dark' : 'bg-primary');
+                document.getElementById('view-role').innerHTML = `<span class="badge ${roleBadgeClass}">${roleMap[user.role] || user.role}</span>`;
+                
+                // Points
+                document.getElementById('view-points-balance').textContent = new Intl.NumberFormat('en-US').format(points.balance);
+                document.getElementById('view-points-total').textContent = new Intl.NumberFormat('en-US').format(points.total_earned);
+                document.getElementById('view-spins').textContent = points.lucky_wheel_spins;
+                
+                const modal = new bootstrap.Modal(document.getElementById('viewUserModal'));
+                modal.show();
+                
+            } catch (err) {
+                console.error(err);
+                showToast('error', 'Lỗi tải dữ liệu: ' + err.message);
             }
         };
 

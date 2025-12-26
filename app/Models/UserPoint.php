@@ -134,6 +134,45 @@ class UserPoint
         return $this->luckyWheelSpins;
     }
     
+    public function setBalance(int $balance): void
+    {
+        $this->balance = $balance;
+    }
+
+    public function setLuckyWheelSpins(int $spins): void
+    {
+        $this->luckyWheelSpins = $spins;
+    }
+
+    public function setTotalEarned(int $total): void
+    {
+        $this->totalEarned = $total;
+    }
+
+    public function update(): bool
+    {
+        $db = Container::get('db');
+        try {
+            $stmt = $db->prepare(
+                'UPDATE user_points 
+                 SET balance = :balance,
+                     total_earned = :total_earned,
+                     lucky_wheel_spins = :lucky_wheel_spins,
+                     updated_at = NOW()
+                 WHERE user_id = :user_id'
+            );
+            return $stmt->execute([
+                ':balance' => $this->balance,
+                ':total_earned' => $this->totalEarned,
+                ':lucky_wheel_spins' => $this->luckyWheelSpins,
+                ':user_id' => $this->userId
+            ]);
+        } catch (\Exception $e) {
+            error_log('Failed to update user points: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
     public function toArray(): array
     {
         return [
@@ -141,6 +180,7 @@ class UserPoint
             'user_id' => $this->userId,
             'balance' => $this->balance,
             'total_earned' => $this->totalEarned,
+            'lucky_wheel_spins' => $this->luckyWheelSpins,
             'created_at' => $this->createdAt,
             'updated_at' => $this->updatedAt,
         ];

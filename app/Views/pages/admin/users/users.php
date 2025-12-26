@@ -4,8 +4,8 @@
             <h4 class="mb-1">Quản lý Người dùng</h4>
             <p class="text-muted mb-0">Danh sách tài khoản và phân quyền hệ thống</p>
         </div>
-        <button class="btn btn-primary" onclick="showToast('info', 'Chức năng tạo mới đang phát triển')">
-            <i class="fas fa-plus me-2"></i>Tạo user mới
+        <button class="btn btn-primary" onclick="openCreateModal()">
+            <i class="fas fa-plus me-2"></i>Thêm người dùng
         </button>
     </div>
 
@@ -87,6 +87,58 @@
     </div>
 </div>
 
+
+    <!-- Create User Modal -->
+    <div class="modal fade" id="createUserModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-header-admin">
+                    <h5 class="modal-title text-white">Thêm người dùng mới</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="create-user-form">
+                        <div class="mb-3">
+                            <label for="create-name" class="form-label">Họ tên <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="create-name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="create-email" class="form-label">Email <span class="text-danger">*</span></label>
+                            <input type="email" class="form-control" id="create-email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="create-password" class="form-label">Mật khẩu <span class="text-danger">*</span></label>
+                            <input type="password" class="form-control" id="create-password" required minlength="6">
+                        </div>
+                        <div class="mb-3">
+                            <label for="create-phone" class="form-label">Số điện thoại</label>
+                            <input type="text" class="form-control" id="create-phone">
+                        </div>
+                        <div class="mb-3">
+                            <label for="create-gender" class="form-label">Giới tính</label>
+                            <select class="form-select" id="create-gender">
+                                <option value="male">Nam</option>
+                                <option value="female">Nữ</option>
+                                <option value="other" selected>Khác</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="create-role" class="form-label">Vai trò</label>
+                            <select class="form-select" id="create-role">
+                                <option value="user" selected>Người dùng (User)</option>
+                                <option value="moderator">Kiểm duyệt viên (Moderator)</option>
+                            </select>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <button type="button" class="btn btn-primary" onclick="submitCreateUser()">Tạo mới</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
 <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -126,12 +178,28 @@
                     </div>
                     
                     <div class="mb-3">
-                        <label for="edit-role" class="form-label">Vai trò <span class="text-danger">*</span></label>
+                        <label for="edit-role" class="form-label">Vai trò</label>
                         <select class="form-select" id="edit-role" required>
                             <option value="user">Người dùng (User)</option>
                             <option value="moderator">Kiểm duyệt viên (Moderator)</option>
                             <option value="admin">Quản trị viên (Admin)</option>
                         </select>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-6">
+                            <label for="edit-points" class="form-label">Điểm số</label>
+                            <input type="number" class="form-control" id="edit-points" min="0">
+                        </div>
+                        <div class="col-6">
+                            <label for="edit-spins" class="form-label">Lượt quay</label>
+                            <input type="number" class="form-control" id="edit-spins" min="0">
+                        </div>
+                    </div>
+
+                    <div class="mb-3 d-none" id="admin-confirm-container">
+                        <label for="admin-confirm-password" class="form-label text-danger fw-bold">Xác nhận mật khẩu Admin</label>
+                        <input type="password" class="form-control border-danger" id="admin-confirm-password" placeholder="Nhập mật khẩu admin của bạn để thực hiện hành động này">
                     </div>
                 </form>
             </div>
@@ -140,6 +208,77 @@
                 <button type="button" class="btn btn-primary" onclick="submitEditUser()">
                     <i class="fas fa-save me-2"></i>Lưu thay đổi
                 </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="viewUserModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header modal-header-admin">
+                <h5 class="modal-title">
+                    <i class="fas fa-user-circle me-2"></i>Chi tiết User
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <img id="view-avatar" src="" alt="Avatar" class="rounded-circle mb-2 shadow-sm" style="width: 80px; height: 80px; object-fit: cover;">
+                    <h5 id="view-name" class="mb-0 fw-bold"></h5>
+                    <p id="view-code" class="text-muted small mb-0"></p>
+                </div>
+                
+                <div class="row g-3">
+                    <div class="col-6">
+                        <label class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Email</label>
+                        <div id="view-email" class="fw-medium text-break"></div>
+                    </div>
+                     <div class="col-6">
+                        <label class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Số điện thoại</label>
+                        <div id="view-phone" class="fw-medium"></div>
+                    </div>
+                    <div class="col-6">
+                        <label class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Giới tính</label>
+                        <div id="view-gender" class="fw-medium"></div>
+                    </div>
+                    <div class="col-6">
+                        <label class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Vai trò</label>
+                        <div id="view-role" class="fw-medium"></div>
+                    </div>
+                    <div class="col-12 border-top pt-2 mt-2">
+                        <label class="small text-muted text-uppercase fw-bold" style="font-size: 0.7rem;">Ngày tham gia</label>
+                        <div id="view-created-at" class="fw-medium"></div>
+                    </div>
+                </div>
+                
+                <hr class="my-3 opacity-10">
+                
+                <!-- Phần Điểm số -->
+                <h6 class="fw-bold mb-3 small text-uppercase text-secondary"><i class="fas fa-coins me-2 text-warning"></i>Thông tin điểm & Thưởng</h6>
+                <div class="row g-3">
+                    <div class="col-4">
+                        <div class="p-2 border rounded bg-light text-center h-100">
+                            <div class="small text-muted mb-1">Điểm hiện tại</div>
+                            <div id="view-points-balance" class="fw-bold text-primary fs-5">0</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 border rounded bg-light text-center h-100">
+                            <div class="small text-muted mb-1">Tổng tích lũy</div>
+                            <div id="view-points-total" class="fw-bold text-success fs-5">0</div>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="p-2 border rounded bg-light text-center h-100">
+                            <div class="small text-muted mb-1">Lượt quay</div>
+                             <div id="view-spins" class="fw-bold text-info fs-5">0</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-top-0 pt-0">
+                <button type="button" class="btn btn-secondary w-100" data-bs-dismiss="modal">Đóng</button>
             </div>
         </div>
     </div>
@@ -217,7 +356,7 @@
                     <td><small class="text-muted">${user.joinedAt ? new Date(user.joinedAt).toLocaleDateString('vi-VN') : '-'}</small></td>
                     <td class="text-end pe-4">
                         <div class="btn-group">
-                            <button class="btn btn-sm btn-light text-primary" title="Xem" onclick="showToast('info', 'Xem User ${user.id}')"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-light text-primary" title="Xem" onclick="openViewModal(${user.id})"><i class="fas fa-eye"></i></button>
                             <button class="btn btn-sm btn-light text-success" title="Sửa" onclick="openEditModal(${user.id})"><i class="fas fa-edit"></i></button>
                             <button class="btn btn-sm btn-light text-danger" title="Xóa" onclick="deleteUser(${user.id}, '${user.name.replace(/'/g, "\\'")}')"><i class="fas fa-trash"></i></button
                         </div>
@@ -351,6 +490,72 @@
             }
         };
 
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadUsers();
+        });
+
+        // Open create user modal
+        window.openCreateModal = function() {
+            document.getElementById('create-user-form').reset();
+            const modal = new bootstrap.Modal(document.getElementById('createUserModal'));
+            modal.show();
+        };
+
+        // Submit create user form
+        window.submitCreateUser = async function() {
+            const name = document.getElementById('create-name').value.trim();
+            const email = document.getElementById('create-email').value.trim();
+            const password = document.getElementById('create-password').value;
+            const phone = document.getElementById('create-phone').value.trim();
+            const gender = document.getElementById('create-gender').value;
+            const role = document.getElementById('create-role').value;
+
+            // Simple validation
+            if (!name || !email || !password) {
+                showToast('error', 'Vui lòng điền đầy đủ các trường bắt buộc');
+                return;
+            }
+
+            if (password.length < 6) {
+                showToast('error', 'Mật khẩu phải có ít nhất 6 ký tự');
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        name: name,
+                        email: email,
+                        password: password,
+                        phone: phone,
+                        gender: gender,
+                        role: role
+                    })
+                });
+
+                const data = await res.json();
+
+                if (data.error) {
+                    showToast('error', data.message || 'Có lỗi xảy ra khi tạo người dùng');
+                } else {
+                    showToast('success', 'Tạo người dùng thành công');
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('createUserModal'));
+                    modal.hide();
+                    loadUsers(); // Reload current page
+                }
+
+            } catch (err) {
+                console.error(err);
+                showToast('error', 'Lỗi kết nối: ' + err.message);
+            }
+        };
+
         // Mở modal edit user
         window.openEditModal = async function(userId) {
             try {
@@ -366,6 +571,7 @@
                 }
                 
                 const user = data.data;
+                const points = user.points || { balance: 0, total_earned: 0, lucky_wheel_spins: 0 };
                 
                 // Điền dữ liệu vào form
                 document.getElementById('edit-user-id').value = user.id;
@@ -374,6 +580,52 @@
                 document.getElementById('edit-phone').value = user.phone || '';
                 document.getElementById('edit-gender').value = user.gender || 'other';
                 document.getElementById('edit-role').value = user.role;
+                
+                document.getElementById('edit-points').value = points.balance;
+                document.getElementById('edit-spins').value = points.lucky_wheel_spins;
+
+                // Reset admin password confirmation
+                const adminPassInput = document.getElementById('admin-confirm-password');
+                const adminPassContainer = document.getElementById('admin-confirm-container');
+                adminPassInput.value = '';
+                adminPassContainer.classList.add('d-none');
+                
+                // Store initial values
+                document.getElementById('edit-role').dataset.initialRole = user.role;
+                document.getElementById('edit-points').dataset.initialPoints = points.balance;
+                document.getElementById('edit-spins').dataset.initialSpins = points.lucky_wheel_spins;
+
+                // Function to check if we need admin password
+                function checkAdminAuthRequirement() {
+                    const roleSelect = document.getElementById('edit-role');
+                    const pointsInput = document.getElementById('edit-points');
+                    const spinsInput = document.getElementById('edit-spins');
+                    
+                    const newRole = roleSelect.value;
+                    const initialRole = roleSelect.dataset.initialRole;
+                    
+                    const newPoints = parseInt(pointsInput.value) || 0;
+                    const initialPoints = parseInt(pointsInput.dataset.initialPoints) || 0;
+                    
+                    const newSpins = parseInt(spinsInput.value) || 0;
+                    const initialSpins = parseInt(spinsInput.dataset.initialSpins) || 0;
+                    
+                    const isPromotingToAdmin = (newRole === 'admin' && initialRole !== 'admin');
+                    const isChangingPoints = (newPoints !== initialPoints);
+                    const isChangingSpins = (newSpins !== initialSpins);
+                    
+                    if (isPromotingToAdmin || isChangingPoints || isChangingSpins) {
+                        adminPassContainer.classList.remove('d-none');
+                        // Label is generic now, no need to change text dynamically
+                    } else {
+                        adminPassContainer.classList.add('d-none');
+                    }
+                }
+
+                // Attach listeners
+                document.getElementById('edit-role').onchange = checkAdminAuthRequirement;
+                document.getElementById('edit-points').oninput = checkAdminAuthRequirement;
+                document.getElementById('edit-spins').oninput = checkAdminAuthRequirement;
                 
                 // Mở modal
                 const modal = new bootstrap.Modal(document.getElementById('editUserModal'));
@@ -385,6 +637,55 @@
             }
         };
 
+        window.openViewModal = async function(userId) {
+            try {
+                const res = await fetch(`/api/users/show?id=${userId}`, {
+                    headers: { 'Accept': 'application/json' }
+                });
+                
+                const data = await res.json();
+                
+                if (data.error) {
+                    showToast('error', data.message || 'Không thể tải thông tin user');
+                    return;
+                }
+                
+                const user = data.data;
+                const points = user.points || { balance: 0, total_earned: 0, lucky_wheel_spins: 0 };
+                
+                // Fill Data
+                // Use a default avatar if none exists
+                const avatarUrl = user.avatar || 'https://ui-avatars.com/api/?name=' + encodeURIComponent(user.name) + '&background=random&color=fff&size=128';
+                document.getElementById('view-avatar').src = avatarUrl;
+                
+                document.getElementById('view-name').textContent = user.name;
+                document.getElementById('view-code').textContent = user.code || `ID: ${user.id}`;
+                document.getElementById('view-email').textContent = user.email;
+                document.getElementById('view-phone').textContent = user.phone || 'Chưa cập nhật';
+                document.getElementById('view-gender').textContent = GenderLabel[user.gender] || 'Khác';
+                
+                // Role badge
+                const roleMap = { 'admin': 'Admin', 'moderator': 'Moderator', 'user': 'User' };
+                const roleBadgeClass = user.role === 'admin' ? 'bg-danger' : (user.role === 'moderator' ? 'bg-warning text-dark' : 'bg-primary');
+                document.getElementById('view-role').innerHTML = `<span class="badge ${roleBadgeClass}">${roleMap[user.role] || user.role}</span>`;
+                
+                // Created At
+                document.getElementById('view-created-at').textContent = user.created_at ? new Date(user.created_at).toLocaleString('vi-VN') : 'Không có thông tin';
+
+                // Points
+                document.getElementById('view-points-balance').textContent = new Intl.NumberFormat('en-US').format(points.balance);
+                document.getElementById('view-points-total').textContent = new Intl.NumberFormat('en-US').format(points.total_earned);
+                document.getElementById('view-spins').textContent = points.lucky_wheel_spins;
+                
+                const modal = new bootstrap.Modal(document.getElementById('viewUserModal'));
+                modal.show();
+                
+            } catch (err) {
+                console.error(err);
+                showToast('error', 'Lỗi tải dữ liệu: ' + err.message);
+            }
+        };
+
         // Submit form 
         window.submitEditUser = async function() {
             const userId = parseInt(document.getElementById('edit-user-id').value);
@@ -392,6 +693,9 @@
             const phone = document.getElementById('edit-phone').value.trim();
             const gender = document.getElementById('edit-gender').value;
             const role = document.getElementById('edit-role').value;
+            const points = document.getElementById('edit-points').value;
+            const spins = document.getElementById('edit-spins').value;
+            const adminPassword = document.getElementById('admin-confirm-password').value;
             
             // Validation
             if (!name) {
@@ -411,7 +715,10 @@
                         name: name,
                         phone: phone,
                         gender: gender,
-                        role: role
+                        role: role,
+                        points: points ? parseInt(points) : 0,
+                        spins: spins ? parseInt(spins) : 0,
+                        admin_password: adminPassword
                     })
                 });
                 

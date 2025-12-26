@@ -176,10 +176,99 @@ class UserController extends Controller
             ], 404);
         }
         
+        $userPoint = \App\Models\UserPoint::findByUserId($userId);
+        
+        $userData = $user->toArray();
+        $userData['points'] = [
+            'balance' => $userPoint ? $userPoint->getBalance() : 0,
+            'total_earned' => $userPoint ? $userPoint->getTotalEarned() : 0,
+            'lucky_wheel_spins' => $userPoint ? $userPoint->getLuckyWheelSpins() : 0
+        ];
+
         return $this->json([
             'error' => false,
-            'data' => $user->toArray()
+            'data' => $userData
         ]);
+    }
+
+    public function create(Request $request)
+    {
+        $name = trim($request->input('name') ?? '');
+        $email = trim($request->input('email') ?? '');
+        $password = $request->input('password') ?? '';
+        $phone = trim($request->input('phone') ?? '');
+        $gender = $request->input('gender') ?? 'other';
+        $role = $request->input('role') ?? 'user';
+
+        // Validation
+        if (empty($name) || empty($email) || empty($password)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Tên, Email và Mật khẩu là bắt buộc'
+            ], 400);
+        }
+
+        // Không cho phép tạo tài khoản với quyền Admin
+        if ($role === 'admin') {
+            return $this->json([
+                'error' => true,
+                'message' => 'Không được phép tạo tài khoản với quyền Quản trị viên'
+            ], 403);
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Định dạng email không hợp lệ'
+            ], 400);
+        }
+
+        if (strlen($password) < 6) {
+             return $this->json([
+                'error' => true,
+                'message' => 'Mật khẩu phải có ít nhất 6 ký tự'
+            ], 400);
+        }
+
+        if (User::findByEmail($email)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Email này đã được sử dụng'
+            ], 400);
+        }
+
+        try {
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+            
+            $user = User::create([
+                'name' => $name,
+                'email' => $email,
+                'password' => $hashedPassword,
+                'phone' => $phone,
+                'gender' => $gender,
+                'role' => $role,
+                'avatar' => '' 
+            ]);
+
+            if ($user) {
+                return $this->json([
+                    'error' => false,
+                    'message' => 'Tạo người dùng thành công',
+                    'data' => $user->toArray()
+                ]);
+            } else {
+                return $this->json([
+                    'error' => true,
+                    'message' => 'Lỗi khi tạo người dùng'
+                ], 500);
+            }
+
+        } catch (\Exception $e) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Lỗi hệ thống: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function update(Request $request)
@@ -215,23 +304,6 @@ class UserController extends Controller
             ], 400);
         }
         
-        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            return $this->json([
-                'error' => true,
-                'message' => 'Email không hợp lệ'
-            ], 400);
-        }
-        
-        if ($email !== $user->getEmail()) {
-            $existingUser = User::findByEmail($email);
-            if ($existingUser && $existingUser->getId() !== $userId) {
-                return $this->json([
-                    'error' => true,
-                    'message' => 'Email đã được sử dụng bởi người dùng khác'
-                ], 400);
-            }
-        }
-        
         // Không cho phép admin tự thay đổi role của chính mình
         $currentUserId = (int) ($_SESSION['user_id'] ?? 0);
         if ($userId === $currentUserId && $role !== $user->getRole()) {
@@ -240,10 +312,29 @@ class UserController extends Controller
                 'message' => 'Bạn không thể thay đổi vai trò của chính mình'
             ], 403);
         }
+
+        // Nếu nâng quyền lên Admin, yêu cầu xác nhận mật khẩu của người đang thao tác
+        if ($role === 'admin' && $user->getRole() !== 'admin') {
+            $adminPassword = $request->input('admin_password');
+            if (empty($adminPassword)) {
+                return $this->json([
+                    'error' => true,
+                    'message' => 'Vui lòng nhập mật khẩu của bạn để xác nhận cấp quyền Admin'
+                ], 400);
+            }
+
+            $currentUser = User::findById($currentUserId);
+            if (!$currentUser || !$currentUser->verifyPassword($adminPassword)) {
+                return $this->json([
+                    'error' => true,
+                    'message' => 'Mật khẩu xác nhận không chính xác'
+                ], 403);
+            }
+        }
         
         // Cập nhật thông tin
         $user->setName($name);
-        $user->setEmail($email);
+        // Email không được phép thay đổi
         $user->setPhone($phone);
         $user->setRole($role);
         
@@ -253,6 +344,55 @@ class UserController extends Controller
         }
         
         $result = $user->update();
+        
+        // Cập nhật điểm số và lượt quay (nếu có gửi lên)
+        $points = $request->input('points');
+        $spins = $request->input('spins');
+
+        if ($points !== null || $spins !== null) {
+            $userPoint = \App\Models\UserPoint::getOrCreate($userId);
+            
+            $currentBalance = $userPoint->getBalance();
+            $currentSpins = $userPoint->getLuckyWheelSpins();
+            
+            $newBalance = $points !== null ? (int)$points : $currentBalance;
+            $newSpins = $spins !== null ? (int)$spins : $currentSpins;
+            
+            // Chỉ xử lý nếu có sự thay đổi
+            if ($newBalance !== $currentBalance || $newSpins !== $currentSpins) {
+                // Yêu cầu xác nhận mật khẩu admin khi thay đổi điểm số/lượt quay
+                $adminPassword = $request->input('admin_password');
+                if (empty($adminPassword)) {
+                    return $this->json([
+                        'error' => true,
+                        'message' => 'Vui lòng nhập mật khẩu của bạn để xác nhận thay đổi điểm số/lượt quay'
+                    ], 400);
+                }
+
+                $currentUser = User::findById($currentUserId);
+                if (!$currentUser || !$currentUser->verifyPassword($adminPassword)) {
+                    return $this->json([
+                        'error' => true,
+                        'message' => 'Mật khẩu xác nhận không chính xác'
+                    ], 403);
+                }
+                
+                // Thực hiện cập nhật
+                if ($newBalance !== $currentBalance) {
+                     // Nếu điểm mới > tổng tích lũy hiện tại -> cập nhật luôn tổng tích lũy
+                    if ($newBalance > $userPoint->getTotalEarned()) {
+                        $userPoint->setTotalEarned($newBalance);
+                    }
+                    $userPoint->setBalance($newBalance);
+                }
+                
+                if ($newSpins !== $currentSpins) {
+                    $userPoint->setLuckyWheelSpins($newSpins);
+                }
+                
+                $userPoint->update();
+            }
+        }
         
         if ($result) {
             return $this->json([

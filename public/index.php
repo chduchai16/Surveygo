@@ -149,6 +149,7 @@ $router->get('/api/daily-rewards/status', [DailyRewardController::class, 'status
 $router->post('/api/daily-rewards/claim', [DailyRewardController::class, 'claim'], [new AuthMiddleware()]);
 
 // Users API - solo para admin
+$router->post('/api/users', [App\Controllers\UserController::class, 'create'], [new RoleMiddleware(['admin'])]);
 $router->get('/api/users', [App\Controllers\UserController::class, 'index'], [new RoleMiddleware(['admin'])]);
 $router->get('/api/users/show', [App\Controllers\UserController::class, 'show'], [new RoleMiddleware(['admin'])]);
 $router->put('/api/users', [App\Controllers\UserController::class, 'update'], [new RoleMiddleware(['admin'])]);

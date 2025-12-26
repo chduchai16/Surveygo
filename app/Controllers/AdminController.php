@@ -36,9 +36,26 @@ class AdminController extends Controller
 
         return \App\Core\Response::html($view->render('layouts/admin', array_merge($data, [
             'content' => $content,
-            'title' => 'Chi tiet khao sat',
-            'headerTitle' => 'Chi tiet khao sat',
+            'title' => 'Chi tiết khảo sát',
+            'headerTitle' => 'Chi tiết khảo sát',
             'headerIcon' => 'fas fa-eye',
+        ])));
+    }
+
+    public function questionResponses(Request $request)
+    {
+        $view = new \App\Core\View();
+        $data = $this->pageData($request);
+        $data['surveyId'] = (int) ($request->query('surveyId') ?? 0);
+        $data['questionId'] = (int) ($request->query('questionId') ?? 0);
+
+        $content = $view->render('pages/admin/surveys/question-responses', $data);
+
+        return \App\Core\Response::html($view->render('layouts/admin', array_merge($data, [
+            'content' => $content,
+            'title' => 'Câu trả lời của câu hỏi',
+            'headerTitle' => 'Câu trả lời của câu hỏi',
+            'headerIcon' => 'fas fa-comments',
         ])));
     }
 
@@ -63,13 +80,13 @@ class AdminController extends Controller
     {
         $view = new \App\Core\View();
         $data = $this->pageData($request);
-        
+
         // Fetch top surveys by responses with average ratings
         $data['topSurveys'] = \App\Models\Survey::getTopSurveysByResponses(5);
-        
+
         // Fetch top active users by survey count
         $data['topUsers'] = \App\Models\User::getTopActiveUsers(5);
-        
+
         $content = $view->render('pages/admin/reports/reports', $data);
         return \App\Core\Response::html($view->render('layouts/admin', array_merge($data, ['content' => $content])));
     }
@@ -80,6 +97,22 @@ class AdminController extends Controller
         $data = $this->pageData($request);
         $content = $view->render('pages/admin/events/events', $data);
         return \App\Core\Response::html($view->render('layouts/admin', array_merge($data, ['content' => $content])));
+    }
+
+    public function eventView(Request $request)
+    {
+        $view = new \App\Core\View();
+        $data = $this->pageData($request);
+        $data['eventId'] = (int) ($request->query('id') ?? 0);
+
+        $content = $view->render('pages/admin/events/view', $data);
+
+        return \App\Core\Response::html($view->render('layouts/admin', array_merge($data, [
+            'content' => $content,
+            'title' => 'Chi tiết sự kiện',
+            'headerTitle' => 'Chi tiết sự kiện',
+            'headerIcon' => 'fas fa-calendar-alt',
+        ])));
     }
 
     public function settings(Request $request)

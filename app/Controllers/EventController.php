@@ -8,12 +8,11 @@ use App\Core\Controller;
 use App\Core\Request;
 use App\Models\Event;
 use App\Models\User;
+use App\Models\ActivityLog;
 use App\Helpers\ActivityLogHelper;
 
 class EventController extends Controller
 {
-
-    // api phân trang
     public function index(Request $request)
     {
         $page = (int) ($request->query('page') ?? 1);
@@ -29,28 +28,20 @@ class EventController extends Controller
 
         $result = Event::paginate($page, $limit, $filters);
 
-        $events = array_map(function ($e) {
-            $creatorName = null;
-            if ($e->getMaNguoiTao()) {
-                $user = User::findById($e->getMaNguoiTao());
-                $creatorName = $user ? $user->getName() : null;
-            }
+        $userId = $_SESSION['user_id'] ?? null;
+        $joinedEventIds = null;
+        if ($userId) {
+            $joinedEventIds = ActivityLog::getJoinedEventIdsForUser((int) $userId);
+        }
 
-            return [
-                'id' => $e->getId(),
-                'code' => $e->getMaSuKien(),
-                'title' => $e->getTenSuKien(),
-                'location' => $e->getDiaDiem(),
-                'startDate' => $e->getThoiGianBatDau(),
-                'endDate' => $e->getThoiGianKetThuc(),
-                'status' => $e->getTrangThai(),
-                'participants' => $e->getSoNguoiThamGia(),
-                'surveys' => $e->getSoKhaoSat(),
-                'creatorId' => $e->getMaNguoiTao(),
-                'creator' => $creatorName,
-                'created_at' => $e->getCreatedAt() ?? null,
-                'updated_at' => $e->getUpdatedAt() ?? null,
-            ];
+        $events = array_map(function (Event $e) use ($joinedEventIds) {
+            $data = $this->transformEvent($e);
+            if (is_array($joinedEventIds)) {
+                $data['hasJoined'] = in_array($e->getId(), $joinedEventIds, true);
+            } else {
+                $data['hasJoined'] = false;
+            }
+            return $data;
         }, $result['events']);
 
         return $this->json([
@@ -62,6 +53,41 @@ class EventController extends Controller
                 'limit' => $result['limit'],
                 'totalPages' => $result['totalPages'],
             ],
+        ]);
+    }
+
+    public function show(Request $request)
+    {
+        $id = $request->query('id') ?? $request->input('id');
+
+        if (!$id || !is_numeric($id)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Mã sự kiện không hợp lệ.',
+            ], 422);
+        }
+
+        $event = Event::find((int) $id);
+        if (!$event) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Không tìm thấy sự kiện.',
+            ], 404);
+        }
+
+        $data = $this->transformEvent($event);
+
+        $userId = $_SESSION['user_id'] ?? null;
+        if ($userId) {
+            $joinedEventIds = ActivityLog::getJoinedEventIdsForUser((int) $userId);
+            $data['hasJoined'] = in_array($event->getId(), $joinedEventIds, true);
+        } else {
+            $data['hasJoined'] = false;
+        }
+
+        return $this->json([
+            'error' => false,
+            'data' => $data,
         ]);
     }
 
@@ -187,6 +213,34 @@ class EventController extends Controller
             ], 404);
         }
 
+        if ($event->getTrangThai() === 'upcoming') {
+            return $this->json([
+                'error' => true,
+                'message' => 'Sự kiện chưa mở để tham gia. Vui lòng quay lại khi sự kiện diễn ra.',
+            ], 422);
+        }
+
+        if ($event->getTrangThai() === 'completed') {
+            return $this->json([
+                'error' => true,
+                'message' => 'Sự kiện đã kết thúc.',
+            ], 422);
+        }
+
+        $awardedSpins = 0;
+
+        // Award lucky wheel spins configured for this event (if any)
+        try {
+            $spinsPerJoin = $event->getSoLuotRutThamMoiLan();
+            if ($spinsPerJoin > 0) {
+                $userPoint = \App\Models\UserPoint::getOrCreate((int) $userId);
+                $userPoint->addLuckyWheelSpins($spinsPerJoin);
+                $awardedSpins = $spinsPerJoin;
+            }
+        } catch (\Throwable $e) {
+            error_log('[EventController::join] Failed to award lucky wheel spins: ' . $e->getMessage());
+        }
+
         // Log activity
         try {
             ActivityLogHelper::logParticipatedEvent($userId, $eventId);
@@ -200,6 +254,7 @@ class EventController extends Controller
             'data' => [
                 'eventId' => $eventId,
                 'eventName' => $event->getTenSuKien(),
+                'spinsAwarded' => $awardedSpins,
             ],
         ], 201);
     }
@@ -212,11 +267,51 @@ class EventController extends Controller
     {
         $data = $request->input();
 
+        if (empty($data)) {
+            $raw = @file_get_contents('php://input');
+            $json = $raw ? json_decode($raw, true) : null;
+            if (is_array($json)) {
+                $data = $json;
+            } else {
+                $data = [];
+            }
+        }
+
+        $data['tenSuKien'] = trim((string) ($data['tenSuKien'] ?? $data['ten_su_kien'] ?? $data['title'] ?? ''));
+        $data['diaDiem'] = $data['diaDiem'] ?? $data['dia_diem'] ?? $data['location'] ?? null;
+        $data['thoiGianBatDau'] = $data['thoiGianBatDau'] ?? $data['startDate'] ?? $data['start_date'] ?? null;
+        $data['thoiGianKetThuc'] = $data['thoiGianKetThuc'] ?? $data['endDate'] ?? $data['end_date'] ?? null;
+        $data['trangThai'] = $data['trangThai'] ?? $data['trang_thai'] ?? $data['status'] ?? 'upcoming';
+        $data['soNguoiThamGia'] = isset($data['soNguoiThamGia'])
+            ? (int) $data['soNguoiThamGia']
+            : (isset($data['participants']) ? (int) $data['participants'] : 0);
+        // soKhaoSat hiện được tính động từ bảng surveys (maSuKien = events.id)
+        // nên bỏ qua mọi giá trị gửi từ client nếu có.
+        $data['soLuotRutThamMoiLan'] = isset($data['soLuotRutThamMoiLan'])
+            ? (int) $data['soLuotRutThamMoiLan']
+            : (isset($data['luckyWheelSpinsPerJoin']) ? (int) $data['luckyWheelSpinsPerJoin'] : 0);
+
+        $rawCreator = $data['maNguoiTao'] ?? $data['creatorId'] ?? $data['creator_id'] ?? null;
+        if ($rawCreator === null || $rawCreator === '') {
+            $data['maNguoiTao'] = 1;
+        } else {
+            $data['maNguoiTao'] = (int) $rawCreator;
+        }
+
+        $errors = $this->validateEventCreate($data);
+        if (!empty($errors)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Dữ liệu không hợp lệ.',
+                'errors' => $errors
+            ], 422);
+        }
+
         if (empty($data['tenSuKien'])) {
             return $this->json([
                 'error' => true,
                 'message' => 'Tên sự kiện là bắt buộc.',
-            ], 422);
+            ], 500);
         }
 
         $event = Event::create($data);
@@ -224,7 +319,7 @@ class EventController extends Controller
             return $this->json([
                 'error' => true,
                 'message' => 'Không thể tạo sự kiện.',
-            ], 500);
+            ], 422);
         }
 
         // Log activity
@@ -239,8 +334,183 @@ class EventController extends Controller
 
         return $this->json([
             'error' => false,
-            'message' => 'Sự kiện được tạo thành công.',
-            'data' => $event->toArray(),
+            'message' => 'Sự kiện đã được tạo thành công.',
+            'data' => $this->transformEvent($event),
         ], 201);
+    }
+
+    public function update(Request $request)
+    {
+        $id = $request->query('id') ?? $request->input('id');
+
+        if (!$id || !is_numeric($id)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Invalid event ID.',
+            ], 422);
+        }
+
+        $event = Event::find((int) $id);
+        if (!$event) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Event not found.',
+            ], 404);
+        }
+
+        $data = $request->input();
+
+        if (!array_key_exists('soLuotRutThamMoiLan', $data) && array_key_exists('luckyWheelSpinsPerJoin', $data)) {
+            $data['soLuotRutThamMoiLan'] = (int) $data['luckyWheelSpinsPerJoin'];
+        }
+
+        if (array_key_exists('soLuotRutThamMoiLan', $data)) {
+            $data['soLuotRutThamMoiLan'] = (int) $data['soLuotRutThamMoiLan'];
+
+            if ($event->getTrangThai() !== 'upcoming') {
+                return $this->json([
+                    'error' => true,
+                    'message' => 'Chỉ được thay đổi số lượt rút thăm khi sự kiện đang ở trạng thái upcoming.',
+                ], 422);
+            }
+        }
+
+        $errors = $this->validateEventUpdate($data);
+        if (!empty($errors)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Dữ liệu không hợp lệ.',
+                'errors' => $errors,
+            ], 422);
+        }
+
+        if (!$event->update($data)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Không thể cập nhật sự kiện.',
+            ], 500);
+        }
+
+        $event = Event::find((int) $id);
+
+        return $this->json([
+            'error' => false,
+            'message' => 'Cập nhật sự kiện thành công.',
+            'data' => $event ? $this->transformEvent($event) : null,
+        ]);
+    }
+
+    public function delete(Request $request)
+    {
+        $id = $request->query('id') ?? $request->input('id');
+
+        if (!$id || !is_numeric($id)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'ID sự kiện không hợp lệ.',
+            ], 422);
+        }
+
+        $event = Event::find((int) $id);
+        if (!$event) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Không tìm thấy sự kiện.',
+            ], 404);
+        }
+
+        if (!$event->delete()) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Không thể xóa sự kiện.',
+            ], 500);
+        }
+
+        return $this->json([
+            'error' => false,
+            'message' => 'Sự kiện đã được xóa thành công.',
+        ]);
+    }
+
+    private function transformEvent(Event $e): array
+    {
+        $creatorName = null;
+        if ($e->getMaNguoiTao()) {
+            $user = User::findById($e->getMaNguoiTao());
+            $creatorName = $user ? $user->getName() : null;
+        }
+
+        return [
+            'id' => $e->getId(),
+            'code' => $e->getMaSuKien(),
+            'title' => $e->getTenSuKien(),
+            'location' => $e->getDiaDiem(),
+            'startDate' => $e->getThoiGianBatDau(),
+            'endDate' => $e->getThoiGianKetThuc(),
+            'status' => $e->getTrangThai(),
+            'participants' => $e->getSoNguoiThamGia(),
+            'surveys' => $e->getSoKhaoSat(),
+            'creatorId' => $e->getMaNguoiTao(),
+            'creator' => $creatorName,
+            'created_at' => $e->getCreatedAt() ?? null,
+            'updated_at' => $e->getUpdatedAt() ?? null,
+            'luckyWheelSpinsPerJoin' => $e->getSoLuotRutThamMoiLan(),
+        ];
+    }
+
+    private function validateEventCreate(array $data): array
+    {
+        $errors = [];
+
+        if (empty($data['tenSuKien'])) {
+            $errors['tenSuKien'] = 'Tiêu đề sự kiện là bắt buộc.';
+        }
+
+        if (isset($data['trangThai']) && $data['trangThai'] !== '') {
+            $allowed = ['upcoming', 'ongoing', 'completed'];
+            if (!in_array($data['trangThai'], $allowed, true)) {
+                $errors['trangThai'] = 'Trạng thái sự kiện không hợp lệ.';
+            }
+        }
+
+        if (empty($data['maNguoiTao']) || !is_numeric($data['maNguoiTao']) || (int) $data['maNguoiTao'] <= 0) {
+            $errors['maNguoiTao'] = 'ID người tạo không hợp lệ.';
+        } else {
+            $user = User::findById((int) $data['maNguoiTao']);
+            if (!$user) {
+                $errors['maNguoiTao'] = 'Không tìm thấy người tạo.';
+            }
+        }
+
+        return $errors;
+    }
+
+    private function validateEventUpdate(array $data): array
+    {
+        $errors = [];
+
+        if (array_key_exists('tenSuKien', $data) && trim((string) $data['tenSuKien']) === '') {
+            $errors['tenSuKien'] = 'Tiêu đề sự kiện không được để trống.';
+        }
+
+        if (array_key_exists('trangThai', $data) && $data['trangThai'] !== '') {
+            $allowed = ['upcoming', 'ongoing', 'completed'];
+            if (!in_array($data['trangThai'], $allowed, true)) {
+                $errors['trangThai'] = 'Trạng thái sự kiện không hợp lệ.';
+            }
+        }
+
+        if (array_key_exists('maNguoiTao', $data)) {
+            if (empty($data['maNguoiTao']) || !is_numeric($data['maNguoiTao']) || (int) $data['maNguoiTao'] <= 0) {
+                $errors['maNguoiTao'] = 'ID người tạo không hợp lệ.';
+            } else {
+                $user = User::findById((int) $data['maNguoiTao']);
+                if (!$user) {
+                    $errors['maNguoiTao'] = 'Không tìm thấy người tạo.';
+                }
+            }
+        }
+
+        return $errors;
     }
 }

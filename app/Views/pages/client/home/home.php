@@ -150,6 +150,8 @@
                 'daily_reward_claimed': { icon: 'fas fa-star', class: 'activity-icon-success', label: '⭐' },
                 'redemption_status_changed': { icon: 'fas fa-sync', class: 'activity-icon-warning', label: '🔄' },
                 'profile_updated': { icon: 'fas fa-user', class: 'activity-icon-info', label: '👤' },
+                'referral_invite_success': { icon: 'fas fa-user-plus', class: 'activity-icon-success', label: '👥' },
+                'referral_registered': { icon: 'fas fa-user-check', class: 'activity-icon-primary', label: '✅' },
             };
 
             // Hàm dịch action thành tiếng Việt
@@ -167,6 +169,8 @@
                     'logout': 'Đăng xuất',
                     'daily_reward_claimed': 'Nhận thưởng hàng ngày',
                     'redemption_status_changed': 'Cập nhật trạng thái đổi thưởng',
+                    'referral_invite_success': 'Giới thiệu thành công',
+                    'referral_registered': 'Đăng ký qua mời',
                 };
                 return translations[action] || action.replace(/_/g, ' ');
             };

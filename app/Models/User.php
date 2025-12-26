@@ -21,6 +21,7 @@ class User
     private string $createdAt;
     private string $updatedAt;
 
+
     public function __construct(array $attributes)
     {
         $this->id = (int) ($attributes['id'] ?? 0);
@@ -100,13 +101,26 @@ class User
         return new self($row);
     }
 
+    public static function deleteById(int $id): bool
+    {
+        $db = Container::get('db');
+
+        try {
+            $stmt = $db->prepare('DELETE FROM users WHERE id = :id');
+            return $stmt->execute([':id' => $id]);
+        } catch (\Exception $e) {
+            error_log('Failed to delete user: ' . $e->getMessage());
+            return false;
+        }
+    }
+
     public function update(): bool
     {
         $db = Container::get('db');
-        
+
         try {
             $now = (new \DateTimeImmutable())->format('Y-m-d H:i:s');
-            
+
             $stmt = $db->prepare(
                 'UPDATE users SET 
                     name = :name,
@@ -118,7 +132,7 @@ class User
                     updated_at = :updated_at
                 WHERE id = :id'
             );
-            
+
             return $stmt->execute([
                 ':name' => $this->name,
                 ':email' => $this->email,
@@ -386,17 +400,17 @@ class User
     }
 
     /**
- * Get top active users by completed surveys count
- * 
- * @param int $limit Number of users to return
- * @return array Array of users with completed_surveys_count and created_surveys_count
- */
-public static function getTopActiveUsers(int $limit = 5): array
-{
-    /** @var PDO $db */
-    $db = Container::get('db');
+     * Get top active users by completed surveys count
+     * 
+     * @param int $limit Number of users to return
+     * @return array Array of users with completed_surveys_count and created_surveys_count
+     */
+    public static function getTopActiveUsers(int $limit = 5): array
+    {
+        /** @var PDO $db */
+        $db = Container::get('db');
 
-    $sql = "
+        $sql = "
         SELECT 
             u.id,
             u.code,
@@ -415,23 +429,23 @@ public static function getTopActiveUsers(int $limit = 5): array
         LIMIT :limit
     ";
 
-    $stmt = $db->prepare($sql);
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-    $stmt->execute();
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
 
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    return array_map(function($row) {
-        return [
-            'id' => (int) $row['id'],
-            'code' => $row['code'],
-            'name' => $row['name'],
-            'avatar' => $row['avatar'],
-            'email' => $row['email'],
-            'created_at' => $row['created_at'],
-            'completed_surveys_count' => (int) $row['completed_surveys_count'],
-            'created_surveys_count' => (int) $row['created_surveys_count'],
-        ];
-    }, $results);
-}
+        return array_map(function ($row) {
+            return [
+                'id' => (int) $row['id'],
+                'code' => $row['code'],
+                'name' => $row['name'],
+                'avatar' => $row['avatar'],
+                'email' => $row['email'],
+                'created_at' => $row['created_at'],
+                'completed_surveys_count' => (int) $row['completed_surveys_count'],
+                'created_surveys_count' => (int) $row['created_surveys_count'],
+            ];
+        }, $results);
+    }
 }

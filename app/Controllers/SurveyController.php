@@ -38,10 +38,18 @@ class SurveyController extends Controller
             $filters['trangThai'] = $trangThai;
         }
 
+
         if ($danhMuc = $request->query('danhMuc')) {
             $filters['danhMuc'] = $danhMuc;
         }
 
+        if ($loaiKhaoSat = $request->query('loaiKhaoSat')) {
+            $filters['loaiKhaoSat'] = $loaiKhaoSat;
+        }
+
+        if ($maSuKien = $request->query('maSuKien')) {
+            $filters['maSuKien'] = (int) $maSuKien;
+        }
         if ($sortBy = $request->query('sortBy')) {
             $filters['sortBy'] = $sortBy;
         }
@@ -63,35 +71,52 @@ class SurveyController extends Controller
 
         // Nếu có user_id, kiểm tra từng survey xem user đã submit chưa
         $surveyData = array_map(fn($s) => $s->toArray(), $result['surveys']);
-        
-        if ($userId) {
-            try {
-                $db = \App\Core\Container::get('db');
-                foreach ($surveyData as &$survey) {
-                    $stmt = $db->prepare(
+
+        // Fetch question count and response count for each survey
+        try {
+            $db = \App\Core\Container::get('db');
+            foreach ($surveyData as &$survey) {
+                // Get question count
+                $qStmt = $db->prepare(
+                    'SELECT COUNT(*) as count FROM survey_question_map WHERE idKhaoSat = :survey_id'
+                );
+                $qStmt->execute([':survey_id' => $survey['id']]);
+                $qRow = $qStmt->fetch(PDO::FETCH_ASSOC);
+                $survey['questionCount'] = (int) ($qRow['count'] ?? 0);
+
+                // Get response count (unique submissions)
+                $rStmt = $db->prepare(
+                    'SELECT COUNT(*) as count FROM survey_submissions WHERE maKhaoSat = :survey_id'
+                );
+                $rStmt->execute([':survey_id' => $survey['id']]);
+                $rRow = $rStmt->fetch(PDO::FETCH_ASSOC);
+                $survey['responseCount'] = (int) ($rRow['count'] ?? 0);
+
+                // Check if user completed (only if userId provided)
+                if ($userId) {
+                    $cStmt = $db->prepare(
                         'SELECT COUNT(*) as count FROM survey_submissions 
                          WHERE maKhaoSat = :survey_id AND maNguoiDung = :user_id'
                     );
-                    $stmt->execute([
+                    $cStmt->execute([
                         ':survey_id' => $survey['id'],
                         ':user_id' => $userId
                     ]);
-                    $row = $stmt->fetch(PDO::FETCH_ASSOC);
-                    $survey['isCompleted'] = ($row && $row['count'] > 0);
-                }
-            } catch (\Throwable $e) {
-                error_log('[SurveyController::index] Error checking completion status: ' . $e->getMessage());
-                // Nếu có lỗi, set tất cả về false
-                foreach ($surveyData as &$survey) {
+                    $cRow = $cStmt->fetch(PDO::FETCH_ASSOC);
+                    $survey['isCompleted'] = ($cRow && $cRow['count'] > 0);
+                } else {
                     $survey['isCompleted'] = false;
                 }
             }
-        } else {
-            // Nếu không có user_id, set tất cả isCompleted = false
+        } catch (\Throwable $e) {
+            error_log('[SurveyController::index] Error fetching counts: ' . $e->getMessage());
             foreach ($surveyData as &$survey) {
+                $survey['questionCount'] = 0;
+                $survey['responseCount'] = 0;
                 $survey['isCompleted'] = false;
             }
         }
+
 
         return $this->json([
             'error' => false,
@@ -165,11 +190,11 @@ class SurveyController extends Controller
         $data['tieuDe'] = trim($data['tieuDe'] ?? $data['tieu_de'] ?? $data['title'] ?? $request->input('tieuDe') ?? '');
         $data['moTa'] = $data['moTa'] ?? $data['mo_ta'] ?? $data['description'] ?? $request->input('moTa') ?? null;
         $data['loaiKhaoSat'] = $data['loaiKhaoSat'] ?? $data['loai_khao_sat'] ?? $data['type'] ?? $request->input('loaiKhaoSat') ?? null;
-        $data['thoiLuongDuTinh'] = isset($data['thoiLuongDuTinh']) ? (int)$data['thoiLuongDuTinh'] : (isset($data['thoi_luong']) ? (int)$data['thoi_luong'] : (int)($request->input('thoiLuongDuTinh') ?? 0));
-        $data['isQuickPoll'] = isset($data['isQuickPoll']) ? (int)$data['isQuickPoll'] : ((($data['loaiKhaoSat'] ?? '') === 'quickpoll') ? 1 : 0);
+        $data['thoiLuongDuTinh'] = isset($data['thoiLuongDuTinh']) ? (int) $data['thoiLuongDuTinh'] : (isset($data['thoi_luong']) ? (int) $data['thoi_luong'] : (int) ($request->input('thoiLuongDuTinh') ?? 0));
+        $data['isQuickPoll'] = isset($data['isQuickPoll']) ? (int) $data['isQuickPoll'] : ((($data['loaiKhaoSat'] ?? '') === 'quickpoll') ? 1 : 0);
         $data['maNguoiTao'] = (int) (isset($data['maNguoiTao']) ? $data['maNguoiTao'] : ($request->input('maNguoiTao') ?? ($request->input('ma_nguoi_tao') ?? 1)));
         $data['trangThai'] = $data['trangThai'] ?? $data['trang_thai'] ?? $request->input('trangThai') ?? 'draft';
-        $data['diemThuong'] = isset($data['diemThuong']) ? (int)$data['diemThuong'] : (int)($data['points'] ?? $request->input('diemThuong') ?? 0);
+        $data['diemThuong'] = isset($data['diemThuong']) ? (int) $data['diemThuong'] : (int) ($data['points'] ?? $request->input('diemThuong') ?? 0);
         $data['danhMuc'] = $data['danhMuc'] ?? $data['danh_muc'] ?? $request->input('danhMuc') ?? null;
         $data['created_at'] = $data['created_at'] ?? (new \DateTimeImmutable())->format('Y-m-d H:i:s');
 
@@ -198,7 +223,7 @@ class SurveyController extends Controller
         if (empty($data['tieuDe'])) {
             $data['tieuDe'] = 'Khảo sát ' . date('YmdHis');
         }
-        $data['maNguoiTao'] = isset($data['maNguoiTao']) && is_numeric($data['maNguoiTao']) ? (int)$data['maNguoiTao'] : 1;
+        $data['maNguoiTao'] = isset($data['maNguoiTao']) && is_numeric($data['maNguoiTao']) ? (int) $data['maNguoiTao'] : 1;
 
         // Validation
         $errors = $this->validateSurveyCreate($data);
@@ -221,7 +246,7 @@ class SurveyController extends Controller
         // Log activity
         try {
             ActivityLogHelper::logSurveyCreated(
-                (int)$data['maNguoiTao'],
+                (int) $data['maNguoiTao'],
                 $survey->getId(),
                 $survey->getTieuDe()
             );
@@ -254,8 +279,8 @@ class SurveyController extends Controller
             }
 
             // 2. Prepare Data
-            $userId = (int) ($data['maNguoiTao'] ?? 1); 
-            
+            $userId = (int) ($data['maNguoiTao'] ?? 1);
+
             // Check if user exists, otherwise find a valid one to avoid FK error
             $user = User::findById($userId);
             if (!$user) {
@@ -264,25 +289,25 @@ class SurveyController extends Controller
                 $stmt = $db->query("SELECT id FROM users LIMIT 1");
                 $fallbackUser = $stmt->fetch(PDO::FETCH_ASSOC);
                 if ($fallbackUser) {
-                    $userId = (int)$fallbackUser['id'];
+                    $userId = (int) $fallbackUser['id'];
                 } else {
-                     return $this->json(['error' => true, 'message' => 'Không tìm thấy người dùng nào để gán quyền tạo.'], 500);
+                    return $this->json(['error' => true, 'message' => 'Không tìm thấy người dùng nào để gán quyền tạo.'], 500);
                 }
             }
-            
+
             $surveyData = [
                 'tieuDe' => $data['title'],
                 'moTa' => $data['description'] ?? '',
                 'loaiKhaoSat' => 'quick_poll',
                 'isQuickPoll' => 1,
-                'diemThuong' => (int)($data['points'] ?? 0),
+                'diemThuong' => (int) ($data['points'] ?? 0),
                 'maNguoiTao' => $userId,
                 'trangThai' => 'published',
                 'thoiLuongDuTinh' => 1
             ];
 
             // 3. Execution Wrapper
-            
+
             // A. Create Survey
             $survey = Survey::create($surveyData);
             if (!$survey) {
@@ -292,7 +317,7 @@ class SurveyController extends Controller
             // B. Create Question
             $questionData = [
                 'noiDungCauHoi' => $data['title'],
-                'loaiCauHoi' => $data['questionType'], 
+                'loaiCauHoi' => $data['questionType'],
                 'isQuickPoll' => 1,
                 'batBuocTraLoi' => 1,
                 'maKhaoSat' => $survey->getId()
@@ -320,17 +345,17 @@ class SurveyController extends Controller
             // D. Create Answers
             if (!empty($data['options']) && is_array($data['options'])) {
                 foreach ($data['options'] as $optionText) {
-                    if (trim($optionText) === '') continue;
+                    if (trim($optionText) === '')
+                        continue;
                     Answer::create([
                         'idCauHoi' => $question->getId(),
                         'noiDungCauTraLoi' => trim($optionText),
                         'creator_id' => $userId
                     ]);
                 }
-            } 
-            elseif ($data['questionType'] === 'yesno') {
-                 Answer::create(['idCauHoi' => $question->getId(), 'noiDungCauTraLoi' => 'Có', 'creator_id' => $userId]);
-                 Answer::create(['idCauHoi' => $question->getId(), 'noiDungCauTraLoi' => 'Không', 'creator_id' => $userId]);
+            } elseif ($data['questionType'] === 'yesno') {
+                Answer::create(['idCauHoi' => $question->getId(), 'noiDungCauTraLoi' => 'Có', 'creator_id' => $userId]);
+                Answer::create(['idCauHoi' => $question->getId(), 'noiDungCauTraLoi' => 'Không', 'creator_id' => $userId]);
             }
 
             return $this->json([
@@ -549,7 +574,7 @@ class SurveyController extends Controller
 
         // lưu mapping nhiều-nhiều (nếu được truyền maKhaoSat)
         if (!empty($data['maKhaoSat'])) {
-            $this->attachQuestionToSurvey((int)$data['maKhaoSat'], $question->getId(), (int)($data['thuTu'] ?? 0));
+            $this->attachQuestionToSurvey((int) $data['maKhaoSat'], $question->getId());
         }
 
         return $this->json([
@@ -574,8 +599,8 @@ class SurveyController extends Controller
             ], 422);
         }
 
-        $survey = Survey::find((int)$surveyId);
-        $question = Question::find((int)$questionId);
+        $survey = Survey::find((int) $surveyId);
+        $question = Question::find((int) $questionId);
 
         if (!$survey || !$question) {
             return $this->json([
@@ -584,7 +609,7 @@ class SurveyController extends Controller
             ], 404);
         }
 
-        if(!SurveyQuestionMap::attach((int)$surveyId, (int)$questionId)) {
+        if (!SurveyQuestionMap::attach((int) $surveyId, (int) $questionId)) {
             return $this->json([
                 'error' => true,
                 'message' => 'Không thể gắn câu hỏi vào khảo sát (có thể đã tồn tại).',
@@ -612,7 +637,7 @@ class SurveyController extends Controller
             ], 422);
         }
 
-        if(!SurveyQuestionMap::detach((int)$surveyId, (int)$questionId)) {
+        if (!SurveyQuestionMap::detach((int) $surveyId, (int) $questionId)) {
             return $this->json([
                 'error' => true,
                 'message' => 'Không thể gỡ câu hỏi khỏi khảo sát (có thể không tồn tại).',
@@ -974,7 +999,7 @@ class SurveyController extends Controller
     public function getHourlyStats(Request $request)
     {
         $userId = (int) $request->query('user_id');
-        
+
         if (!$userId) {
             return $this->json([
                 'error' => true,
@@ -985,7 +1010,7 @@ class SurveyController extends Controller
         try {
             // Lấy tất cả survey submissions trong 24 giờ qua
             $db = \App\Core\Container::get('db');
-            
+
             $statement = $db->prepare(
                 'SELECT created_at 
                  FROM survey_submissions 
@@ -993,23 +1018,23 @@ class SurveyController extends Controller
                    AND created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)
                  ORDER BY created_at ASC'
             );
-            
+
             $statement->execute([':user_id' => $userId]);
             $submissions = $statement->fetchAll();
-            
+
             // Khởi tạo mảng 8 khoảng thời gian (mỗi khoảng 3 tiếng)
             $hourlyData = array_fill(0, 8, 0);
-            
+
             // Đếm số lượng submissions theo khoảng thời gian
             foreach ($submissions as $submission) {
                 $timestamp = strtotime($submission['created_at']);
                 $hour = (int) date('H', $timestamp);
-                
+
                 // Xác định khoảng thời gian (0-3h = index 0, 3-6h = index 1, ...)
                 $intervalIndex = (int) floor($hour / 3);
                 $hourlyData[$intervalIndex]++;
             }
-            
+
             return $this->json([
                 'success' => true,
                 'data' => $hourlyData
@@ -1020,5 +1045,61 @@ class SurveyController extends Controller
                 'message' => $e->getMessage()
             ], 400);
         }
+    }
+
+    /**
+     * GET /api/surveys/question-responses
+     * Lấy danh sách câu trả lời cho một câu hỏi kèm thông tin user
+     */
+    public function getQuestionResponses(Request $request)
+    {
+        $questionId = (int) ($request->query('questionId') ?? 0);
+        $surveyId = (int) ($request->query('surveyId') ?? 0);
+
+        if (!$questionId) {
+            return $this->json([
+                'error' => true,
+                'message' => 'questionId là bắt buộc.',
+            ], 422);
+        }
+
+        // Lấy thông tin câu hỏi
+        $question = Question::find($questionId);
+        if (!$question) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Câu hỏi không tồn tại.',
+            ], 404);
+        }
+
+        // Lấy các options của câu hỏi (nếu là choice question)
+        $answers = Answer::findByQuestion($questionId);
+
+        // Lấy danh sách responses kèm thông tin user
+        $responses = UserResponse::findByQuestionWithUser($questionId);
+
+        // Lấy thông tin survey nếu có surveyId
+        $surveyData = null;
+        if ($surveyId) {
+            $survey = Survey::find($surveyId);
+            if ($survey) {
+                $surveyData = [
+                    'id' => $survey->getId(),
+                    'tieuDe' => $survey->getTieuDe(),
+                    'maKhaoSat' => $survey->getMaKhaoSat(),
+                ];
+            }
+        }
+
+        return $this->json([
+            'error' => false,
+            'data' => [
+                'question' => $question->toArray(),
+                'answers' => array_map(fn($a) => $a->toArray(), $answers),
+                'responses' => $responses,
+                'survey' => $surveyData,
+                'totalResponses' => count($responses),
+            ],
+        ]);
     }
 }

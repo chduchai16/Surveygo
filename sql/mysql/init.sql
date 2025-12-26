@@ -8,8 +8,10 @@ CREATE TABLE IF NOT EXISTS users (
   password VARCHAR(255) NOT NULL,
   gender ENUM('male','female','other') NOT NULL DEFAULT 'other',
   role ENUM('admin','moderator','user') NOT NULL DEFAULT 'user',
+  invited_by INT UNSIGNED DEFAULT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (invited_by) REFERENCES users(id) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS events (
@@ -21,6 +23,7 @@ CREATE TABLE IF NOT EXISTS events (
   trangThai ENUM('upcoming','ongoing','completed') NOT NULL DEFAULT 'upcoming',
   soNguoiThamGia INT UNSIGNED NOT NULL DEFAULT 0,
   soKhaoSat INT UNSIGNED NOT NULL DEFAULT 0,
+  soLuotRutThamMoiLan INT UNSIGNED NOT NULL DEFAULT 0,
   diaDiem VARCHAR(255) DEFAULT NULL,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -144,7 +147,7 @@ CREATE TABLE IF NOT EXISTS user_points ( -- Quản lí tổng số điểm của
 CREATE TABLE IF NOT EXISTS point_transactions ( -- Log lịch sử cộng và rút điểm của người dùng
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   user_id INT UNSIGNED NOT NULL,
-  source ENUM('daily_reward','survey','lucky_wheel','manual_adjustment') NOT NULL,
+  source ENUM('daily_reward','survey','lucky_wheel','manual_adjustment','referral_bonus') NOT NULL,
   ref_id INT UNSIGNED DEFAULT NULL,
   amount INT UNSIGNED NOT NULL,
   balance_after INT UNSIGNED NOT NULL,
@@ -155,6 +158,22 @@ CREATE TABLE IF NOT EXISTS point_transactions ( -- Log lịch sử cộng và r�
   UNIQUE KEY uniq_user_source_ref (user_id, source, ref_id),
   INDEX idx_pt_user (user_id),
   INDEX idx_pt_source (source)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS user_invites (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id INT UNSIGNED NOT NULL,
+  invite_code VARCHAR(6) NOT NULL UNIQUE,
+  invite_token VARCHAR(32) UNIQUE DEFAULT NULL,
+  invite_link VARCHAR(255) NOT NULL,
+  invited_count INT UNSIGNED NOT NULL DEFAULT 0,
+  total_rewards INT UNSIGNED NOT NULL DEFAULT 0,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_user_invites_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  UNIQUE KEY uniq_user_invite (user_id),
+  INDEX idx_invite_code (invite_code),
+  INDEX idx_invite_token (invite_token)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE IF NOT EXISTS contact_messages (
@@ -241,6 +260,8 @@ CREATE TABLE IF NOT EXISTS reward_redemptions (
   
   bank_name VARCHAR(255) DEFAULT NULL,   -- tên ngân hàng (cho cash redemptions)
   account_number VARCHAR(50) DEFAULT NULL,-- số tài khoản / số điện thoại
+  account_name VARCHAR(255) DEFAULT NULL,-- tên chủ tài khoản / tên ví
+  transfer_status ENUM('pending','completed','failed') DEFAULT 'pending', -- trạng thái chuyển khoản
 
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -467,13 +488,13 @@ VALUES
 ('RW-PH-MILKTEA', 'Voucher GongCha 50.000đ', 'giftcard', 'gongcha', 6000, 50000, 100, 'gongcha_50.png', 'Voucher trà sữa GongCha.', NULL, NULL, NULL);
 
 INSERT IGNORE INTO reward_redemptions
-(user_id, reward_id, status, note, receiver_info, bank_name, account_number, created_at, updated_at)
+(user_id, reward_id, status, note, receiver_info, bank_name, account_number, account_name, created_at, updated_at)
 VALUES
-(1, 3, 'pending', NULL, 'Nguyễn Văn A, 0901234567', 'momo', '0901234567', NOW(), NOW()),
-(2, 1, 'completed', 'Đã chuyển khoản thành công.', 'Trần Thị B', 'bank', '0123456789', NOW(), NOW()),
-(3, 9, 'processing', 'Đang chuẩn bị giao hàng.', 'Phạm Văn C - Địa chỉ: 123 Lê Lợi, Q1, TP.HCM', NULL, NULL, NOW(), NOW()),
-(4, 6, 'completed', NULL, 'user4@example.com', NULL, NULL, NOW(), NOW()),
-(5, 7, 'rejected', 'Mã không hợp lệ - vui lòng đổi lại.', 'user5@example.com', NULL, NULL, NOW(), NOW());
+(1, 3, 'pending', NULL, 'Nguyễn Văn A, 0901234567', 'momo', '0901234567', 'Nguyễn Văn A', NOW(), NOW()),
+(2, 1, 'completed', 'Đã chuyển khoản thành công.', 'Trần Thị B', 'bank', '0123456789', 'Trần Thị B', NOW(), NOW()),
+(3, 9, 'processing', 'Đang chuẩn bị giao hàng.', 'Phạm Văn C - Địa chỉ: 123 Lê Lợi, Q1, TP.HCM', NULL, NULL, 'Phạm Văn C', NOW(), NOW()),
+(4, 6, 'completed', NULL, 'user4@example.com', NULL, NULL, 'User Four', NOW(), NOW()),
+(5, 7, 'rejected', 'Mã không hợp lệ - vui lòng đổi lại.', 'user5@example.com', NULL, NULL, NULL, NOW(), NOW());
 
 INSERT IGNORE INTO user_points (user_id, balance, total_earned, created_at, updated_at) VALUES
 (1, 50, 50, NOW(), NOW()),
@@ -625,4 +646,87 @@ INSERT IGNORE INTO survey_question_map (idKhaoSat, idCauHoi, created_at, updated
   (15,21,NOW(),NOW()),
   (16,22,NOW(),NOW());
 
+-- dữ liệu cho bảng user_responses
+-- Format: single_choice = "answerId", multiple_choice = "[id1,id2]", text = "nội dung", rating = "số"
+INSERT IGNORE INTO user_responses (maCauHoi, maNguoiDung, maKhaoSat, noiDungTraLoi, created_at, updated_at) VALUES
+  -- Survey 1: Khảo sát về thói quen đọc sách (questions 1,2)
+  -- Question 1 (multiple_choice): Thời gian đọc sách - answers 1-4
+  (1, 1, 1, '[1,3]', NOW(), NOW()),         -- User 1 chọn: Buổi sáng, Buổi tối
+  (1, 4, 1, '[2,4]', NOW(), NOW()),         -- User 4 chọn: Buổi chiều, Trước khi ngủ
+  (1, 5, 1, '[3]', NOW(), NOW()),           -- User 5 chọn: Buổi tối
+  -- Question 2 (single_choice): Thể loại sách - answers 5-8
+  (2, 1, 1, '5', NOW(), NOW()),             -- User 1 chọn: Tiểu thuyết
+  (2, 4, 1, '7', NOW(), NOW()),             -- User 4 chọn: Sách khoa học
+  (2, 5, 1, '6', NOW(), NOW()),             -- User 5 chọn: Tự truyện
+  
+  -- Survey 2: Khảo sát về sức khỏe cộng đồng (questions 3,4)
+  -- Question 3 (text): Kiểm tra sức khỏe
+  (3, 2, 2, 'Tôi kiểm tra sức khỏe định kỳ 6 tháng một lần tại bệnh viện.', NOW(), NOW()),
+  (3, 6, 2, 'Thỉnh thoảng, khoảng 1 năm 1 lần.', NOW(), NOW()),
+  -- Question 4 (multiple_choice): Thói quen tập thể dục - answers 9-12
+  (4, 2, 2, '[9,10]', NOW(), NOW()),        -- Có, rất đều đặn + Thỉnh thoảng
+  (4, 6, 2, '[11]', NOW(), NOW()),          -- Hiếm khi tập
+  
+  -- Survey 3: Khảo sát về trang web thương mại (questions 5,6)
+  -- Question 5 (single_choice): Mua sắm trực tuyến - answers 13-16
+  (5, 7, 3, '14', NOW(), NOW()),            -- Hàng tuần
+  (5, 8, 3, '15', NOW(), NOW()),            -- Hàng tháng
+  -- Question 6 (multiple_choice): Nhóm sản phẩm - answers 17-20
+  (6, 7, 3, '[17,18]', NOW(), NOW()),       -- Quần áo, Điện tử
+  (6, 8, 3, '[17,19,20]', NOW(), NOW()),    -- Quần áo, Sách, Mỹ phẩm
+  
+  -- Survey 4: Khảo sát về ứng dụng di động (questions 7,8)
+  -- Question 7 (text): Ứng dụng sử dụng nhiều nhất
+  (7, 9, 4, 'Facebook, Zalo, và TikTok là các ứng dụng tôi dùng nhiều nhất.', NOW(), NOW()),
+  (7, 10, 4, 'Spotify để nghe nhạc và YouTube để xem video.', NOW(), NOW()),
+  -- Question 8 (single_choice): Đánh giá chất lượng - answers 21-24
+  (8, 9, 4, '21', NOW(), NOW()),            -- Rất tốt
+  (8, 10, 4, '22', NOW(), NOW()),           -- Tốt
+  
+  -- Survey 5: Khảo sát về dịch vụ khách hàng (questions 9,10)
+  -- Question 9 (text): Dịch vụ cần cải thiện
+  (9, 11, 5, 'Thời gian phản hồi quá lâu, cần cải thiện tốc độ hỗ trợ.', NOW(), NOW()),
+  -- Question 10 (multiple_choice): Kênh liên hệ - answers 25-28
+  (10, 11, 5, '[25,27]', NOW(), NOW()),     -- Chat/Zalo, Điện thoại
+  (10, 12, 5, '[26,28]', NOW(), NOW()),     -- Email, Mạng xã hội
+  
+  -- Survey 6: Khảo sát về giáo dục trực tuyến (questions 11,12)
+  -- Question 11 (single_choice): Khóa học quan tâm - answers 29-32
+  (11, 13, 6, '29', NOW(), NOW()),          -- Lập trình
+  (11, 14, 6, '31', NOW(), NOW()),          -- Tiếp thị số
+  -- Question 12 (multiple_choice): Hình thức học - answers 33-36
+  (12, 13, 6, '[33,36]', NOW(), NOW()),     -- Video, Dự án thực tế
+  (12, 14, 6, '[34,35]', NOW(), NOW()),     -- Bài giảng trực tiếp, Tài liệu chữ
+  
+  -- Survey 7: Quick poll - Mức độ hài lòng (question 13)
+  -- Question 13 (single_choice) - answers 37-40
+  (13, 1, 7, '37', NOW(), NOW()),           -- Rất hài lòng
+  (13, 2, 7, '38', NOW(), NOW()),           -- Hài lòng
+  (13, 3, 7, '39', NOW(), NOW()),           -- Bình thường
+  
+  -- Survey 8: Quick poll - Cà phê (question 14)
+  -- Question 14 (single_choice) - answers 41-44
+  (14, 4, 8, '41', NOW(), NOW()),           -- Mỗi ngày
+  (14, 5, 8, '42', NOW(), NOW()),           -- 2-3 lần/tuần
+  
+  -- Survey 13: Year End Party (question 19)
+  -- Question 19 (single_choice) - answers 61-63
+  (19, 1, 13, '61', NOW(), NOW()),          -- Trong nhà
+  (19, 2, 13, '62', NOW(), NOW()),          -- Ngoài trời
+  (19, 3, 13, '63', NOW(), NOW()),          -- Resort ngoại ô
+  
+  -- Survey 14: Dark Mode feedback (question 20)
+  -- Question 20 (single_choice) - answers 64-67
+  (20, 4, 14, '64', NOW(), NOW()),          -- Rất đẹp 5/5
+  (20, 5, 14, '65', NOW(), NOW()),          -- Ổn 4/5
+  
+  -- Survey 15: Bữa trưa (question 21)
+  -- Question 21 (multiple_choice) - answers 68-72
+  (21, 6, 15, '[68,71]', NOW(), NOW()),     -- Cơm tấm, Gà rán
+  (21, 7, 15, '[69,70]', NOW(), NOW()),     -- Bún bò Huế, Pizza
+  
+  -- Survey 16: Góp ý ẩn danh (question 22)
+  -- Question 22 (text)
+  (22, 8, 16, 'Phòng họp thường xuyên bị đặt trùng lịch, gây khó khăn cho công việc.', NOW(), NOW()),
+  (22, 9, 16, 'Điều hòa trong văn phòng quá lạnh, mong được điều chỉnh nhiệt độ.', NOW(), NOW());
 

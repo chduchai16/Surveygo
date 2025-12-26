@@ -19,7 +19,7 @@ class PointTransaction
     private string $createdAt;
     private string $updatedAt;
 
-    private const ALLOWED_SOURCES = ['daily_reward', 'survey', 'manual_adjustment', 'lucky_wheel'];
+    private const ALLOWED_SOURCES = ['daily_reward', 'survey', 'manual_adjustment', 'lucky_wheel', 'referral_bonus'];
 
     public function __construct(array $attributes)
     {

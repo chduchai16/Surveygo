@@ -138,6 +138,34 @@ class ActivityLog
         return $stmt->execute([$days]);
     }
 
+    /**
+     * Lấy danh sách ID sự kiện mà user đã tham gia (dựa trên log participated_event).
+     *
+     * @return int[] mảng các event_id duy nhất
+     */
+    public static function getJoinedEventIdsForUser(int $userId): array
+    {
+        /** @var PDO $db */
+        $db = Container::get('db');
+
+        $sql = "SELECT DISTINCT entity_id
+                FROM activity_logs
+                WHERE user_id = :uid
+                  AND action = 'participated_event'
+                  AND entity_type = 'event'
+                  AND entity_id IS NOT NULL";
+
+        $stmt = $db->prepare($sql);
+        $stmt->execute([':uid' => $userId]);
+
+        $rows = $stmt->fetchAll(PDO::FETCH_COLUMN);
+        if (!$rows) {
+            return [];
+        }
+
+        return array_map('intval', $rows);
+    }
+
     private function getClientIp(): string
     {
         if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
@@ -260,4 +288,3 @@ class ActivityLog
         return $this;
     }
 }
-

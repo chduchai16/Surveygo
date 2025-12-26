@@ -17,6 +17,7 @@ class Event
     private string $trangThai;
     private int $soNguoiThamGia;
     private int $soKhaoSat;
+    private int $soLuotRutThamMoiLan;
     private ?string $diaDiem;
     private int $maNguoiTao;
     private string $createdAt;
@@ -31,7 +32,15 @@ class Event
         $this->thoiGianKetThuc = $row['thoiGianKetThuc'] ?? null;
         $this->trangThai = $row['trangThai'] ?? 'upcoming';
         $this->soNguoiThamGia = isset($row['soNguoiThamGia']) ? (int) $row['soNguoiThamGia'] : 0;
-        $this->soKhaoSat = isset($row['soKhaoSat']) ? (int) $row['soKhaoSat'] : 0;
+        // Ưu tiên trường đếm động (nếu có alias từ SQL), fallback về cột soKhaoSat
+        if (isset($row['survey_count'])) {
+            $this->soKhaoSat = (int) $row['survey_count'];
+        } elseif (isset($row['soKhaoSat'])) {
+            $this->soKhaoSat = (int) $row['soKhaoSat'];
+        } else {
+            $this->soKhaoSat = 0;
+        }
+        $this->soLuotRutThamMoiLan = isset($row['soLuotRutThamMoiLan']) ? (int) $row['soLuotRutThamMoiLan'] : 0;
         $this->diaDiem = $row['diaDiem'] ?? null;
         $this->maNguoiTao = isset($row['maNguoiTao']) ? (int) $row['maNguoiTao'] : 0;
         $this->createdAt = $row['created_at'] ?? '';
@@ -52,12 +61,14 @@ class Event
         $end = $data['thoiGianKetThuc'] ?? null;
         $trangThai = $data['trangThai'] ?? 'upcoming';
         $soNguoi = (int) ($data['soNguoiThamGia'] ?? 0);
-        $soKhaoSat = (int) ($data['soKhaoSat'] ?? 0);
+        // soKhaoSat hiện được tính động từ bảng surveys, không cần lưu tay
+        $soKhaoSat = 0;
+        $soLuotRutThamMoiLan = (int) ($data['soLuotRutThamMoiLan'] ?? 0);
         $diaDiem = $data['diaDiem'] ?? null;
         $maNguoiTao = (int) ($data['maNguoiTao'] ?? 0);
 
-        $sql = 'INSERT INTO events (maSuKien, tenSuKien, thoiGianBatDau, thoiGianKetThuc, trangThai, soNguoiThamGia, soKhaoSat, diaDiem, maNguoiTao, created_at, updated_at)
-                VALUES (:ma, :ten, :start, :end, :trangThai, :songuoi, :sokhaosat, :diadiem, :maNguoiTao, NOW(), NOW())';
+        $sql = 'INSERT INTO events (maSuKien, tenSuKien, thoiGianBatDau, thoiGianKetThuc, trangThai, soNguoiThamGia, soKhaoSat, soLuotRutThamMoiLan, diaDiem, maNguoiTao, created_at, updated_at)
+                VALUES (:ma, :ten, :start, :end, :trangThai, :songuoi, :sokhaosat, :soLuotRutThamMoiLan, :diadiem, :maNguoiTao, NOW(), NOW())';
 
         $stmt = $db->prepare($sql);
         $stmt->bindValue(':ma', $ma);
@@ -67,6 +78,7 @@ class Event
         $stmt->bindValue(':trangThai', $trangThai);
         $stmt->bindValue(':songuoi', $soNguoi, PDO::PARAM_INT);
         $stmt->bindValue(':sokhaosat', $soKhaoSat, PDO::PARAM_INT);
+        $stmt->bindValue(':soLuotRutThamMoiLan', $soLuotRutThamMoiLan, PDO::PARAM_INT);
         $stmt->bindValue(':diadiem', $diaDiem);
         $stmt->bindValue(':maNguoiTao', $maNguoiTao, PDO::PARAM_INT);
 
@@ -83,8 +95,14 @@ class Event
         /** @var PDO $db */
         $db = Container::get('db');
 
-        $stmt = $db->prepare('SELECT * FROM events WHERE id = :id LIMIT 1');
-        $stmt->execute([':id' => $id]);
+        $sql = 'SELECT e.*, 
+                       (SELECT COUNT(*) FROM surveys s WHERE s.maSuKien = e.id) AS survey_count
+                FROM events e
+                WHERE e.id = :id
+                LIMIT 1';
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
         $row = $stmt->fetch();
         return $row ? new self($row) : null;
     }
@@ -117,7 +135,13 @@ class Event
         $countStmt->execute($params);
         $total = (int) $countStmt->fetch()['total'];
 
-        $sql = "SELECT * FROM events {$whereSql} ORDER BY created_at DESC LIMIT :offset, :limit";
+        // Đếm số khảo sát gắn với mỗi sự kiện dựa trên surveys.maSuKien
+        $sql = "SELECT e.*, 
+                       (SELECT COUNT(*) FROM surveys s WHERE s.maSuKien = e.id) AS survey_count
+                FROM events e
+                {$whereSql}
+                ORDER BY e.created_at DESC
+                LIMIT :offset, :limit";
         $stmt = $db->prepare($sql);
         foreach ($params as $k => $v) {
             $stmt->bindValue($k, $v);
@@ -144,7 +168,17 @@ class Event
         /** @var PDO $db */
         $db = Container::get('db');
 
-        $sql = 'UPDATE events SET tenSuKien = :ten, thoiGianBatDau = :start, thoiGianKetThuc = :end, trangThai = :trangThai, soNguoiThamGia = :songuoi, soKhaoSat = :sokhaosat, diaDiem = :diadiem, updated_at = NOW() WHERE id = :id';
+        // soKhaoSat được tính động từ bảng surveys, không cập nhật trực tiếp nữa
+        $sql = 'UPDATE events 
+                SET tenSuKien = :ten,
+                    thoiGianBatDau = :start,
+                    thoiGianKetThuc = :end,
+                    trangThai = :trangThai,
+                    soNguoiThamGia = :songuoi,
+                    soLuotRutThamMoiLan = :soLuotRutThamMoiLan,
+                    diaDiem = :diadiem,
+                    updated_at = NOW()
+                WHERE id = :id';
 
         $stmt = $db->prepare($sql);
         $stmt->bindValue(':ten', $data['tenSuKien'] ?? $this->tenSuKien);
@@ -152,7 +186,11 @@ class Event
         $stmt->bindValue(':end', $data['thoiGianKetThuc'] ?? $this->thoiGianKetThuc);
         $stmt->bindValue(':trangThai', $data['trangThai'] ?? $this->trangThai);
         $stmt->bindValue(':songuoi', isset($data['soNguoiThamGia']) ? (int) $data['soNguoiThamGia'] : $this->soNguoiThamGia, PDO::PARAM_INT);
-        $stmt->bindValue(':sokhaosat', isset($data['soKhaoSat']) ? (int) $data['soKhaoSat'] : $this->soKhaoSat, PDO::PARAM_INT);
+        $stmt->bindValue(
+            ':soLuotRutThamMoiLan',
+            isset($data['soLuotRutThamMoiLan']) ? (int) $data['soLuotRutThamMoiLan'] : $this->soLuotRutThamMoiLan,
+            PDO::PARAM_INT
+        );
         $stmt->bindValue(':diadiem', $data['diaDiem'] ?? $this->diaDiem);
         $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
 
@@ -167,6 +205,7 @@ class Event
                 $this->trangThai = $fresh->trangThai;
                 $this->soNguoiThamGia = $fresh->soNguoiThamGia;
                 $this->soKhaoSat = $fresh->soKhaoSat;
+                $this->soLuotRutThamMoiLan = $fresh->soLuotRutThamMoiLan;
                 $this->diaDiem = $fresh->diaDiem;
                 $this->updatedAt = $fresh->updatedAt;
             }
@@ -215,6 +254,10 @@ class Event
     {
         return $this->soKhaoSat;
     }
+    public function getSoLuotRutThamMoiLan(): int
+    {
+        return $this->soLuotRutThamMoiLan;
+    }
     public function getDiaDiem(): ?string
     {
         return $this->diaDiem;
@@ -231,64 +274,5 @@ class Event
     public function getUpdatedAt(): string
     {
         return $this->updatedAt;
-    }
-
-    /**
-     * Lấy thống kê sự kiện bao gồm tổng số và tăng trưởng hàng tháng
-     * 
-     * @return array Dữ liệu thống kê bao gồm tổng số, số lượng theo tháng và phần trăm tăng trưởng
-     */
-    public static function getEventStatistics(): array
-    {
-        /** @var PDO $db */
-        $db = Container::get('db');
-
-        // Lấy tổng số sự kiện
-        $totalStmt = $db->query('SELECT COUNT(*) as total FROM events');
-        $totalEvents = (int) $totalStmt->fetch()['total'];
-
-        // Lấy khoảng thời gian của tháng hiện tại
-        $currentMonthStart = date('Y-m-01 00:00:00');
-        $currentMonthEnd = date('Y-m-t 23:59:59');
-
-        // Lấy khoảng thời gian của tháng trước
-        $previousMonthStart = date('Y-m-01 00:00:00', strtotime('first day of last month'));
-        $previousMonthEnd = date('Y-m-t 23:59:59', strtotime('last day of last month'));
-
-        // Đếm số sự kiện mới trong tháng hiện tại
-        $currentMonthStmt = $db->prepare(
-            'SELECT COUNT(*) as count FROM events WHERE created_at >= :start AND created_at <= :end'
-        );
-        $currentMonthStmt->execute([
-            ':start' => $currentMonthStart,
-            ':end' => $currentMonthEnd,
-        ]);
-        $newEventsThisMonth = (int) $currentMonthStmt->fetch()['count'];
-
-        // Đếm số sự kiện mới trong tháng trước
-        $previousMonthStmt = $db->prepare(
-            'SELECT COUNT(*) as count FROM events WHERE created_at >= :start AND created_at <= :end'
-        );
-        $previousMonthStmt->execute([
-            ':start' => $previousMonthStart,
-            ':end' => $previousMonthEnd,
-        ]);
-        $newEventsPreviousMonth = (int) $previousMonthStmt->fetch()['count'];
-
-        // Tính phần trăm tăng trưởng hàng tháng
-        $growthPercentage = 0.0;
-        if ($newEventsPreviousMonth > 0) {
-            $growthPercentage = (($newEventsThisMonth - $newEventsPreviousMonth) / $newEventsPreviousMonth) * 100;
-        } elseif ($newEventsThisMonth > 0) {
-            $growthPercentage = 100.0; // Nếu không có sự kiện tháng trước nhưng có sự kiện tháng này
-        }
-
-        return [
-            'total_events' => $totalEvents,
-            'new_events_this_month' => $newEventsThisMonth,
-            'new_events_previous_month' => $newEventsPreviousMonth,
-            'growth_percentage' => round($growthPercentage, 1),
-            'is_growth_positive' => $growthPercentage >= 0,
-        ];
     }
 }

@@ -17,15 +17,15 @@ use App\Core\Response;
 use App\Core\Router;
 use App\Middlewares\AuthMiddleware;
 use App\Middlewares\RoleMiddleware;
-use App\Middlewares\GuestMiddleware;
-use App\Helpers\ActivityLogHelper;
+use App\Controllers\BankController;
+use App\Controllers\PremiumController;
 
 $router = new Router();
 
 // Authentication routes - públicas
 $router->post('/api/register', [App\Controllers\AuthController::class, 'register']);
 $router->post('/api/login', [App\Controllers\AuthController::class, 'login']);
-$router->post('/api/logout', function(Request $request) {
+$router->post('/api/logout', function (Request $request) {
     session_destroy();
     return Response::json([
         'error' => false,
@@ -61,10 +61,13 @@ $router->get('/admin', [AdminController::class, 'dashboard'], [new RoleMiddlewar
 $router->get('/admin/dashboard', [AdminController::class, 'dashboard'], [new RoleMiddleware(['admin'])]);
 $router->get('/admin/surveys', [AdminController::class, 'surveys'], [new RoleMiddleware(['admin'])]);
 $router->get('/admin/surveys/view', [AdminController::class, 'surveyView'], [new RoleMiddleware(['admin'])]);
+$router->get('/admin/surveys/question-responses', [AdminController::class, 'questionResponses'], [new RoleMiddleware(['admin'])]);
 $router->get('/admin/users', [AdminController::class, 'users'], [new RoleMiddleware(['admin'])]);
+
 $router->get('/admin/questions', [AdminController::class, 'questions'], [new RoleMiddleware(['admin'])]);
 $router->get('/admin/reports', [AdminController::class, 'reports'], [new RoleMiddleware(['admin'])]);
 $router->get('/admin/events', [AdminController::class, 'events'], [new RoleMiddleware(['admin'])]);
+$router->get('/admin/events/view', [AdminController::class, 'eventView'], [new RoleMiddleware(['admin'])]);
 $router->get('/admin/settings', [AdminController::class, 'settings'], [new RoleMiddleware(['admin'])]);
 $router->get('/admin/feedbacks', [AdminController::class, 'feedbacks'], [new RoleMiddleware(['admin'])]);
 $router->get('/admin/contact-messages', [AdminController::class, 'contactMessages'], [new RoleMiddleware(['admin'])]);
@@ -88,9 +91,11 @@ $router->post('/api/surveys/publish', [App\Controllers\SurveyController::class, 
 $router->post('/api/surveys/approve', [App\Controllers\SurveyController::class, 'approve'], [new RoleMiddleware(['admin', 'moderator'])]);
 $router->post('/api/surveys/attach-question', [App\Controllers\SurveyController::class, 'attachQuestion'], [new RoleMiddleware(['admin', 'moderator'])]);
 $router->post('/api/surveys/detach-question', [App\Controllers\SurveyController::class, 'detachQuestion'], [new RoleMiddleware(['admin', 'moderator'])]);
+$router->get('/api/surveys/question-responses', [App\Controllers\SurveyController::class, 'getQuestionResponses'], [new RoleMiddleware(['admin'])]); // Lấy câu trả lời của câu hỏi
 $router->post('/api/surveys/{id}/submit', [App\Controllers\SurveyController::class, 'submit'], [new AuthMiddleware()]); // Submit khảo sát
 $router->get('/api/surveys/{id}/check-submission', [App\Controllers\SurveyController::class, 'checkSubmission'], [new AuthMiddleware()]); // Kiểm tra đã submit chưa
 $router->get('/api/surveys/hourly-stats', [App\Controllers\SurveyController::class, 'getHourlyStats'], [new AuthMiddleware()]); // Lấy thống kê theo giờ
+
 
 // Question API routes
 $router->get('/api/questions/{id}/answers', [App\Controllers\QuestionController::class, 'getAnswersForQuestion']);
@@ -109,6 +114,9 @@ $router->delete('/api/contact-messages', [App\Controllers\ContactController::cla
 $router->get('/api/events', [App\Controllers\EventController::class, 'index']);
 $router->post('/api/events', [App\Controllers\EventController::class, 'create'], [new RoleMiddleware(['admin', 'moderator'])]);
 $router->post('/api/events/{id}/join', [App\Controllers\EventController::class, 'join'], [new AuthMiddleware()]);
+$router->get('/api/events/show', [App\Controllers\EventController::class, 'show']);
+$router->put('/api/events', [App\Controllers\EventController::class, 'update']);
+$router->delete('/api/events', [App\Controllers\EventController::class, 'delete']);
 $router->post('/api/events/lucky-wheel/spin', [App\Controllers\EventController::class, 'spinLuckyWheel']);
 $router->get('/api/users/points', [App\Controllers\UserController::class, 'getPoints']);
 
@@ -191,6 +199,8 @@ $router->post('/api/redemptions/create', [RewardRedemptionController::class, 'cr
 // Reward Redemptions API (Admin)
 $router->get('/api/admin/redemptions', [RewardRedemptionController::class, 'apiList'], [new RoleMiddleware(['admin'])]);
 $router->post('/api/admin/redemptions/update-status', [RewardRedemptionController::class, 'updateStatus'], [new RoleMiddleware(['admin'])]);
+$router->post('/api/admin/redemptions/save-account-name', [RewardRedemptionController::class, 'saveAccountName'], [new RoleMiddleware(['admin'])]);
+$router->post('/api/admin/redemptions/save-transfer-status', [RewardRedemptionController::class, 'saveTransferStatus'], [new RoleMiddleware(['admin'])]);
 $router->post('/api/admin/redemptions/delete', [RewardRedemptionController::class, 'delete'], [new RoleMiddleware(['admin'])]);
 $router->get('/api/admin/redemptions/stats', [RewardRedemptionController::class, 'stats'], [new RoleMiddleware(['admin'])]);
 
@@ -203,12 +213,21 @@ $router->get('/api/admin/activity-logs/action/:action', [ActivityLogController::
 $router->delete('/api/admin/activity-logs/cleanup', [ActivityLogController::class, 'cleanup'], [new RoleMiddleware(['admin'])]);
 $router->get('/admin/activity-logs/view', [ActivityLogController::class, 'viewPage'], [new RoleMiddleware(['admin'])]);
 
+// Bank Verification API - solo para admin
+$router->post('/api/bank/verify-account', [BankController::class, 'verifyAccount'], [new RoleMiddleware(['admin'])]);
+$router->post('/api/bank/submit-transfer', [BankController::class, 'submitTransfer'], [new RoleMiddleware(['admin'])]);
+
 // Admin Dashboard Stats API
 $router->get('/api/admin/top-surveys', [AdminController::class, 'getTopSurveys'], [new RoleMiddleware(['admin'])]);
-$router->get('/api/admin/user-stats', [AdminController::class, 'getUserStats'], [new RoleMiddleware(['admin'])]);
+$router->get('/api/admin/user-stasts', [AdminController::class, 'getUserStats'], [new RoleMiddleware(['admin'])]);
 $router->get('/api/admin/survey-stats', [AdminController::class, 'getSurveyStats'], [new RoleMiddleware(['admin'])]);
 $router->get('/api/admin/response-stats', [AdminController::class, 'getResponseStats'], [new RoleMiddleware(['admin'])]);
 $router->get('/api/admin/event-stats', [AdminController::class, 'getEventStats'], [new RoleMiddleware(['admin'])]);
+
+// Premium API routes
+$router->post('/api/premium/create-transaction', [PremiumController::class, 'createTransaction'], [new AuthMiddleware()]);
+$router->get('/api/premium/check-payment', [PremiumController::class, 'checkPayment'], [new AuthMiddleware()]);
+$router->get('/api/premium/status', [PremiumController::class, 'getStatus'], [new AuthMiddleware()]);
 
 $request = Request::capture();
 

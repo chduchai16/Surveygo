@@ -97,12 +97,22 @@ class Survey
             $params[':isQuickPoll'] = intval($filters['isQuickPoll']);
         }
 
+        if (!empty($filters['loaiKhaoSat'])) {
+            $where[] = "s.loaiKhaoSat = :loaiKhaoSat";
+            $params[':loaiKhaoSat'] = $filters['loaiKhaoSat'];
+        }
+
+        if (!empty($filters['maSuKien'])) {
+            $where[] = "maSuKien = :maSuKien";
+            $params[':maSuKien'] = (int) $filters['maSuKien'];
+        }
+
         // Handle isCompleted filter
         $needsSubmissionsJoin = false;
         if (isset($filters['isCompleted']) && isset($filters['user_id'])) {
             $needsSubmissionsJoin = true;
             $params[':user_id'] = (int) $filters['user_id'];
-            
+
             if ($filters['isCompleted']) {
                 // Show only completed: must have a submission for this user
                 $where[] = "ss.maNguoiDung IS NOT NULL";
@@ -278,8 +288,9 @@ class Survey
         $isQuickPoll = isset($data['isQuickPoll']) ? (bool) $data['isQuickPoll'] : $this->isQuickPoll;
         $trangThai = $data['trangThai'] ?? $this->trangThai;
         $diemThuong = $data['diemThuong'] ?? $this->diemThuong;
-        $danhMuc = isset($data['danhMuc']) ? (int)$data['danhMuc'] : $this->danhMuc;
-        $maSuKien = $data['maSuKien'] ?? $this->maSuKien;
+        $danhMuc = isset($data['danhMuc']) ? (int) $data['danhMuc'] : $this->danhMuc;
+        // Allow setting maSuKien to null explicitly (for detaching from event)
+        $maSuKien = array_key_exists('maSuKien', $data) ? $data['maSuKien'] : $this->maSuKien;
 
         $statement = $db->prepare(
             'UPDATE surveys SET tieuDe = :tieu, moTa = :mo, loaiKhaoSat = :loai, thoiLuongDuTinh = :thoiluong, isQuickPoll = :isquickpoll,
@@ -408,32 +419,32 @@ class Survey
     {
         return $this->id;
     }
-    
+
     public function getMaKhaoSat(): string
     {
         return $this->maKhaoSat;
     }
-    
+
     public function getTieuDe(): string
     {
         return $this->tieuDe;
     }
-    
+
     public function getMoTa(): ?string
     {
         return $this->moTa;
     }
-    
+
     public function getIsQuickPoll(): bool
     {
         return $this->isQuickPoll;
     }
-    
+
     public function getMaNguoiTao(): int
     {
         return $this->maNguoiTao;
     }
-    
+
     public function getTrangThai(): string
     {
         return $this->trangThai;
@@ -504,17 +515,17 @@ class Survey
     }
 
     /**
- * Lấy khảo sát hàng đầu theo số lượng phản hồi với đánh giá trung bình
- * 
- * @param int $limit Số lượng khảo sát cần trả về
- * @return array Mảng các khảo sát với response_count và avg_rating
- */
-public static function getTopSurveysByResponses(int $limit = 5): array
-{
-    /** @var PDO $db */
-    $db = Container::get('db');
+     * Lấy khảo sát hàng đầu theo số lượng phản hồi với đánh giá trung bình
+     * 
+     * @param int $limit Số lượng khảo sát cần trả về
+     * @return array Mảng các khảo sát với response_count và avg_rating
+     */
+    public static function getTopSurveysByResponses(int $limit = 5): array
+    {
+        /** @var PDO $db */
+        $db = Container::get('db');
 
-    $sql = "
+        $sql = "
         SELECT 
             s.id,
             s.maKhaoSat,
@@ -532,23 +543,23 @@ public static function getTopSurveysByResponses(int $limit = 5): array
         LIMIT :limit
     ";
 
-    $stmt = $db->prepare($sql);
-    $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
-    $stmt->execute();
+        $stmt = $db->prepare($sql);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
 
-    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-    return array_map(function($row) {
-        return [
-            'id' => (int) $row['id'],
-            'maKhaoSat' => $row['maKhaoSat'],
-            'tieuDe' => $row['tieuDe'],
-            'moTa' => $row['moTa'],
-            'trangThai' => $row['trangThai'],
-            'created_at' => $row['created_at'],
-            'response_count' => (int) $row['response_count'],
-            'avg_rating' => $row['avg_rating'] ? round((float) $row['avg_rating'], 1) : null,
-        ];
-    }, $results);
-}
+        return array_map(function ($row) {
+            return [
+                'id' => (int) $row['id'],
+                'maKhaoSat' => $row['maKhaoSat'],
+                'tieuDe' => $row['tieuDe'],
+                'moTa' => $row['moTa'],
+                'trangThai' => $row['trangThai'],
+                'created_at' => $row['created_at'],
+                'response_count' => (int) $row['response_count'],
+                'avg_rating' => $row['avg_rating'] ? round((float) $row['avg_rating'], 1) : null,
+            ];
+        }, $results);
+    }
 }

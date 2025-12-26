@@ -10,6 +10,7 @@ use App\Controllers\DailyRewardController;
 use App\Controllers\RewardController;
 use App\Controllers\RewardRedemptionController;
 use App\Controllers\UserPointController;
+use App\Controllers\InviteController;
 use App\Controllers\ActivityLogController;
 use App\Core\Request;
 use App\Core\Response;
@@ -176,6 +177,11 @@ $router->get('/admin/rewards/stats', [RewardController::class, 'adminStats'], [n
 $router->get('/api/user-points/balance', [UserPointController::class, 'getBalance'], [new AuthMiddleware()]);
 $router->get('/api/user-points/check', [UserPointController::class, 'hasEnoughPoints'], [new AuthMiddleware()]);
 $router->get('/api/user-points/hourly-stats', [UserPointController::class, 'getHourlyStats'], [new AuthMiddleware()]);
+
+// Invite API routes
+$router->get('/api/invites/my-invite', [InviteController::class, 'getMyInvite']);
+$router->get('/api/invites/validate', [InviteController::class, 'validateCode']);
+$router->get('/api/invites/stats', [InviteController::class, 'getStats']);
 
 // Reward Redemptions API (Client)
 $router->get('/api/redemptions/my', [RewardRedemptionController::class, 'myRedemptions'], [new AuthMiddleware()]);

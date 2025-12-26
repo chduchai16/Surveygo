@@ -191,6 +191,78 @@ class UserController extends Controller
         ]);
     }
 
+    public function create(Request $request)
+    {
+        $name = trim($request->input('name') ?? '');
+        $email = trim($request->input('email') ?? '');
+        $password = $request->input('password') ?? '';
+        $phone = trim($request->input('phone') ?? '');
+        $gender = $request->input('gender') ?? 'other';
+        $role = $request->input('role') ?? 'user';
+
+        // Validation
+        if (empty($name) || empty($email) || empty($password)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Tên, Email và Mật khẩu là bắt buộc'
+            ], 400);
+        }
+
+        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Định dạng email không hợp lệ'
+            ], 400);
+        }
+
+        if (strlen($password) < 6) {
+             return $this->json([
+                'error' => true,
+                'message' => 'Mật khẩu phải có ít nhất 6 ký tự'
+            ], 400);
+        }
+
+        if (User::findByEmail($email)) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Email này đã được sử dụng'
+            ], 400);
+        }
+
+        try {
+            $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+            
+            $user = User::create([
+                'name' => $name,
+                'email' => $email,
+                'password' => $hashedPassword,
+                'phone' => $phone,
+                'gender' => $gender,
+                'role' => $role,
+                'avatar' => '' 
+            ]);
+
+            if ($user) {
+                return $this->json([
+                    'error' => false,
+                    'message' => 'Tạo người dùng thành công',
+                    'data' => $user->toArray()
+                ]);
+            } else {
+                return $this->json([
+                    'error' => true,
+                    'message' => 'Lỗi khi tạo người dùng'
+                ], 500);
+            }
+
+        } catch (\Exception $e) {
+            return $this->json([
+                'error' => true,
+                'message' => 'Lỗi hệ thống: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
     public function update(Request $request)
     {
         $userId = (int) ($request->input('id') ?? 0);
@@ -245,6 +317,29 @@ class UserController extends Controller
         }
         
         $result = $user->update();
+        
+        // Cập nhật điểm số và lượt quay (nếu có gửi lên)
+        $points = $request->input('points');
+        $spins = $request->input('spins');
+
+        if ($points !== null || $spins !== null) {
+            $userPoint = \App\Models\UserPoint::getOrCreate($userId);
+            
+            if ($points !== null) {
+                $newBalance = (int)$points;
+                // Nếu điểm mới > tổng tích lũy hiện tại -> cập nhật luôn tổng tích lũy
+                if ($newBalance > $userPoint->getTotalEarned()) {
+                    $userPoint->setTotalEarned($newBalance);
+                }
+                $userPoint->setBalance($newBalance);
+            }
+            
+            if ($spins !== null) {
+                $userPoint->setLuckyWheelSpins((int)$spins);
+            }
+            
+            $userPoint->update();
+        }
         
         if ($result) {
             return $this->json([

@@ -19,4 +19,5 @@ return [
         'charset' => 'utf8mb4',
     ],
     'purchase_url' => 'http://localhost:8000',
+    'premium_check_url' => 'http://localhost:8002',
 ];

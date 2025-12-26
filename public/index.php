@@ -18,6 +18,7 @@ use App\Core\Router;
 use App\Middlewares\AuthMiddleware;
 use App\Middlewares\RoleMiddleware;
 use App\Controllers\BankController;
+use App\Controllers\PremiumController;
 
 $router = new Router();
 
@@ -222,6 +223,11 @@ $router->get('/api/admin/user-stasts', [AdminController::class, 'getUserStats'],
 $router->get('/api/admin/survey-stats', [AdminController::class, 'getSurveyStats'], [new RoleMiddleware(['admin'])]);
 $router->get('/api/admin/response-stats', [AdminController::class, 'getResponseStats'], [new RoleMiddleware(['admin'])]);
 $router->get('/api/admin/event-stats', [AdminController::class, 'getEventStats'], [new RoleMiddleware(['admin'])]);
+
+// Premium API routes
+$router->post('/api/premium/create-transaction', [PremiumController::class, 'createTransaction'], [new AuthMiddleware()]);
+$router->get('/api/premium/check-payment', [PremiumController::class, 'checkPayment'], [new AuthMiddleware()]);
+$router->get('/api/premium/status', [PremiumController::class, 'getStatus'], [new AuthMiddleware()]);
 
 $request = Request::capture();
 

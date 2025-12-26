@@ -79,10 +79,16 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end">
                         <li><a class="dropdown-item" href="<?= $url($urls, 'home', '/home') ?>">Trang chủ</a></li>
-                        <li><a class="dropdown-item" href="<?= $url($urls, 'profile', '/profile') ?>">Hồ sơ người dùng</a>
+                        <li><a class="dropdown-item" href="<?= $url($urls, 'profile', '/profile') ?>">Hồ sơ người
+                                dùng</a>
                         </li>
                         <li><a class="dropdown-item" href="<?= $url($urls, 'daily-rewards', '/daily-rewards') ?>">Điểm
                                 danh</a></li>
+                        <li id="nav-premium-item">
+                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#premiumModal">
+                                <i class="fas fa-crown text-warning me-1"></i>Nâng cấp Premium
+                            </a>
+                        </li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
@@ -116,7 +122,16 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
                 // User is logged in
                 if (userDropdown) userDropdown.style.display = 'block';
                 if (registerBtn) registerBtn.style.display = 'none';
-                if (navUsername) navUsername.textContent = user.name || user.email || 'Tài khoản';
+
+                // Hiển thị tên user
+                if (navUsername) {
+                    navUsername.textContent = user.name || user.email || 'Tài khoản';
+                }
+
+                // Check premium status từ API và cập nhật badge
+                if (typeof window.checkPremiumStatus === 'function') {
+                    window.checkPremiumStatus();
+                }
                 // Khi đăng nhập, logo đi tới /home
                 if (navBrand) navBrand.href = window.location.origin + '/home';
                 // hiển thị item quản lý nếu là admin 
@@ -176,3 +191,8 @@ $url = static function (array $urls, string $key, string $fallbackPath = '/') us
         }
     });
 </script>
+
+<?php
+// Include Premium Modal Component
+include __DIR__ . '/_premium_modal.php';
+?>
